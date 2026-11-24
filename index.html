@@ -60,7 +60,7 @@
                     <div class="w-6 h-6 rounded-full bg-lgaGold text-lgaNavy font-crest font-bold text-xs flex items-center justify-center" id="header-avatar">BB</div>
                     <div class="hidden sm:block">
                         <div class="text-xs font-bold text-pureWhite leading-none" id="header-player-name">Ben Burke</div>
-                        <div class="text-[10px] text-lgaGold leading-tight" id="header-player-meta">President • GA 18.4</div>
+                        <div class="text-[10px] text-lgaGold leading-tight" id="header-player-meta">GA 18.4</div>
                     </div>
                     <i class="fa-solid fa-chevron-down text-[10px] text-lgaGold ml-1"></i>
                 </button>
@@ -115,7 +115,7 @@
                         <div>
                             <span class="text-[11px] font-crest uppercase tracking-widest text-lgaGold font-bold">Official WHS Handicap Index</span>
                             <h2 class="font-crest text-2xl sm:text-3xl font-extrabold mt-1" id="dash-player-title">Ben Burke</h2>
-                            <p class="text-xs text-pureWhite/70 mt-0.5" id="dash-player-subtitle">President • Best 8 of Last 20 Differentials</p>
+                            <p class="text-xs text-pureWhite/70 mt-0.5" id="dash-player-subtitle">Best 8 of Last 20 Differentials</p>
                         </div>
                         <div class="text-right bg-pureWhite/10 border border-lgaGold/40 px-4 py-3 rounded-2xl">
                             <div class="text-[10px] uppercase tracking-wider text-lgaGold font-bold">GA Index</div>
@@ -399,7 +399,7 @@
                     <div class="text-[10px] font-crest uppercase tracking-widest text-lgaGold font-bold">Official Playing Membership</div>
                     <h2 class="font-crest text-lg font-bold text-lgaNavy uppercase">LGA Lineup &amp; Handicap Indexes</h2>
                 </div>
-                <input id="roster-search" type="text" oninput="renderLgaRosterTab()" placeholder="Filter member or role..." class="p-2.5 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-xs font-semibold text-lgaNavy w-full sm:w-60">
+                <input id="roster-search" type="text" oninput="renderLgaRosterTab()" placeholder="Filter member..." class="p-2.5 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-xs font-semibold text-lgaNavy w-full sm:w-60">
             </div>
             <div id="roster-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </section>
@@ -568,35 +568,35 @@
             COURSES: 'lga_golf_courses_v1',
             ROUNDS: 'lga_golf_rounds_v1',
             PROFILE: 'lga_golf_profile_v1',
-            HISTORY: 'lga_golf_history_v1',
+            HISTORY: 'lga_golf_history_v3',
             ADMIN_PIN: 'lga_golf_admin_pin_v1'
         };
 
         const OFFICIAL_LGA_ROSTER = [
+            { id: 'alex-kostov', name: 'Alex Kostov', role: 'Tour Member', baseHcp: 24.0, titles: 'Tour Squad' },
+            { id: 'andrew-dorrington', name: 'Andrew Dorrington', role: 'Tour Veteran', baseHcp: 24.0, titles: 'Consistent Finalist' },
             { id: 'ben-burke', name: 'Ben Burke', role: 'President', baseHcp: 18.4, titles: '2016, 2020, 2024 Champion' },
             { id: 'ben-cohen', name: 'Ben Cohen', role: 'Founding Legend', baseHcp: 16.2, titles: '2018 & 2019 Champion' },
-            { id: 'james-patrick', name: 'James Patrick', role: 'Reigning Champion', baseHcp: 21.5, titles: '2022= & 2025 Champion' },
-            { id: 'craig-tubb', name: 'Craig (Tubb)', role: 'Founding Legend', baseHcp: 17.8, titles: '2021 Champion' },
-            { id: 'stowey', name: 'Stowey', role: 'Inaugural Champion', baseHcp: 19.6, titles: '2015 Inaugural Champion' },
-            { id: 'dylan-willcock', name: 'Dylan Willcock', role: 'Founding Legend', baseHcp: 20.1, titles: '2022= & 2023 Champion' },
+            { id: 'ben-lenz', name: 'Ben Lenz', role: 'Tour Member', baseHcp: 24.0, titles: 'Tour Squad' },
+            { id: 'craig-tubb', name: 'Craig Tubb', role: 'Founding Legend', baseHcp: 17.8, titles: '2021 Champion' },
+            { id: 'daniel-bennets', name: 'Daniel Bennets', role: 'Tour Member', baseHcp: 24.0, titles: 'Tour Squad' },
+            { id: 'dave-oconnor', name: "Dave O'Connor", role: 'Tour Member', baseHcp: 21.0, titles: '2024 Top-10' },
             { id: 'david-oconnor', name: "David O'Connor", role: 'Founding Legend', baseHcp: 22.0, titles: '2017 Stroke Champion' },
-            { id: 'rob', name: 'Rob', role: 'Tour Member', baseHcp: 24.5, titles: 'Tour Contender' },
-            { id: 'jon', name: 'Jon', role: 'Tour Veteran', baseHcp: 23.4, titles: '2024 Podium Finisher' },
-            { id: 'doz', name: 'Doz', role: 'Tour Veteran', baseHcp: 24.0, titles: 'Consistent Finalist' },
+            { id: 'dylan-willcock', name: 'Dylan Willcock', role: 'Founding Legend', baseHcp: 20.1, titles: '2022= & 2023 Champion' },
             { id: 'frederico', name: 'Frederico', role: 'Tour Member', baseHcp: 26.8, titles: '2025 Debutant' },
-            { id: 'jason', name: 'Jason', role: 'Tour Member', baseHcp: 18.9, titles: '2023 Podium Finisher' },
-            { id: 'simon-willcock', name: 'Simon Willcock', role: 'Tour Veteran', baseHcp: 22.7, titles: 'Multi-Year Finalist' },
-            { id: 'dave', name: 'Dave', role: 'Tour Member', baseHcp: 21.0, titles: '2024 Top-10' },
+            { id: 'james-patrick', name: 'James Patrick', role: 'Reigning Champion', baseHcp: 21.5, titles: '2022= & 2025 Champion' },
+            { id: 'jason-daye', name: 'Jason Daye', role: 'Tour Member', baseHcp: 18.9, titles: '2023 Podium Finisher' },
+            { id: 'jon-dardaganis', name: 'Jon Dardaganis', role: 'Tour Veteran', baseHcp: 23.4, titles: '2024 Podium Finisher' },
+            { id: 'michael-stowe', name: 'Michael Stowe', role: 'Inaugural Champion', baseHcp: 19.6, titles: '2015 Inaugural Champion' },
             { id: 'nigel-willcock', name: 'Nigel Willcock', role: 'Tour Member', baseHcp: 28.4, titles: 'Senior Tour Member' },
-            { id: 'andrew-dorrington', name: 'Andrew Dorrington', role: 'Alumni Member', baseHcp: 27.0, titles: '2018-19 Contender' },
             { id: 'oscar-kus', name: 'Oscar Kus', role: 'Alumni Member', baseHcp: 31.2, titles: '2018-19 Contender' },
-            { id: 'alex-kostov', name: 'Alex Kostov', role: 'Tour Member', baseHcp: 24.0, titles: 'Tour Squad' }
+            { id: 'rob-rosengarten', name: 'Rob Rosengarten', role: 'Tour Member', baseHcp: 24.5, titles: 'Tour Contender' },
+            { id: 'simon-willcock', name: 'Simon Willcock', role: 'Tour Veteran', baseHcp: 22.7, titles: 'Multi-Year Finalist' }
         ];
 
         const DEFAULT_PROFILE = {
             memberId: 'ben-burke',
             name: 'Ben Burke',
-            role: 'President',
             baseHcp: 18.4
         };
 
@@ -660,54 +660,55 @@
         const HISTORY_YEARS = ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'];
 
         const DEFAULT_HISTORY_MATRIX = [
-            { player: 'James', scores: { '2017': '7 | 202 stk', '2018': '4 | 57 pts', '2020': '3 | 64 pts', '2021': '4 | 65 pts', '2022': '1= | 60 pts', '2023': '10 | 44 pts', '2024': '6 | 63 pts', '2025': '1 | 65 pts' } },
-            { player: 'Ben Burke (Pres)', scores: { '2016': '1', '2017': '4 | 153 stk', '2018': '2 | 66 pts', '2020': '1 | 77 pts', '2021': '5 | 50 pts', '2022': '4 | 51 pts', '2023': '5= | 51 pts', '2024': '1 | 73 pts', '2025': '7 | 37 pts' } },
+            { player: 'Alex Kostov', scores: {} },
+            { player: 'Andrew Dorrington', scores: { '2018': '7 | 50 pts', '2020': '7 | 41 pts', '2021': '7 | 21 pts', '2022': '5= | 45 pts', '2023': '8= | 46 pts', '2025': '6 | 48 pts' } },
+            { player: 'Ben Burke', scores: { '2016': '1', '2017': '4 | 153 stk', '2018': '2 | 66 pts', '2020': '1 | 77 pts', '2021': '5 | 50 pts', '2022': '4 | 51 pts', '2023': '5= | 51 pts', '2024': '1 | 73 pts', '2025': '7 | 37 pts' } },
             { player: 'Ben Cohen', scores: { '2017': '3 | 152 stk', '2018': '1 | 69 pts', '2020': '5 | 53 pts', '2021': '3 | 69 pts', '2022': '3 | 57 pts', '2023': '2 | 66 pts', '2024': '2 | 72 pts', '2025': '4 | 55 pts' } },
-            { player: 'Craig (Tubb)', scores: { '2017': '6 | 161 stk', '2018': '5= | 52 pts', '2020': '4 | 58 pts', '2021': '1 | 71 pts', '2022': '5= | 45 pts', '2023': '7 | 50 pts', '2024': '8 | 61 pts', '2025': '2 | 60 pts' } },
-            { player: 'Stowey', scores: { '2015': '1', '2017': '5 | 156 stk', '2019': 'DNP', '2020': '2 | 69 pts', '2021': 'DNP', '2022': '7 | 41 pts', '2023': '4 | 62 pts', '2024': '4 | 67 pts', '2025': '5 | 49 pts' } },
-            { player: 'Dylan', scores: { '2017': '2 | 150 stk', '2018': '3 | 59 pts', '2020': '6 | 52 pts', '2021': '2 | 70 pts', '2022': '1= | 60 pts', '2023': '1 | 68 pts', '2024': '10 | 40 pts', '2025': '3 | 59 pts' } },
+            { player: 'Ben Lenz', scores: {} },
+            { player: 'Craig Tubb', scores: { '2017': '6 | 161 stk', '2018': '5= | 52 pts', '2020': '4 | 58 pts', '2021': '1 | 71 pts', '2022': '5= | 45 pts', '2023': '7 | 50 pts', '2024': '8 | 61 pts', '2025': '2 | 60 pts' } },
+            { player: 'Daniel Bennets', scores: {} },
+            { player: "Dave O'Connor", scores: { '2024': '7 | 62 pts' } },
             { player: "David O'Connor", scores: { '2017': '1 | 149 stk', '2018': '8 | 39 pts' } },
-            { player: 'Rob', scores: { '2025': '8 | 32 pts' } },
-            { player: 'Jon', scores: { '2020': '8 | 35 pts', '2021': '6 | 39 pts', '2022': '8 | 30 pts', '2023': '8= | 46 pts', '2024': '3 | 69 pts', '2025': '9= | 27 pts' } },
-            { player: 'Doz', scores: { '2020': '7 | 41 pts', '2021': '7 | 21 pts', '2022': '5= | 45 pts', '2023': '8= | 46 pts', '2025': '6 | 48 pts' } },
+            { player: 'Dylan Willcock', scores: { '2017': '2 | 150 stk', '2018': '3 | 59 pts', '2020': '6 | 52 pts', '2021': '2 | 70 pts', '2022': '1= | 60 pts', '2023': '1 | 68 pts', '2024': '10 | 40 pts', '2025': '3 | 59 pts' } },
             { player: 'Frederico', scores: { '2025': '9= | 27 pts' } },
-            { player: 'Jason', scores: { '2023': '3 | 63 pts', '2024': '9 | 57 pts' } },
-            { player: 'Simon', scores: { '2018': '5= | 52 pts', '2023': '5= | 51 pts', '2024': '5 | 65 pts' } },
-            { player: 'Dave', scores: { '2024': '7 | 62 pts' } },
+            { player: 'James Patrick', scores: { '2017': '7 | 202 stk', '2018': '4 | 57 pts', '2020': '3 | 64 pts', '2021': '4 | 65 pts', '2022': '1= | 60 pts', '2023': '10 | 44 pts', '2024': '6 | 63 pts', '2025': '1 | 65 pts' } },
+            { player: 'Jason Daye', scores: { '2023': '3 | 63 pts', '2024': '9 | 57 pts' } },
+            { player: 'Jon Dardaganis', scores: { '2020': '8 | 35 pts', '2021': '6 | 39 pts', '2022': '8 | 30 pts', '2023': '8= | 46 pts', '2024': '3 | 69 pts', '2025': '9= | 27 pts' } },
+            { player: 'Michael Stowe', scores: { '2015': '1', '2017': '5 | 156 stk', '2019': 'DNP', '2020': '2 | 69 pts', '2021': 'DNP', '2022': '7 | 41 pts', '2023': '4 | 62 pts', '2024': '4 | 67 pts', '2025': '5 | 49 pts' } },
             { player: 'Nigel Willcock', scores: { '2023': '11 | 21 pts', '2024': '11 | 21 pts' } },
-            { player: 'Andrew Dorrington', scores: { '2018': '7 | 50 pts' } },
             { player: 'Oscar Kus', scores: { '2018': '9 | 28 pts' } },
-            { player: 'Alex Kostov', scores: {} }
+            { player: 'Rob Rosengarten', scores: { '2025': '8 | 32 pts' } },
+            { player: 'Simon Willcock', scores: { '2018': '5= | 52 pts', '2023': '5= | 51 pts', '2024': '5 | 65 pts' } }
         ];
 
         const CHAMPIONSHIP_2019_FIELD = [
             { rank: 1, player: 'Ben Cohen', matrixName: 'Ben Cohen', hcp: -17, rd1: 35, rd2: 34, total: 69 },
-            { rank: 2, player: 'Ben Burke', matrixName: 'Ben Burke (Pres)', hcp: -21, rd1: 37, rd2: 29, total: 66 },
-            { rank: 3, player: 'Dylan Willcock', matrixName: 'Dylan', hcp: -23, rd1: 29, rd2: 30, total: 59 },
-            { rank: 4, player: 'James Patrick', matrixName: 'James', hcp: -36, rd1: 30, rd2: 27, total: 57 },
-            { rank: 5, player: 'Craig Tubb', matrixName: 'Craig (Tubb)', hcp: -18, rd1: 27, rd2: 25, total: 52 },
+            { rank: 2, player: 'Ben Burke', matrixName: 'Ben Burke', hcp: -21, rd1: 37, rd2: 29, total: 66 },
+            { rank: 3, player: 'Dylan Willcock', matrixName: 'Dylan Willcock', hcp: -23, rd1: 29, rd2: 30, total: 59 },
+            { rank: 4, player: 'James Patrick', matrixName: 'James Patrick', hcp: -36, rd1: 30, rd2: 27, total: 57 },
+            { rank: 5, player: 'Craig Tubb', matrixName: 'Craig Tubb', hcp: -18, rd1: 27, rd2: 25, total: 52 },
             { rank: 6, player: 'Andrew Dorrington', matrixName: 'Andrew Dorrington', hcp: -36, rd1: 21, rd2: 29, total: 50 },
-            { rank: 7, player: 'Simon Willcock', matrixName: 'Simon', hcp: -36, rd1: 21, rd2: 25, total: 46 },
+            { rank: 7, player: 'Simon Willcock', matrixName: 'Simon Willcock', hcp: -36, rd1: 21, rd2: 25, total: 46 },
             { rank: 8, player: "David O'Connor", matrixName: "David O'Connor", hcp: -24, rd1: 22, rd2: 17, total: 39 },
             { rank: 9, player: 'Oscar Kus', matrixName: 'Oscar Kus', hcp: -36, rd1: 14, rd2: 14, total: 28 },
-            { rank: '—', player: 'Michael Stowe', matrixName: 'Stowey', hcp: 'Scratched', rd1: '—', rd2: '—', total: 'Scratched' }
+            { rank: '—', player: 'Michael Stowe', matrixName: 'Michael Stowe', hcp: 'Scratched', rd1: '—', rd2: '—', total: 'Scratched' }
         ];
 
         const CHAMPIONSHIP_ARCHIVE_BY_YEAR = {
             '2015': {
                 venue: 'Yarrawonga',
                 format: 'Unknown',
-                champion: 'Stowey',
+                champion: 'Michael Stowe',
                 rows: [
-                    { rank: 1, player: 'Stowey', total: 'Champion', format: 'Unknown' }
+                    { rank: 1, player: 'Michael Stowe', total: 'Champion', format: 'Unknown' }
                 ]
             },
             '2016': {
                 venue: 'Barwon Heads',
                 format: 'Unknown',
-                champion: 'Ben Burke (Pres)',
+                champion: 'Ben Burke',
                 rows: [
-                    { rank: 1, player: 'Ben Burke (Pres)', total: 'Champion', format: 'Unknown' }
+                    { rank: 1, player: 'Ben Burke', total: 'Champion', format: 'Unknown' }
                 ]
             },
             '2017': {
@@ -718,9 +719,9 @@
                     { rank: 1, player: "David O'Connor", hcp: 28, total: '149 stk' },
                     { rank: 2, player: 'Dylan Willcock', hcp: 26, total: '150 stk' },
                     { rank: 3, player: 'Ben Cohen', hcp: 20, total: '152 stk' },
-                    { rank: 4, player: 'Ben Burke (Pres)', hcp: 22, total: '153 stk' },
-                    { rank: 5, player: 'Stowey', hcp: 19, total: '156 stk' },
-                    { rank: 6, player: 'Craig (Tubb)', hcp: 22, total: '161 stk' },
+                    { rank: 4, player: 'Ben Burke', hcp: 22, total: '153 stk' },
+                    { rank: 5, player: 'Michael Stowe', hcp: 19, total: '156 stk' },
+                    { rank: 6, player: 'Craig Tubb', hcp: 22, total: '161 stk' },
                     { rank: 7, player: 'James Patrick', hcp: 36, total: '202 stk' }
                 ]
             },
@@ -730,11 +731,11 @@
                 champion: 'Ben Cohen (69 pts)',
                 rows: [
                     { rank: 1, player: 'Ben Cohen', hcp: 17, total: '69 pts' },
-                    { rank: 2, player: 'Ben Burke (Pres)', hcp: 21, total: '66 pts' },
-                    { rank: 3, player: 'Dylan', hcp: 23, total: '59 pts' },
-                    { rank: 4, player: 'James', hcp: 36, total: '57 pts' },
-                    { rank: '5=', player: 'Craig (Tubb)', hcp: 18, total: '52 pts' },
-                    { rank: '5=', player: 'Simon', hcp: 36, total: '52 pts' },
+                    { rank: 2, player: 'Ben Burke', hcp: 21, total: '66 pts' },
+                    { rank: 3, player: 'Dylan Willcock', hcp: 23, total: '59 pts' },
+                    { rank: 4, player: 'James Patrick', hcp: 36, total: '57 pts' },
+                    { rank: '5=', player: 'Craig Tubb', hcp: 18, total: '52 pts' },
+                    { rank: '5=', player: 'Simon Willcock', hcp: 36, total: '52 pts' },
                     { rank: 7, player: 'Andrew Dorrington', hcp: 36, total: '50 pts' },
                     { rank: 8, player: "David O'Connor", hcp: 24, total: '39 pts' },
                     { rank: 9, player: 'Oscar Kus', hcp: 36, total: '28 pts' }
@@ -756,98 +757,98 @@
             '2020': {
                 venue: 'LGA Tour',
                 format: 'Stableford',
-                champion: 'Ben Burke (Pres) (77 pts)',
+                champion: 'Ben Burke (77 pts)',
                 rows: [
-                    { rank: 1, player: 'Ben Burke (Pres)', hcp: 20, newHcp: 15, hcpDelta: '+10.04', total: '77 pts' },
-                    { rank: 2, player: 'Stowey', hcp: 21, newHcp: 20, hcpDelta: '+2.04', total: '69 pts' },
-                    { rank: 3, player: 'James', hcp: 36, newHcp: 37, hcpDelta: '-2.96', total: '64 pts' },
-                    { rank: 4, player: 'Craig (Tubb)', hcp: 20, newHcp: 24, hcpDelta: '-8.96', total: '58 pts' },
+                    { rank: 1, player: 'Ben Burke', hcp: 20, newHcp: 15, hcpDelta: '+10.04', total: '77 pts' },
+                    { rank: 2, player: 'Michael Stowe', hcp: 21, newHcp: 20, hcpDelta: '+2.04', total: '69 pts' },
+                    { rank: 3, player: 'James Patrick', hcp: 36, newHcp: 37, hcpDelta: '-2.96', total: '64 pts' },
+                    { rank: 4, player: 'Craig Tubb', hcp: 20, newHcp: 24, hcpDelta: '-8.96', total: '58 pts' },
                     { rank: 5, player: 'Ben Cohen', hcp: 15, newHcp: 22, hcpDelta: '-13.96', total: '53 pts' },
-                    { rank: 6, player: 'Dylan', hcp: 24, newHcp: 31, hcpDelta: '-14.96', total: '52 pts' },
-                    { rank: 7, player: 'Doz', hcp: 36, newHcp: 49, hcpDelta: '-25.96', total: '41 pts' },
-                    { rank: 8, player: 'Jon', hcp: 36, newHcp: 52, hcpDelta: '-31.96', total: '35 pts' }
+                    { rank: 6, player: 'Dylan Willcock', hcp: 24, newHcp: 31, hcpDelta: '-14.96', total: '52 pts' },
+                    { rank: 7, player: 'Andrew Dorrington', hcp: 36, newHcp: 49, hcpDelta: '-25.96', total: '41 pts' },
+                    { rank: 8, player: 'Jon Dardaganis', hcp: 36, newHcp: 52, hcpDelta: '-31.96', total: '35 pts' }
                 ]
             },
             '2021': {
                 venue: 'LGA Tour',
                 format: 'Stableford',
-                champion: 'Craig (Tubb) (71 pts)',
+                champion: 'Craig Tubb (71 pts)',
                 rows: [
-                    { rank: 1, player: 'Craig (Tubb)', hcp: 23, newHcp: 21, hcpDelta: '+4.04', total: '71 pts' },
-                    { rank: 2, player: 'Dylan', hcp: 27, newHcp: 25, hcpDelta: '+3.04', total: '70 pts' },
+                    { rank: 1, player: 'Craig Tubb', hcp: 23, newHcp: 21, hcpDelta: '+4.04', total: '71 pts' },
+                    { rank: 2, player: 'Dylan Willcock', hcp: 27, newHcp: 25, hcpDelta: '+3.04', total: '70 pts' },
                     { rank: 3, player: 'Ben Cohen', hcp: 19, newHcp: 18, hcpDelta: '+2.04', total: '69 pts' },
-                    { rank: 4, player: 'James', hcp: 36, newHcp: 37, hcpDelta: '-1.96', total: '65 pts' },
-                    { rank: 5, player: 'Ben Burke (Pres)', hcp: 12, newHcp: 20, hcpDelta: '-16.96', total: '50 pts' },
-                    { rank: 6, player: 'Jon', hcp: 36, newHcp: 50, hcpDelta: '-27.96', total: '39 pts' },
-                    { rank: 7, player: 'Doz', hcp: 36, newHcp: 59, hcpDelta: '-45.96', total: '21 pts' }
+                    { rank: 4, player: 'James Patrick', hcp: 36, newHcp: 37, hcpDelta: '-1.96', total: '65 pts' },
+                    { rank: 5, player: 'Ben Burke', hcp: 12, newHcp: 20, hcpDelta: '-16.96', total: '50 pts' },
+                    { rank: 6, player: 'Jon Dardaganis', hcp: 36, newHcp: 50, hcpDelta: '-27.96', total: '39 pts' },
+                    { rank: 7, player: 'Andrew Dorrington', hcp: 36, newHcp: 59, hcpDelta: '-45.96', total: '21 pts' }
                 ]
             },
             '2022': {
                 venue: 'LGA Tour',
                 format: 'Stableford',
-                champion: 'Dylan & James (60 pts)',
+                champion: 'Dylan Willcock & James Patrick (60 pts)',
                 rows: [
-                    { rank: '1=', player: 'Dylan', hcp: 27, newHcp: 30, hcpDelta: '-6.96', total: '60 pts' },
-                    { rank: '1=', player: 'James', hcp: 32, newHcp: 35, hcpDelta: '-6.96', total: '60 pts' },
+                    { rank: '1=', player: 'Dylan Willcock', hcp: 27, newHcp: 30, hcpDelta: '-6.96', total: '60 pts' },
+                    { rank: '1=', player: 'James Patrick', hcp: 32, newHcp: 35, hcpDelta: '-6.96', total: '60 pts' },
                     { rank: 3, player: 'Ben Cohen', hcp: 18, newHcp: 23, hcpDelta: '-9.96', total: '57 pts' },
-                    { rank: 4, player: 'Ben Burke (Pres)', hcp: 16, newHcp: 24, hcpDelta: '-15.96', total: '51 pts' },
-                    { rank: '5=', player: 'Craig (Tubb)', hcp: 16, newHcp: 27, hcpDelta: '-21.96', total: '45 pts' },
-                    { rank: '5=', player: 'Doz', hcp: 36, newHcp: 47, hcpDelta: '-21.96', total: '45 pts' },
-                    { rank: 7, player: 'Stowey', hcp: 20, newHcp: 33, hcpDelta: '-25.96', total: '41 pts' },
-                    { rank: 8, player: 'Jon', hcp: 36, newHcp: 54, hcpDelta: '-36.96', total: '30 pts' }
+                    { rank: 4, player: 'Ben Burke', hcp: 16, newHcp: 24, hcpDelta: '-15.96', total: '51 pts' },
+                    { rank: '5=', player: 'Craig Tubb', hcp: 16, newHcp: 27, hcpDelta: '-21.96', total: '45 pts' },
+                    { rank: '5=', player: 'Andrew Dorrington', hcp: 36, newHcp: 47, hcpDelta: '-21.96', total: '45 pts' },
+                    { rank: 7, player: 'Michael Stowe', hcp: 20, newHcp: 33, hcpDelta: '-25.96', total: '41 pts' },
+                    { rank: 8, player: 'Jon Dardaganis', hcp: 36, newHcp: 54, hcpDelta: '-36.96', total: '30 pts' }
                 ]
             },
             '2023': {
                 venue: 'LGA Tour',
                 format: 'Stableford',
-                champion: 'Dylan (68 pts)',
+                champion: 'Dylan Willcock (68 pts)',
                 rows: [
-                    { rank: 1, player: 'Dylan', rd1: 34, rd2: 34, total: '68 pts' },
+                    { rank: 1, player: 'Dylan Willcock', rd1: 34, rd2: 34, total: '68 pts' },
                     { rank: 2, player: 'Ben Cohen', rd1: 33, rd2: 33, total: '66 pts' },
-                    { rank: 3, player: 'Jason', rd1: 27, rd2: 36, total: '63 pts' },
-                    { rank: 4, player: 'Stowey', rd1: 32, rd2: 30, total: '62 pts' },
-                    { rank: '5=', player: 'Ben Burke (Pres)', rd1: 29, rd2: 22, total: '51 pts' },
-                    { rank: '5=', player: 'Simon', rd1: 26, rd2: 25, total: '51 pts' },
-                    { rank: 7, player: 'Craig (Tubb)', rd1: 26, rd2: 24, total: '50 pts' },
-                    { rank: '8=', player: 'Doz', rd1: 20, rd2: 26, total: '46 pts' },
-                    { rank: '8=', player: 'Jon', rd1: 18, rd2: 28, total: '46 pts' },
-                    { rank: 10, player: 'James', rd1: 20, rd2: 24, total: '44 pts' },
-                    { rank: 11, player: 'Nigel', rd1: 9, rd2: 12, total: '21 pts' }
+                    { rank: 3, player: 'Jason Daye', rd1: 27, rd2: 36, total: '63 pts' },
+                    { rank: 4, player: 'Michael Stowe', rd1: 32, rd2: 30, total: '62 pts' },
+                    { rank: '5=', player: 'Ben Burke', rd1: 29, rd2: 22, total: '51 pts' },
+                    { rank: '5=', player: 'Simon Willcock', rd1: 26, rd2: 25, total: '51 pts' },
+                    { rank: 7, player: 'Craig Tubb', rd1: 26, rd2: 24, total: '50 pts' },
+                    { rank: '8=', player: 'Andrew Dorrington', rd1: 20, rd2: 26, total: '46 pts' },
+                    { rank: '8=', player: 'Jon Dardaganis', rd1: 18, rd2: 28, total: '46 pts' },
+                    { rank: 10, player: 'James Patrick', rd1: 20, rd2: 24, total: '44 pts' },
+                    { rank: 11, player: 'Nigel Willcock', rd1: 9, rd2: 12, total: '21 pts' }
                 ]
             },
             '2024': {
                 venue: 'LGA Tour',
                 format: 'Stableford',
-                champion: 'Ben Burke (Pres) (73 pts)',
+                champion: 'Ben Burke (73 pts)',
                 rows: [
-                    { rank: 1, player: 'Ben Burke (Pres)', rd1: 38, rd2: 35, total: '73 pts' },
+                    { rank: 1, player: 'Ben Burke', rd1: 38, rd2: 35, total: '73 pts' },
                     { rank: 2, player: 'Ben Cohen', rd1: 35, rd2: 37, total: '72 pts' },
-                    { rank: 3, player: 'Jon', rd1: 30, rd2: 39, total: '69 pts' },
-                    { rank: 4, player: 'Stowey', rd1: 30, rd2: 37, total: '67 pts' },
-                    { rank: 5, player: 'Simon', rd1: 25, rd2: 40, total: '65 pts' },
-                    { rank: 6, player: 'James', rd1: 31, rd2: 32, total: '63 pts' },
-                    { rank: 7, player: 'Dave', rd1: 30, rd2: 32, total: '62 pts' },
-                    { rank: 8, player: 'Craig (Tubb)', rd1: 35, rd2: 26, total: '61 pts' },
-                    { rank: 9, player: 'Jason', rd1: 25, rd2: 32, total: '57 pts' },
-                    { rank: 10, player: 'Dylan', rd1: 18, rd2: 22, total: '40 pts' },
-                    { rank: 11, player: 'Nigel', rd1: 16, rd2: 5, total: '21 pts' }
+                    { rank: 3, player: 'Jon Dardaganis', rd1: 30, rd2: 39, total: '69 pts' },
+                    { rank: 4, player: 'Michael Stowe', rd1: 30, rd2: 37, total: '67 pts' },
+                    { rank: 5, player: 'Simon Willcock', rd1: 25, rd2: 40, total: '65 pts' },
+                    { rank: 6, player: 'James Patrick', rd1: 31, rd2: 32, total: '63 pts' },
+                    { rank: 7, player: "Dave O'Connor", rd1: 30, rd2: 32, total: '62 pts' },
+                    { rank: 8, player: 'Craig Tubb', rd1: 35, rd2: 26, total: '61 pts' },
+                    { rank: 9, player: 'Jason Daye', rd1: 25, rd2: 32, total: '57 pts' },
+                    { rank: 10, player: 'Dylan Willcock', rd1: 18, rd2: 22, total: '40 pts' },
+                    { rank: 11, player: 'Nigel Willcock', rd1: 16, rd2: 5, total: '21 pts' }
                 ]
             },
             '2025': {
                 venue: 'Port Fairy',
                 format: 'Stableford',
-                champion: 'James (65 pts)',
+                champion: 'James Patrick (65 pts)',
                 rows: [
-                    { rank: 1, player: 'James', hcp: 18, total: '65 pts' },
-                    { rank: 2, player: 'Craig (Tubb)', hcp: 18, total: '60 pts' },
-                    { rank: 3, player: 'Dylan', hcp: 22, total: '59 pts' },
+                    { rank: 1, player: 'James Patrick', hcp: 18, total: '65 pts' },
+                    { rank: 2, player: 'Craig Tubb', hcp: 18, total: '60 pts' },
+                    { rank: 3, player: 'Dylan Willcock', hcp: 22, total: '59 pts' },
                     { rank: 4, player: 'Ben Cohen', hcp: 15, total: '55 pts' },
-                    { rank: 5, player: 'Stowey', hcp: 17, total: '49 pts' },
-                    { rank: 6, player: 'Doz', hcp: 38, total: '48 pts' },
-                    { rank: 7, player: 'Ben Burke (Pres)', hcp: 9, total: '37 pts' },
-                    { rank: 8, player: 'Rob', hcp: 20, total: '32 pts' },
+                    { rank: 5, player: 'Michael Stowe', hcp: 17, total: '49 pts' },
+                    { rank: 6, player: 'Andrew Dorrington', hcp: 38, total: '48 pts' },
+                    { rank: 7, player: 'Ben Burke', hcp: 9, total: '37 pts' },
+                    { rank: 8, player: 'Rob Rosengarten', hcp: 20, total: '32 pts' },
                     { rank: '9=', player: 'Frederico', hcp: 30, total: '27 pts' },
-                    { rank: '9=', player: 'Jon', hcp: 37, total: '27 pts' }
+                    { rank: '9=', player: 'Jon Dardaganis', hcp: 37, total: '27 pts' }
                 ]
             }
         };
@@ -890,11 +891,12 @@
 
             try {
                 const savedHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY));
-                historyMatrix = Array.isArray(savedHistory) && savedHistory.length
+                const rawHistory = Array.isArray(savedHistory) && savedHistory.length
                     ? savedHistory
                     : JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
+                historyMatrix = [...rawHistory].sort((a, b) => a.player.localeCompare(b.player));
             } catch {
-                historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
+                historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX)).sort((a, b) => a.player.localeCompare(b.player));
             }
         }
 
@@ -1082,7 +1084,7 @@
             const initials = profile.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
             document.getElementById('header-avatar').textContent = initials || 'LG';
             document.getElementById('header-player-name').textContent = profile.name;
-            document.getElementById('header-player-meta').textContent = `${profile.role} • GA ${whs.toFixed(1)}`;
+            document.getElementById('header-player-meta').textContent = `GA ${whs.toFixed(1)}`;
         }
 
         function renderDashboard() {
@@ -1091,7 +1093,7 @@
             const playerRounds = rounds.filter(r => r.playerName === profile.name);
 
             document.getElementById('dash-player-title').textContent = profile.name;
-            document.getElementById('dash-player-subtitle').textContent = `${profile.role} • Best 8 of Last 20 Differentials`;
+            document.getElementById('dash-player-subtitle').textContent = 'Best 8 of Last 20 Differentials';
             document.getElementById('dash-whs-index').textContent = whs.toFixed(1);
             document.getElementById('dash-rounds-count').textContent = playerRounds.length;
 
@@ -1600,6 +1602,125 @@
             }).join('');
         }
 
+        function openHistoryEditModal(playerIdx = 0, year = '2025') {
+            requireAdmin(() => {
+                const playerSel = document.getElementById('hist-edit-player');
+                const yearSel = document.getElementById('hist-edit-year');
+                playerSel.innerHTML = historyMatrix.map((row, idx) =>
+                    `<option value="${idx}" ${idx === playerIdx ? 'selected' : ''}>${row.player}</option>`
+                ).join('');
+                yearSel.innerHTML = HISTORY_YEARS.map(yr =>
+                    `<option value="${yr}" ${yr === year ? 'selected' : ''}>${yr}</option>`
+                ).join('');
+                loadSelectedHistoryCellToModal();
+                document.getElementById('history-edit-modal').classList.remove('hidden');
+            });
+        }
+
+        function closeHistoryEditModal() {
+            document.getElementById('history-edit-modal').classList.add('hidden');
+        }
+
+        function loadSelectedHistoryCellToModal() {
+            const pIdx = parseInt(document.getElementById('hist-edit-player').value, 10) || 0;
+            const yr = document.getElementById('hist-edit-year').value;
+            const raw = (historyMatrix[pIdx] && historyMatrix[pIdx].scores[yr]) || '';
+            const rankInput = document.getElementById('hist-edit-rank');
+            const scoreInput = document.getElementById('hist-edit-score');
+            const unitSelect = document.getElementById('hist-edit-unit');
+
+            if (!raw || raw === '—') {
+                rankInput.value = '';
+                scoreInput.value = '';
+                unitSelect.value = 'pts';
+            } else if (raw.includes('|')) {
+                const [rPart, sPart] = raw.split('|').map(s => s.trim());
+                rankInput.value = rPart;
+                const match = sPart.match(/(\d+)\s*(pts|stk)?/i);
+                scoreInput.value = match ? match[1] : '';
+                unitSelect.value = (match && match[2] && match[2].toLowerCase() === 'stk') ? 'stk' : 'pts';
+            } else {
+                rankInput.value = raw;
+                scoreInput.value = '';
+            }
+        }
+
+        function saveHistoryCell() {
+            requireAdmin(() => {
+                const pIdx = parseInt(document.getElementById('hist-edit-player').value, 10) || 0;
+                const yr = document.getElementById('hist-edit-year').value;
+                const rank = document.getElementById('hist-edit-rank').value.trim();
+                const score = document.getElementById('hist-edit-score').value.trim();
+                const unit = document.getElementById('hist-edit-unit').value;
+
+                if (!rank && !score) {
+                    delete historyMatrix[pIdx].scores[yr];
+                } else if (rank && score) {
+                    historyMatrix[pIdx].scores[yr] = `${rank} | ${score} ${unit}`;
+                } else {
+                    historyMatrix[pIdx].scores[yr] = rank || `${score} ${unit}`;
+                }
+
+                saveState();
+                closeHistoryEditModal();
+                renderHistoryTab();
+                showToast(`Updated ${historyMatrix[pIdx].player} (${yr}).`);
+            });
+        }
+
+        function resetHistoryData() {
+            requireAdmin(() => {
+                historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
+                saveState();
+                renderHistoryTab();
+                showToast('Official 2015–2025 archive restored.');
+            });
+        }
+
+        function sync2019SheetIntoMatrix() {
+            requireAdmin(() => {
+                CHAMPIONSHIP_2019_FIELD.forEach(entry => {
+                    const target = historyMatrix.find(r => r.player === entry.matrixName);
+                    if (target) {
+                        target.scores['2019'] = entry.total === 'Scratched'
+                            ? 'Scratched'
+                            : `${entry.rank} | ${entry.total} pts`;
+                    }
+                });
+                saveState();
+                renderHistoryTab();
+                showToast('2019 Championship results synced into Master Matrix.');
+            });
+        }
+
+        function renderCoursesTab() {
+            const q = (document.getElementById('course-search').value || '').toLowerCase();
+            const whs = getActiveWhsIndex();
+            const filtered = courses.filter(c =>
+                c.name.toLowerCase().includes(q) || c.loc.toLowerCase().includes(q)
+            );
+
+            document.getElementById('courses-grid').innerHTML = filtered.map(c => {
+                const daily = calculateDailyHandicap(whs, c.slope, c.rating, c.par);
+                const isCustom = String(c.id).startsWith('custom-');
+                return `
+                    <div class="bg-pureWhite rounded-2xl border border-lgaNavy/20 p-4 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="text-[10px] font-bold uppercase text-lgaGold">${c.loc}</div>
+                                <h3 class="font-bold text-sm text-lgaNavy">${c.name}</h3>
+                            </div>
+                            ${isCustom ? `<button onclick="deleteCourse('${c.id}')" class="${isAdminUnlocked ? '' : 'hidden'} text-red-500 hover:text-red-700 text-xs" title="Remove Course (Admin Only)"><i class="fa-solid fa-trash"></i></button>` : ''}
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t border-lgaNavy/10 flex items-center justify-between text-xs">
+                            <span class="text-lgaNavy/70">Par <strong>${c.par}</strong> • Slope <strong>${c.slope}</strong> • SR <strong>${c.rating}</strong></span>
+                            <span class="bg-lgaNavy text-lgaGold font-extrabold px-2.5 py-0.5 rounded-lg">Daily ${daily}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function openAddCourseModal() {
             document.getElementById('add-course-modal').classList.remove('hidden');
         }
@@ -1642,9 +1763,9 @@
 
         function renderLgaRosterTab() {
             const q = (document.getElementById('roster-search').value || '').toLowerCase();
-            const filtered = OFFICIAL_LGA_ROSTER.filter(m =>
-                m.name.toLowerCase().includes(q) || m.role.toLowerCase().includes(q)
-            );
+            const filtered = [...OFFICIAL_LGA_ROSTER]
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .filter(m => m.name.toLowerCase().includes(q));
 
             document.getElementById('roster-grid').innerHTML = filtered.map(m => {
                 const isActive = m.name === profile.name;
@@ -1653,9 +1774,7 @@
                     <div class="bg-pureWhite rounded-2xl border-2 ${isActive ? 'border-lgaGold' : 'border-lgaNavy/15'} p-4 shadow-sm flex flex-col justify-between">
                         <div class="flex items-start justify-between gap-2">
                             <div>
-                                <div class="text-[10px] font-crest uppercase tracking-wider text-lgaGold font-bold">${m.role}</div>
                                 <h3 class="font-bold text-base text-lgaNavy">${m.name}</h3>
-                                <p class="text-[11px] text-lgaNavy/65 mt-0.5">${m.titles}</p>
                             </div>
                             <div class="text-right bg-ivoryMist px-3 py-1.5 rounded-xl border border-lgaNavy/15">
                                 <div class="text-[9px] uppercase font-bold text-lgaNavy/60">GA Hcp</div>
@@ -1676,7 +1795,6 @@
             profile = {
                 memberId: member.id,
                 name: member.name,
-                role: member.role,
                 baseHcp: member.baseHcp
             };
             saveState();
@@ -1697,7 +1815,7 @@
         function openProfileModal() {
             const sel = document.getElementById('profile-member-select');
             sel.innerHTML = OFFICIAL_LGA_ROSTER.map(m =>
-                `<option value="${m.id}" ${m.name === profile.name ? 'selected' : ''}>${m.name} (${m.role})</option>`
+                `<option value="${m.id}" ${m.name === profile.name ? 'selected' : ''}>${m.name}</option>`
             ).join('');
             document.getElementById('profile-name-input').value = profile.name;
             document.getElementById('profile-hcp-input').value = profile.baseHcp;
@@ -1717,14 +1835,12 @@
 
         function saveProfileSettings() {
             const memberId = document.getElementById('profile-member-select').value;
-            const member = OFFICIAL_LGA_ROSTER.find(m => m.id === memberId);
             const name = document.getElementById('profile-name-input').value.trim() || profile.name;
             const baseHcp = parseFloat(document.getElementById('profile-hcp-input').value);
 
             profile = {
                 memberId,
                 name,
-                role: member ? member.role : profile.role,
                 baseHcp: isNaN(baseHcp) ? profile.baseHcp : baseHcp
             };
             saveState();
