@@ -116,26 +116,18 @@
 
                             <!-- Pigeon Perched Above Crossed Golf Clubs -->
                             <g transform="translate(50, 22)">
-                                <!-- Tail feathers -->
                                 <path d="M-5 4 L-15 8 L-13 3 L-6 1 Z" fill="url(#lgaGoldGrad)"/>
-                                <!-- Pigeon body & breast -->
                                 <path d="M-6 2 C-5 -3, -1 -6, 3 -6 C5 -9, 8 -10, 10 -8 C11 -7, 11 -5, 10 -4 C11 -1, 10 3, 6 5 C2 7, -3 6, -6 2 Z" fill="url(#lgaGoldGrad)"/>
-                                <!-- Raised wing detail -->
                                 <path d="M-4 1 C-1 -3, 3 -3, 5 -1 C2 2, -1 3, -4 1 Z" fill="#0c1d36" opacity="0.45"/>
-                                <!-- Beak -->
                                 <polygon points="10,-7 14,-6 10,-5" fill="#f3d999"/>
-                                <!-- Eye -->
                                 <circle cx="8.2" cy="-7.2" r="0.9" fill="#0c1d36"/>
-                                <!-- Perched legs -->
                                 <path d="M1 5 L0 9 M4 5 L4 9" stroke="#f3d999" stroke-width="1.2" stroke-linecap="round"/>
                             </g>
 
                             <!-- Crossed Golf Clubs -->
                             <g stroke="url(#lgaGoldGrad)" stroke-linecap="round">
-                                <!-- Club 1 (Top-Left to Bottom-Right) -->
                                 <line x1="27" y1="30" x2="71" y2="69" stroke-width="2.2"/>
                                 <path d="M70 68 L77 65 C79 64.5, 80 67, 78 69 L72 72 Z" fill="url(#lgaGoldGrad)" stroke="none"/>
-                                <!-- Club 2 (Top-Right to Bottom-Left) -->
                                 <line x1="73" y1="30" x2="29" y2="69" stroke-width="2.2"/>
                                 <path d="M30 68 L23 65 C21 64.5, 20 67, 22 69 L28 72 Z" fill="url(#lgaGoldGrad)" stroke="none"/>
                             </g>
@@ -170,12 +162,12 @@
                         </div>
                     </div>
 
-                    <button type="button" onclick="exportBackupFile()" title="Download full LGA data backup (.json)" class="px-2.5 py-2.5 rounded-xl border border-lga-gold/40 bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0">
+                    <button type="button" id="admin-backup-btn" onclick="exportBackupFile()" title="Download full LGA data backup (.json)" class="hidden px-2.5 py-2.5 rounded-xl border border-lga-gold/40 bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
                         <span class="hidden sm:inline">Backup</span>
                     </button>
 
-                    <label title="Restore LGA data from backup (.json)" class="px-2.5 py-2.5 rounded-xl border border-lga-gold/40 bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0">
+                    <label id="admin-restore-btn" title="Restore LGA data from backup (.json)" class="hidden px-2.5 py-2.5 rounded-xl border border-lga-gold/40 bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0">
                         <i data-lucide="upload" class="w-3.5 h-3.5"></i>
                         <span class="hidden sm:inline">Restore</span>
                         <input type="file" accept=".json,application/json" onchange="importBackupFile(event)" class="hidden">
@@ -822,7 +814,643 @@
 
         // =========================================================================
         // 1. MASTER LGA ROSTER (SORTED ALPHABETICALLY BY SURNAME — 18 MEMBERS)
-// ... existing code ... -->
+        // =========================================================================
+        const RAW_LGA_MEMBERS = [
+            { name: 'Ben Burke', role: 'President', baselineIndex: 11.4 },
+            { name: 'James Patrick', role: 'Reigning Champion', baselineIndex: 12.8 },
+            { name: 'Frederico Bianco', role: '', baselineIndex: 16.5 },
+            { name: 'Ben Cohen', role: '', baselineIndex: 15.2 },
+            { name: 'Dan Cohen', role: '', baselineIndex: 19.4 },
+            { name: 'Andrew Deller', role: '', baselineIndex: 14.0 },
+            { name: 'Josh Fisher', role: '', baselineIndex: 17.6 },
+            { name: 'Liam Foley', role: '', baselineIndex: 13.5 },
+            { name: 'Simon Gold', role: '', baselineIndex: 20.2 },
+            { name: 'Matt Green', role: '', baselineIndex: 15.8 },
+            { name: 'Tom Harris', role: '', baselineIndex: 18.0 },
+            { name: 'Alex King', role: '', baselineIndex: 10.9 },
+            { name: 'Sam Miller', role: '', baselineIndex: 16.2 },
+            { name: "David O'Connor", role: '', baselineIndex: 21.5 },
+            { name: 'Nick Roberts', role: '', baselineIndex: 14.7 },
+            { name: 'Chris Taylor', role: '', baselineIndex: 17.1 },
+            { name: 'Luke Walker', role: '', baselineIndex: 13.9 },
+            { name: 'Dylan Willcock', role: '', baselineIndex: 15.6 }
+        ];
+
+        function normalizePlayerName(raw) {
+            if (!raw) return '';
+            const clean = String(raw).replace(/\s*\((President|Reigning Champion)\)\s*/gi, '').trim();
+            if (/^dave\s+o'?connor$/i.test(clean) || /^david\s+o'?connor$/i.test(clean)) {
+                return "David O'Connor";
+            }
+            if (/^frederico$/i.test(clean)) {
+                return 'Frederico Bianco';
+            }
+            return clean;
+        }
+
+        function sortByLastName(a, b) {
+            const nameA = normalizePlayerName(a);
+            const nameB = normalizePlayerName(b);
+            const partsA = nameA.split(/\s+/);
+            const partsB = nameB.split(/\s+/);
+            const lastA = (partsA[partsA.length - 1] || '').replace(/^O'/i, 'O');
+            const lastB = (partsB[partsB.length - 1] || '').replace(/^O'/i, 'O');
+            const cmp = lastA.localeCompare(lastB);
+            return cmp !== 0 ? cmp : nameA.localeCompare(nameB);
+        }
+
+        const LGA_MEMBERS = [...RAW_LGA_MEMBERS].sort((a, b) => sortByLastName(a.name, b.name));
+
+        function formatMemberDisplayName(name) {
+            const canon = normalizePlayerName(name);
+            const found = LGA_MEMBERS.find(m => m.name === canon);
+            if (found && found.role) {
+                return `${found.name} (${found.role})`;
+            }
+            return canon;
+        }
+
+        // =========================================================================
+        // 2. OFFICIAL 52-COURSE AUSTRALIAN & LGA TOUR DIRECTORY
+        // =========================================================================
+        const DEFAULT_COURSES = [
+            { id: 'c01', name: 'Barnbougle Dunes', state: 'TAS', par: 71, cr: 73.5, slope: 136 },
+            { id: 'c02', name: 'Barnbougle Lost Farm', state: 'TAS', par: 72, cr: 74.0, slope: 135 },
+            { id: 'c03', name: 'Barwon Heads Golf Club', state: 'VIC', par: 70, cr: 71.2, slope: 129 },
+            { id: 'c04', name: 'Black Bull Golf Course', state: 'VIC', par: 72, cr: 73.8, slope: 133 },
+            { id: 'c05', name: 'Bonville Golf Resort', state: 'NSW', par: 72, cr: 74.2, slope: 138 },
+            { id: 'c06', name: 'Cape Schanck (RACV)', state: 'VIC', par: 70, cr: 71.0, slope: 127 },
+            { id: 'c07', name: 'Cape Wickham Links', state: 'TAS', par: 72, cr: 74.8, slope: 139 },
+            { id: 'c08', name: 'Cathedral Lodge', state: 'VIC', par: 72, cr: 74.5, slope: 140 },
+            { id: 'c09', name: 'Cobram Barooga (Old)', state: 'NSW', par: 72, cr: 72.4, slope: 126 },
+            { id: 'c10', name: 'Commonwealth Golf Club', state: 'VIC', par: 73, cr: 74.4, slope: 136 },
+            { id: 'c11', name: 'Curlewis Golf Club', state: 'VIC', par: 72, cr: 72.5, slope: 128 },
+            { id: 'c12', name: 'Elanora Country Club', state: 'NSW', par: 72, cr: 73.6, slope: 134 },
+            { id: 'c13', name: 'Flinders Golf Club', state: 'VIC', par: 69, cr: 69.5, slope: 122 },
+            { id: 'c14', name: 'Hamilton Island Golf Club', state: 'QLD', par: 71, cr: 73.2, slope: 137 },
+            { id: 'c15', name: 'Huntingdale Golf Club', state: 'VIC', par: 72, cr: 74.1, slope: 135 },
+            { id: 'c16', name: 'Joondalup Resort (Quarry/Dune)', state: 'WA', par: 72, cr: 74.3, slope: 139 },
+            { id: 'c17', name: 'Kingston Heath Golf Club', state: 'VIC', par: 72, cr: 75.2, slope: 141 },
+            { id: 'c18', name: 'Kooyonga Golf Club', state: 'SA', par: 72, cr: 73.9, slope: 135 },
+            { id: 'c19', name: 'Lake Karrinyup Country Club', state: 'WA', par: 72, cr: 74.6, slope: 138 },
+            { id: 'c20', name: 'Links Kennedy Bay', state: 'WA', par: 72, cr: 74.0, slope: 136 },
+            { id: 'c21', name: 'Links Lady Bay', state: 'SA', par: 72, cr: 73.4, slope: 132 },
+            { id: 'c22', name: 'Lonsdale Links', state: 'VIC', par: 70, cr: 71.1, slope: 128 },
+            { id: 'c23', name: 'Magenta Shores', state: 'NSW', par: 72, cr: 74.1, slope: 136 },
+            { id: 'c24', name: 'Metropolitan Golf Club', state: 'VIC', par: 72, cr: 74.8, slope: 138 },
+            { id: 'c25', name: 'Moonah Links (Legends)', state: 'VIC', par: 72, cr: 73.7, slope: 134 },
+            { id: 'c26', name: 'Moonah Links (Open)', state: 'VIC', par: 72, cr: 75.5, slope: 142 },
+            { id: 'c27', name: 'Murray Downs Golf Club', state: 'NSW', par: 72, cr: 73.3, slope: 130 },
+            { id: 'c28', name: 'New South Wales Golf Club', state: 'NSW', par: 72, cr: 75.0, slope: 141 },
+            { id: 'c29', name: 'Ocean Dunes (King Island)', state: 'TAS', par: 72, cr: 74.4, slope: 137 },
+            { id: 'c30', name: 'Port Fairy Golf Links', state: 'VIC', par: 72, cr: 73.1, slope: 131 },
+            { id: 'c31', name: 'Portsea Golf Club', state: 'VIC', par: 71, cr: 72.3, slope: 132 },
+            { id: 'c32', name: 'Rich River (East)', state: 'NSW', par: 72, cr: 72.6, slope: 127 },
+            { id: 'c33', name: 'Rosebud Country Club (North)', state: 'VIC', par: 72, cr: 72.8, slope: 129 },
+            { id: 'c34', name: 'Royal Adelaide Golf Club', state: 'SA', par: 73, cr: 74.7, slope: 137 },
+            { id: 'c35', name: 'Royal Melbourne (East)', state: 'VIC', par: 71, cr: 73.4, slope: 136 },
+            { id: 'c36', name: 'Royal Melbourne (West)', state: 'VIC', par: 72, cr: 75.4, slope: 142 },
+            { id: 'c37', name: 'Royal Queensland', state: 'QLD', par: 72, cr: 74.5, slope: 137 },
+            { id: 'c38', name: 'Sanctuary Cove (The Pines)', state: 'QLD', par: 72, cr: 74.9, slope: 140 },
+            { id: 'c39', name: 'Sandhurst (Champions)', state: 'VIC', par: 72, cr: 73.5, slope: 132 },
+            { id: 'c40', name: 'Settlers Run Golf & CC', state: 'VIC', par: 72, cr: 73.6, slope: 134 },
+            { id: 'c41', name: 'Sorrento Golf Club', state: 'VIC', par: 70, cr: 71.4, slope: 130 },
+            { id: 'c42', name: 'St Andrews Beach', state: 'VIC', par: 70, cr: 72.2, slope: 133 },
+            { id: 'c43', name: 'The Australian Golf Club', state: 'NSW', par: 72, cr: 74.9, slope: 139 },
+            { id: 'c44', name: 'The Dunes Golf Links', state: 'VIC', par: 72, cr: 73.6, slope: 134 },
+            { id: 'c45', name: 'The Grange (West)', state: 'SA', par: 72, cr: 74.0, slope: 135 },
+            { id: 'c46', name: 'The Lakes Golf Club', state: 'NSW', par: 72, cr: 74.6, slope: 138 },
+            { id: 'c47', name: 'The National (Gunnamatta)', state: 'VIC', par: 72, cr: 74.2, slope: 136 },
+            { id: 'c48', name: 'The National (Moonah)', state: 'VIC', par: 72, cr: 75.1, slope: 140 },
+            { id: 'c49', name: 'Thirteenth Beach (Beach)', state: 'VIC', par: 72, cr: 73.8, slope: 134 },
+            { id: 'c50', name: 'Torquay (RACV)', state: 'VIC', par: 71, cr: 71.9, slope: 128 },
+            { id: 'c51', name: 'Victoria Golf Club', state: 'VIC', par: 72, cr: 74.6, slope: 138 },
+            { id: 'c52', name: 'Yarra Yarra Golf Club', state: 'VIC', par: 72, cr: 74.1, slope: 136 }
+        ];
+
+        // =========================================================================
+        // 3. LGA TOUR ARCHIVE DATA (2015–2025)
+        // =========================================================================
+        const TOUR_YEARS = [
+            { year: '2015', venue: 'Torquay' },
+            { year: '2016', venue: 'Barwon Heads' },
+            { year: '2017', venue: 'Mornington' },
+            { year: '2018', venue: 'Yarrawonga' },
+            { year: '2019', venue: 'Barnbougle' },
+            { year: '2020', venue: 'Bellarine' },
+            { year: '2021', venue: 'King Island' },
+            { year: '2022', venue: 'Murray River' },
+            { year: '2023', venue: 'Mornington' },
+            { year: '2024', venue: 'Barnbougle' },
+            { year: '2025', venue: 'Port Fairy' }
+        ];
+
+        const DEFAULT_HISTORY_MATRIX = [
+            {
+                player: 'Ben Burke',
+                results: {
+                    '2015': { pos: '2', score: '68', unit: 'pts' },
+                    '2016': { pos: '3', score: '65', unit: 'pts' },
+                    '2017': { pos: '4', score: '156', unit: 'stroke' },
+                    '2018': { pos: '1', score: '73', unit: 'pts' },
+                    '2019': { pos: '3', score: '67', unit: 'pts' },
+                    '2020': { pos: '2', score: '71', unit: 'pts' },
+                    '2021': { pos: '4', score: '64', unit: 'pts' },
+                    '2022': { pos: '3=', score: '68', unit: 'pts' },
+                    '2023': { pos: '2', score: '70', unit: 'pts' },
+                    '2024': { pos: '4', score: '66', unit: 'pts' },
+                    '2025': { pos: '2', score: '71', unit: 'pts' }
+                }
+            },
+            {
+                player: 'James Patrick',
+                results: {
+                    '2018': { pos: '4', score: '66', unit: 'pts' },
+                    '2019': { pos: '2', score: '69', unit: 'pts' },
+                    '2020': { pos: '5', score: '64', unit: 'pts' },
+                    '2021': { pos: '2', score: '68', unit: 'pts' },
+                    '2022': { pos: '2', score: '70', unit: 'pts' },
+                    '2023': { pos: '4', score: '66', unit: 'pts' },
+                    '2024': { pos: '3', score: '68', unit: 'pts' },
+                    '2025': { pos: '1', score: '74', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Frederico Bianco',
+                results: {
+                    '2019': { pos: '6', score: '61', unit: 'pts' },
+                    '2020': { pos: '4', score: '66', unit: 'pts' },
+                    '2021': { pos: '5', score: '63', unit: 'pts' },
+                    '2022': { pos: '6', score: '64', unit: 'pts' },
+                    '2023': { pos: '3', score: '68', unit: 'pts' },
+                    '2024': { pos: '5', score: '65', unit: 'pts' },
+                    '2025': { pos: '4', score: '67', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Ben Cohen',
+                results: {
+                    '2015': { pos: '1', score: '71', unit: 'pts' },
+                    '2016': { pos: '4', score: '63', unit: 'pts' },
+                    '2017': { pos: '3', score: '154', unit: 'stroke' },
+                    '2018': { pos: '3', score: '68', unit: 'pts' },
+                    '2019': { pos: '5', score: '63', unit: 'pts' },
+                    '2020': { pos: '3', score: '69', unit: 'pts' },
+                    '2021': { pos: '3', score: '66', unit: 'pts' },
+                    '2022': { pos: '5', score: '65', unit: 'pts' },
+                    '2023': { pos: '5', score: '64', unit: 'pts' },
+                    '2024': { pos: '2', score: '70', unit: 'pts' },
+                    '2025': { pos: '3', score: '69', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Dan Cohen',
+                results: {
+                    '2016': { pos: '6', score: '59', unit: 'pts' },
+                    '2018': { pos: '7', score: '58', unit: 'pts' },
+                    '2020': { pos: '8', score: '60', unit: 'pts' },
+                    '2022': { pos: '7', score: '62', unit: 'pts' },
+                    '2024': { pos: '8', score: '61', unit: 'pts' },
+                    '2025': { pos: '6', score: '64', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Andrew Deller',
+                results: {
+                    '2017': { pos: '2', score: '151', unit: 'stroke' },
+                    '2019': { pos: '1', score: '72', unit: 'pts' },
+                    '2021': { pos: '6', score: '61', unit: 'pts' },
+                    '2023': { pos: '1', score: '73', unit: 'pts' },
+                    '2025': { pos: '5', score: '66', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Josh Fisher',
+                results: {
+                    '2018': { pos: '5', score: '64', unit: 'pts' },
+                    '2020': { pos: '6', score: '63', unit: 'pts' },
+                    '2022': { pos: '8', score: '60', unit: 'pts' },
+                    '2024': { pos: '6', score: '63', unit: 'pts' },
+                    '2025': { pos: '7', score: '63', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Liam Foley',
+                results: {
+                    '2016': { pos: '1', score: '70', unit: 'pts' },
+                    '2018': { pos: '2', score: '70', unit: 'pts' },
+                    '2020': { pos: '1', score: '74', unit: 'pts' },
+                    '2022': { pos: '3=', score: '68', unit: 'pts' },
+                    '2024': { pos: '1', score: '72', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Simon Gold',
+                results: {
+                    '2019': { pos: '8', score: '57', unit: 'pts' },
+                    '2021': { pos: '8', score: '58', unit: 'pts' },
+                    '2023': { pos: '7', score: '60', unit: 'pts' },
+                    '2025': { pos: '9', score: '59', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Matt Green',
+                results: {
+                    '2017': { pos: '5', score: '159', unit: 'stroke' },
+                    '2019': { pos: '4', score: '65', unit: 'pts' },
+                    '2021': { pos: '7', score: '60', unit: 'pts' },
+                    '2023': { pos: '6', score: '62', unit: 'pts' },
+                    '2025': { pos: '8', score: '61', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Tom Harris',
+                results: {
+                    '2020': { pos: '7', score: '61', unit: 'pts' },
+                    '2022': { pos: '9', score: '58', unit: 'pts' },
+                    '2024': { pos: '9', score: '59', unit: 'pts' },
+                    '2025': { pos: '10', score: '58', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Alex King',
+                results: {
+                    '2016': { pos: '2', score: '67', unit: 'pts' },
+                    '2019': { pos: '7', score: '59', unit: 'pts' },
+                    '2021': { pos: '1', score: '71', unit: 'pts' },
+                    '2022': { pos: '1', score: '73', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Sam Miller',
+                results: {
+                    '2018': { pos: '6', score: '61', unit: 'pts' },
+                    '2021': { pos: '9', score: '56', unit: 'pts' },
+                    '2023': { pos: '8', score: '59', unit: 'pts' },
+                    '2025': { pos: '11', score: '57', unit: 'pts' }
+                }
+            },
+            {
+                player: "David O'Connor",
+                results: {
+                    '2017': { pos: '1', score: '149', unit: 'stroke' },
+                    '2018': { pos: '8', score: '39', unit: 'pts' },
+                    '2024': { pos: '7', score: '62', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Nick Roberts',
+                results: {
+                    '2015': { pos: '4', score: '62', unit: 'pts' },
+                    '2017': { pos: '6', score: '162', unit: 'stroke' },
+                    '2020': { pos: '9', score: '58', unit: 'pts' },
+                    '2022': { pos: '10', score: '57', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Chris Taylor',
+                results: {
+                    '2016': { pos: '5', score: '61', unit: 'pts' },
+                    '2019': { pos: '9', score: '55', unit: 'pts' },
+                    '2022': { pos: '11', score: '55', unit: 'pts' },
+                    '2024': { pos: '10', score: '57', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Luke Walker',
+                results: {
+                    '2018': { pos: '9', score: '54', unit: 'pts' },
+                    '2021': { pos: '10', score: '55', unit: 'pts' },
+                    '2023': { pos: '9', score: '58', unit: 'pts' },
+                    '2025': { pos: '12', score: '55', unit: 'pts' }
+                }
+            },
+            {
+                player: 'Dylan Willcock',
+                results: {
+                    '2015': { pos: '3', score: '65', unit: 'pts' },
+                    '2016': { pos: '7', score: '58', unit: 'pts' },
+                    '2017': { pos: '7', score: '164', unit: 'stroke' },
+                    '2018': { pos: '10', score: '52', unit: 'pts' },
+                    '2019': { pos: '10', score: '54', unit: 'pts' },
+                    '2020': { pos: '10', score: '56', unit: 'pts' },
+                    '2021': { pos: '11', score: '53', unit: 'pts' },
+                    '2022': { pos: '12', score: '54', unit: 'pts' },
+                    '2023': { pos: '10', score: '56', unit: 'pts' },
+                    '2024': { pos: '11', score: '56', unit: 'pts' },
+                    '2025': { pos: '13', score: '54', unit: 'pts' }
+                }
+            }
+        ];
+
+        function mergeHistoryRows(rawRows) {
+            const byCanon = new Map();
+            LGA_MEMBERS.forEach(m => {
+                byCanon.set(m.name, { player: m.name, results: {} });
+            });
+            (rawRows || []).forEach(row => {
+                const canon = normalizePlayerName(row.player);
+                if (!canon) return;
+                if (!byCanon.has(canon)) {
+                    byCanon.set(canon, { player: canon, results: {} });
+                }
+                const target = byCanon.get(canon);
+                target.results = { ...target.results, ...(row.results || {}) };
+            });
+            return Array.from(byCanon.values()).sort((a, b) => sortByLastName(a.player, b.player));
+        }
+
+        const YEAR_BREAKDOWNS = {
+            '2025': {
+                title: '2025 LGA Championship — Port Fairy Golf Links',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Rd 1', 'Rd 2', 'Total'],
+                rows: [
+                    ['1', 'James Patrick', '13', '38 pts', '36 pts', '74 pts'],
+                    ['2', 'Ben Burke', '11', '35 pts', '36 pts', '71 pts'],
+                    ['3', 'Ben Cohen', '15', '34 pts', '35 pts', '69 pts'],
+                    ['4', 'Frederico Bianco', '16', '33 pts', '34 pts', '67 pts'],
+                    ['5', 'Andrew Deller', '14', '34 pts', '32 pts', '66 pts'],
+                    ['6', 'Dan Cohen', '19', '31 pts', '33 pts', '64 pts'],
+                    ['7', 'Josh Fisher', '18', '32 pts', '31 pts', '63 pts'],
+                    ['8', 'Matt Green', '16', '30 pts', '31 pts', '61 pts'],
+                    ['9', 'Simon Gold', '20', '29 pts', '30 pts', '59 pts'],
+                    ['10', 'Tom Harris', '18', '28 pts', '30 pts', '58 pts'],
+                    ['11', 'Sam Miller', '16', '29 pts', '28 pts', '57 pts'],
+                    ['12', 'Luke Walker', '14', '27 pts', '28 pts', '55 pts'],
+                    ['13', 'Dylan Willcock', '16', '26 pts', '28 pts', '54 pts']
+                ]
+            },
+            '2024': {
+                title: '2024 LGA Championship — Barnbougle Dunes & Lost Farm',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
+                rows: [
+                    ['1', 'Liam Foley', '13', '72 pts'],
+                    ['2', 'Ben Cohen', '15', '70 pts'],
+                    ['3', 'James Patrick', '14', '68 pts'],
+                    ['4', 'Ben Burke', '12', '66 pts'],
+                    ['5', 'Frederico Bianco', '17', '65 pts'],
+                    ['6', 'Josh Fisher', '18', '63 pts'],
+                    ['7', "David O'Connor", '21', '62 pts'],
+                    ['8', 'Dan Cohen', '20', '61 pts'],
+                    ['9', 'Tom Harris', '18', '59 pts'],
+                    ['10', 'Chris Taylor', '17', '57 pts'],
+                    ['11', 'Dylan Willcock', '16', '56 pts']
+                ]
+            },
+            '2023': {
+                title: '2023 LGA Championship — Mornington Peninsula',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
+                rows: [
+                    ['1', 'Andrew Deller', '14', '73 pts'],
+                    ['2', 'Ben Burke', '12', '70 pts'],
+                    ['3', 'Frederico Bianco', '17', '68 pts'],
+                    ['4', 'James Patrick', '14', '66 pts'],
+                    ['5', 'Ben Cohen', '15', '64 pts'],
+                    ['6', 'Matt Green', '16', '62 pts'],
+                    ['7', 'Simon Gold', '20', '60 pts'],
+                    ['8', 'Sam Miller', '16', '59 pts'],
+                    ['9', 'Luke Walker', '14', '58 pts'],
+                    ['10', 'Dylan Willcock', '16', '56 pts']
+                ]
+            },
+            '2022': {
+                title: '2022 LGA Championship — Murray River',
+                columns: ['Pos', 'Golfer', 'Start → End Hcp', 'Total'],
+                rows: [
+                    ['1', 'Alex King', '12 → 11', '73 pts'],
+                    ['2', 'James Patrick', '15 → 14', '70 pts'],
+                    ['3=', 'Ben Burke', '13 → 12', '68 pts'],
+                    ['3=', 'Liam Foley', '14 → 13', '68 pts'],
+                    ['5', 'Ben Cohen', '16 → 15', '65 pts'],
+                    ['6', 'Frederico Bianco', '18 → 17', '64 pts'],
+                    ['7', 'Dan Cohen', '20 → 20', '62 pts'],
+                    ['8', 'Josh Fisher', '18 → 18', '60 pts'],
+                    ['9', 'Tom Harris', '19 → 19', '58 pts'],
+                    ['10', 'Nick Roberts', '15 → 15', '57 pts'],
+                    ['11', 'Chris Taylor', '17 → 17', '55 pts'],
+                    ['12', 'Dylan Willcock', '16 → 16', '54 pts']
+                ]
+            },
+            '2021': {
+                title: '2021 LGA Championship — King Island (Cape Wickham & Ocean Dunes)',
+                columns: ['Pos', 'Golfer', 'Start → End Hcp', 'Total'],
+                rows: [
+                    ['1', 'Alex King', '13 → 12', '71 pts'],
+                    ['2', 'James Patrick', '16 → 15', '68 pts'],
+                    ['3', 'Ben Cohen', '16 → 16', '66 pts'],
+                    ['4', 'Ben Burke', '13 → 13', '64 pts'],
+                    ['5', 'Frederico Bianco', '18 → 18', '63 pts'],
+                    ['6', 'Andrew Deller', '15 → 15', '61 pts'],
+                    ['7', 'Matt Green', '16 → 16', '60 pts'],
+                    ['8', 'Simon Gold', '21 → 21', '58 pts'],
+                    ['9', 'Sam Miller', '17 → 17', '56 pts'],
+                    ['10', 'Luke Walker', '15 → 15', '55 pts'],
+                    ['11', 'Dylan Willcock', '17 → 16', '53 pts']
+                ]
+            },
+            '2020': {
+                title: '2020 LGA Championship — Bellarine Peninsula',
+                columns: ['Pos', 'Golfer', 'Start → End Hcp', 'Total'],
+                rows: [
+                    ['1', 'Liam Foley', '15 → 14', '74 pts'],
+                    ['2', 'Ben Burke', '14 → 13', '71 pts'],
+                    ['3', 'Ben Cohen', '17 → 16', '69 pts'],
+                    ['4', 'Frederico Bianco', '19 → 18', '66 pts'],
+                    ['5', 'James Patrick', '16 → 16', '64 pts'],
+                    ['6', 'Josh Fisher', '19 → 18', '63 pts'],
+                    ['7', 'Tom Harris', '20 → 19', '61 pts'],
+                    ['8', 'Dan Cohen', '21 → 20', '60 pts'],
+                    ['9', 'Nick Roberts', '16 → 15', '58 pts'],
+                    ['10', 'Dylan Willcock', '17 → 17', '56 pts']
+                ]
+            },
+            '2019': {
+                title: '2019 LGA Championship — Barnbougle',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
+                rows: [
+                    ['1', 'Andrew Deller', '16', '72 pts'],
+                    ['2', 'James Patrick', '17', '69 pts'],
+                    ['3', 'Ben Burke', '14', '67 pts'],
+                    ['4', 'Matt Green', '17', '65 pts'],
+                    ['5', 'Ben Cohen', '17', '63 pts'],
+                    ['6', 'Frederico Bianco', '20', '61 pts'],
+                    ['7', 'Alex King', '14', '59 pts'],
+                    ['8', 'Simon Gold', '22', '57 pts'],
+                    ['9', 'Chris Taylor', '18', '55 pts'],
+                    ['10', 'Dylan Willcock', '18', '54 pts']
+                ]
+            },
+            '2018': {
+                title: '2018 LGA Championship — Yarrawonga',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
+                rows: [
+                    ['1', 'Ben Burke', '15', '73 pts'],
+                    ['2', 'Liam Foley', '16', '70 pts'],
+                    ['3', 'Ben Cohen', '18', '68 pts'],
+                    ['4', 'James Patrick', '18', '66 pts'],
+                    ['5', 'Josh Fisher', '20', '64 pts'],
+                    ['6', 'Sam Miller', '18', '61 pts'],
+                    ['7', 'Dan Cohen', '22', '58 pts'],
+                    ['8', "David O'Connor", '24', '39 pts'],
+                    ['9', 'Luke Walker', '16', '54 pts'],
+                    ['10', 'Dylan Willcock', '18', '52 pts']
+                ]
+            },
+            '2017': {
+                title: '2017 LGA Championship — Mornington (Net Strokeplay)',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Net Total'],
+                rows: [
+                    ['1', "David O'Connor", '28', '149'],
+                    ['2', 'Andrew Deller', '18', '151'],
+                    ['3', 'Ben Cohen', '19', '154'],
+                    ['4', 'Ben Burke', '16', '156'],
+                    ['5', 'Matt Green', '18', '159'],
+                    ['6', 'Nick Roberts', '17', '162'],
+                    ['7', 'Dylan Willcock', '19', '164']
+                ]
+            },
+            '2016': {
+                title: '2016 LGA Championship — Barwon Heads',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
+                rows: [
+                    ['1', 'Liam Foley', '18', '70 pts'],
+                    ['2', 'Alex King', '16', '67 pts'],
+                    ['3', 'Ben Burke', '17', '65 pts'],
+                    ['4', 'Ben Cohen', '20', '63 pts'],
+                    ['5', 'Chris Taylor', '19', '61 pts'],
+                    ['6', 'Dan Cohen', '24', '59 pts'],
+                    ['7', 'Dylan Willcock', '20', '58 pts']
+                ]
+            },
+            '2015': {
+                title: '2015 Inaugural LGA Championship — Torquay',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
+                rows: [
+                    ['1', 'Ben Cohen', '21', '71 pts'],
+                    ['2', 'Ben Burke', '18', '68 pts'],
+                    ['3', 'Dylan Willcock', '21', '65 pts'],
+                    ['4', 'Nick Roberts', '18', '62 pts']
+                ]
+            }
+        };
+
+        const DEFAULT_HANDICAP_HISTORY = {
+            'Ben Burke': {
+                '2015': { start: '18' }, '2016': { start: '17' }, '2017': { start: '16' },
+                '2018': { start: '15' }, '2019': { start: '14' }, '2020': { start: '14', end: '13' },
+                '2021': { start: '13', end: '13' }, '2022': { start: '13', end: '12' },
+                '2023': { start: '12' }, '2024': { start: '12' }, '2025': { start: '11' }
+            },
+            'James Patrick': {
+                '2018': { start: '18' }, '2019': { start: '17' }, '2020': { start: '16', end: '16' },
+                '2021': { start: '16', end: '15' }, '2022': { start: '15', end: '14' },
+                '2023': { start: '14' }, '2024': { start: '14' }, '2025': { start: '13' }
+            },
+            'Frederico Bianco': {
+                '2019': { start: '20' }, '2020': { start: '19', end: '18' },
+                '2021': { start: '18', end: '18' }, '2022': { start: '18', end: '17' },
+                '2023': { start: '17' }, '2024': { start: '17' }, '2025': { start: '16' }
+            },
+            'Ben Cohen': {
+                '2015': { start: '21' }, '2016': { start: '20' }, '2017': { start: '19' },
+                '2018': { start: '18' }, '2019': { start: '17' }, '2020': { start: '17', end: '16' },
+                '2021': { start: '16', end: '16' }, '2022': { start: '16', end: '15' },
+                '2023': { start: '15' }, '2024': { start: '15' }, '2025': { start: '15' }
+            },
+            'Dan Cohen': {
+                '2016': { start: '24' }, '2018': { start: '22' }, '2020': { start: '21', end: '20' },
+                '2022': { start: '20', end: '20' }, '2024': { start: '20' }, '2025': { start: '19' }
+            },
+            'Andrew Deller': {
+                '2017': { start: '18' }, '2019': { start: '16' }, '2021': { start: '15', end: '15' },
+                '2023': { start: '14' }, '2025': { start: '14' }
+            },
+            'Josh Fisher': {
+                '2018': { start: '20' }, '2020': { start: '19', end: '18' },
+                '2022': { start: '18', end: '18' }, '2024': { start: '18' }, '2025': { start: '18' }
+            },
+            'Liam Foley': {
+                '2016': { start: '18' }, '2018': { start: '16' }, '2020': { start: '15', end: '14' },
+                '2022': { start: '14', end: '13' }, '2024': { start: '13' }
+            },
+            'Simon Gold': {
+                '2019': { start: '22' }, '2021': { start: '21', end: '21' },
+                '2023': { start: '20' }, '2025': { start: '20' }
+            },
+            'Matt Green': {
+                '2017': { start: '18' }, '2019': { start: '17' }, '2021': { start: '16', end: '16' },
+                '2023': { start: '16' }, '2025': { start: '16' }
+            },
+            'Tom Harris': {
+                '2020': { start: '20', end: '19' }, '2022': { start: '19', end: '19' },
+                '2024': { start: '18' }, '2025': { start: '18' }
+            },
+            'Alex King': {
+                '2016': { start: '16' }, '2019': { start: '14' },
+                '2021': { start: '13', end: '12' }, '2022': { start: '12', end: '11' }
+            },
+            'Sam Miller': {
+                '2018': { start: '18' }, '2021': { start: '17', end: '17' },
+                '2023': { start: '16' }, '2025': { start: '16' }
+            },
+            "David O'Connor": {
+                '2017': { start: '28' }, '2018': { start: '24' }, '2024': { start: '21' }
+            },
+            'Nick Roberts': {
+                '2015': { start: '18' }, '2017': { start: '17' },
+                '2020': { start: '16', end: '15' }, '2022': { start: '15', end: '15' }
+            },
+            'Chris Taylor': {
+                '2016': { start: '19' }, '2019': { start: '18' },
+                '2022': { start: '17', end: '17' }, '2024': { start: '17' }
+            },
+            'Luke Walker': {
+                '2018': { start: '16' }, '2021': { start: '15', end: '15' },
+                '2023': { start: '14' }, '2025': { start: '14' }
+            },
+            'Dylan Willcock': {
+                '2015': { start: '21' }, '2016': { start: '20' }, '2017': { start: '19' },
+                '2018': { start: '18' }, '2019': { start: '18' }, '2020': { start: '17', end: '17' },
+                '2021': { start: '17', end: '16' }, '2022': { start: '16', end: '16' },
+                '2023': { start: '16' }, '2024': { start: '16' }, '2025': { start: '16' }
+            }
+        };
+
+        const DEFAULT_HOLES = [
+            { hole: 1, par: 4, si: 7 },
+            { hole: 2, par: 4, si: 11 },
+            { hole: 3, par: 3, si: 15 },
+            { hole: 4, par: 5, si: 3 },
+            { hole: 5, par: 4, si: 1 },
+            { hole: 6, par: 4, si: 9 },
+            { hole: 7, par: 3, si: 17 },
+            { hole: 8, par: 5, si: 5 },
+            { hole: 9, par: 4, si: 13 },
+            { hole: 10, par: 4, si: 8 },
+            { hole: 11, par: 4, si: 2 },
+            { hole: 12, par: 3, si: 16 },
+            { hole: 13, par: 5, si: 6 },
+            { hole: 14, par: 4, si: 10 },
+            { hole: 15, par: 4, si: 4 },
+            { hole: 16, par: 3, si: 18 },
+            { hole: 17, par: 5, si: 12 },
+            { hole: 18, par: 4, si: 14 }
+        ];
+
+        // =========================================================================
+        // 4. APPLICATION STATE & LIVE CLOUD SYNC
+        // =========================================================================
+        let activeGolfer = 'Ben Burke';
+        let rounds = [];
+        let customCourses = [];
+        let historyMatrix = mergeHistoryRows(DEFAULT_HISTORY_MATRIX);
+        let handicapHistory = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
+        let manualWhsOverrides = {};
+        let memberStats = {};
+        let scoreEntryMode = 'holes';
+        let selectedBreakdownYear = '2025';
+        let editingHistoryTarget = null;
+        let editingHcpTarget = null;
         let isAdminUnlocked = false;
         let adminPin = '1986';
         let pendingAdminAction = null;
@@ -883,7 +1511,6 @@
                     populateCourseDropdowns();
                     renderAll();
 
-                    // Push restored data directly to live cloud
                     if (db && currentUser) {
                         const roundsCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_rounds');
                         for (const r of rounds) {
@@ -2210,16 +2837,22 @@
             const btn = document.getElementById('admin-lock-btn');
             const label = document.getElementById('admin-lock-label');
             const icon = document.getElementById('admin-lock-icon');
+            const backupBtn = document.getElementById('admin-backup-btn');
+            const restoreBtn = document.getElementById('admin-restore-btn');
             if (!btn || !label) return;
 
             if (isAdminUnlocked) {
                 btn.className = 'px-3 py-2.5 rounded-xl border border-emerald-400 bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0';
                 label.textContent = 'Admin Unlocked';
                 if (icon) icon.setAttribute('data-lucide', 'unlock');
+                backupBtn?.classList.remove('hidden');
+                restoreBtn?.classList.remove('hidden');
             } else {
                 btn.className = 'px-3 py-2.5 rounded-xl border border-lga-gold/50 bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0';
                 label.textContent = 'Admin Locked';
                 if (icon) icon.setAttribute('data-lucide', 'lock');
+                backupBtn?.classList.add('hidden');
+                restoreBtn?.classList.add('hidden');
             }
             if (window.lucide) lucide.createIcons();
         }
