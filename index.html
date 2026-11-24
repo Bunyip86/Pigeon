@@ -220,10 +220,15 @@
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                        <div class="bg-lga-navy text-white rounded-2xl p-4 border-2 border-lga-gold text-center">
-                            <span class="block text-[11px] uppercase tracking-wider text-lga-goldLight font-semibold">WHS Index</span>
-                            <span id="dash-whs-index" class="block font-mono text-2xl sm:text-3xl font-extrabold text-lga-gold mt-1">11.4</span>
-                            <span id="dash-whs-basis" class="block text-[10px] text-gray-300 mt-0.5">Baseline Index</span>
+                        <div class="bg-lga-navy text-white rounded-2xl p-4 border-2 border-lga-gold text-center flex flex-col justify-between">
+                            <div>
+                                <span class="block text-[11px] uppercase tracking-wider text-lga-goldLight font-semibold">WHS Index</span>
+                                <span id="dash-whs-index" class="block font-mono text-2xl sm:text-3xl font-extrabold text-lga-gold mt-1">11.4</span>
+                                <span id="dash-whs-basis" class="block text-[10px] text-gray-300 mt-0.5">Baseline Index</span>
+                            </div>
+                            <button type="button" onclick="openManualWhsModal()" class="mt-2 mx-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight border border-lga-gold/40 text-[10px] font-bold transition cursor-pointer">
+                                <i data-lucide="edit-3" class="w-3 h-3"></i> Set Manual Hcp
+                            </button>
                         </div>
                         <div class="bg-lga-sand rounded-2xl p-4 border border-lga-gold/40 text-center">
                             <span class="block text-[11px] uppercase tracking-wider text-lga-slate font-semibold">Low Cap (12m)</span>
@@ -757,6 +762,43 @@
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeHcpEditModal()" class="px-4 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 cursor-pointer">Cancel</button>
                 <button onclick="saveHcpCell()" class="px-4 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold hover:bg-lga-navyLight cursor-pointer">Save Handicap</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: MANUAL WHS HANDICAP OVERRIDE -->
+    <div id="manual-whs-modal" class="fixed inset-0 bg-lga-navy/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 border-2 border-lga-gold shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-5 h-5 text-lga-goldDark"></i>
+                    <h3 class="font-serif text-xl font-bold text-lga-navy">Set Manual WHS Handicap</h3>
+                </div>
+                <button onclick="closeManualWhsModal()" class="text-gray-400 hover:text-lga-navy cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-lga-slate mb-1">LGA Member</label>
+                    <select id="manual-whs-player" onchange="handleManualWhsPlayerChange()" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 font-bold text-lga-navy focus:outline-none focus:border-lga-gold">
+                        <!-- Populated via JS -->
+                    </select>
+                </div>
+                <div>
+                    <label for="manual-whs-input" class="block text-xs font-bold uppercase text-lga-slate mb-1">Official WHS Handicap Index</label>
+                    <input type="number" id="manual-whs-input" step="0.1" min="-5.0" max="54.0" placeholder="e.g. 16.4" class="w-full bg-lga-sand border border-lga-gold/60 rounded-xl px-4 py-2.5 font-mono text-xl font-extrabold text-lga-navy focus:outline-none focus:border-lga-navy">
+                    <p id="manual-whs-status-note" class="text-xs text-lga-slate mt-1.5">Enter a Golf Australia / WHS Handicap Index (-5.0 to 54.0). This updates Daily Handicaps and Stableford strokes across all devices.</p>
+                </div>
+            </div>
+            <div class="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
+                <button type="button" onclick="clearManualWhsOverride()" class="px-3.5 py-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold hover:bg-amber-100 cursor-pointer">
+                    Revert to Auto WHS
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeManualWhsModal()" class="px-4 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 cursor-pointer">Cancel</button>
+                    <button type="button" onclick="saveManualWhsOverride()" class="px-4 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold hover:bg-lga-navyLight cursor-pointer">Save Handicap</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1380,6 +1422,7 @@
         let customCourses = [];
         let historyMatrix = mergeHistoryRows(DEFAULT_HISTORY_MATRIX);
         let handicapHistory = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
+        let manualWhsOverrides = {}; // { [playerName]: number }
         let memberStats = {};
         let isAdminUnlocked = false;
         let adminPin = '1986';
@@ -1482,6 +1525,21 @@
                             handicapHistory = mergedHcps;
                             renderHandicapHistoryMatrix();
                         }
+                        if (data.manualWhsOverrides && typeof data.manualWhsOverrides === 'object') {
+                            const normalizedOverrides = {};
+                            Object.entries(data.manualWhsOverrides).forEach(([k, val]) => {
+                                const num = parseFloat(val);
+                                if (!isNaN(num)) {
+                                    normalizedOverrides[normalizePlayerName(k)] = Math.round(num * 10) / 10;
+                                }
+                            });
+                            manualWhsOverrides = normalizedOverrides;
+                            recalculateWHS();
+                            renderDashboard();
+                            renderHandicapHistoryMatrix();
+                            renderLineupTab();
+                            syncLogDailyHandicap();
+                        }
                         if (data.adminPin && data.adminPin !== '1919') {
                             adminPin = data.adminPin;
                         } else if (data.adminPin === '1919') {
@@ -1509,6 +1567,7 @@
                 await setDoc(sharedMetaDoc, {
                     historyMatrix,
                     handicapHistory,
+                    manualWhsOverrides,
                     adminPin,
                     updatedAt: Date.now()
                 }, { merge: true });
@@ -1569,7 +1628,7 @@
                     .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0));
 
                 const recent20 = playerRounds.slice(0, 20);
-                let whsIndex = member.baselineIndex;
+                let calculatedIndex = member.baselineIndex;
                 let countingIds = new Set();
 
                 if (recent20.length > 0) {
@@ -1588,8 +1647,11 @@
                     const bestSlice = sortedByDiff.slice(0, numTake);
                     bestSlice.forEach(r => countingIds.add(r.id || r.cloudId));
                     const avgDiff = bestSlice.reduce((sum, r) => sum + r.differential, 0) / numTake;
-                    whsIndex = Math.max(-5.0, Math.min(54.0, Math.round((avgDiff + adj) * 10) / 10));
+                    calculatedIndex = Math.max(-5.0, Math.min(54.0, Math.round((avgDiff + adj) * 10) / 10));
                 }
+
+                const hasManualOverride = typeof manualWhsOverrides[member.name] === 'number' && !isNaN(manualWhsOverrides[member.name]);
+                const whsIndex = hasManualOverride ? manualWhsOverrides[member.name] : calculatedIndex;
 
                 const ptsRounds = playerRounds.filter(r => typeof r.stableford === 'number');
                 const avgPts = ptsRounds.length > 0
@@ -1598,6 +1660,8 @@
 
                 stats[member.name] = {
                     whsIndex,
+                    calculatedIndex,
+                    isManual: hasManualOverride,
                     lowCap: Math.min(member.baselineIndex, whsIndex),
                     roundsCount: playerRounds.length,
                     avgPts,
@@ -1727,7 +1791,11 @@
 
             if (nameEl) nameEl.textContent = formatMemberDisplayName(activeGolfer);
             if (indexEl) indexEl.textContent = stats.whsIndex.toFixed(1);
-            if (basisEl) basisEl.textContent = stats.roundsCount > 0 ? `From ${stats.roundsCount} Round${stats.roundsCount === 1 ? '' : 's'}` : 'Baseline Index';
+            if (basisEl) {
+                basisEl.textContent = stats.isManual
+                    ? 'Manual GA/WHS Hcp'
+                    : (stats.roundsCount > 0 ? `From ${stats.roundsCount} Round${stats.roundsCount === 1 ? '' : 's'}` : 'Baseline Index');
+            }
             if (lowEl) lowEl.textContent = stats.lowCap.toFixed(1);
             if (countEl) countEl.textContent = stats.roundsCount;
             if (avgEl) avgEl.textContent = stats.avgPts !== null ? `${stats.avgPts} pts` : '—';
@@ -1756,813 +1824,23 @@
                             <span class="w-6 h-6 rounded-full flex items-center justify-center font-mono text-xs font-bold ${isActive ? 'bg-lga-gold text-lga-navy' : 'bg-white border border-gray-300 text-lga-slate'}">${idx + 1}</span>
                             <div class="truncate">
                                 <span class="block text-xs sm:text-sm font-bold truncate">${formatMemberDisplayName(m.name)}</span>
-                                <span class="block text-[10px] ${isActive ? 'text-lga-goldLight' : 'text-lga-slate'}">${st.roundsCount} logged round${st.roundsCount === 1 ? '' : 's'}</span>
+                                <span class="block text-[10px] ${isActive ? 'text-lga-goldLight' : 'text-lga-slate'}">${st.roundsCount} logged round${st.roundsCount === 1 ? '' : 's'}${st.isManual ? ' • Manual Hcp' : ''}</span>
                             </div>
                         </div>
-                        <div class="text-right shrink-0 ml-2">
-                            <span class="font-mono text-sm sm:text-base font-extrabold ${isActive ? 'text-lga-gold' : 'text-lga-navy'}">${st.whsIndex.toFixed(1)}</span>
-                            <span class="block text-[9px] uppercase tracking-wider ${isActive ? 'text-gray-300' : 'text-lga-slate'}">WHS</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        window.renderRoundsFeed = function() {
-            const container = document.getElementById('rounds-feed-list');
-            const filterSel = document.getElementById('rounds-filter-golfer');
-            if (!container) return;
-
-            const mode = filterSel ? filterSel.value : 'ALL';
-            const filtered = mode === 'ACTIVE'
-                ? rounds.filter(r => normalizePlayerName(r.golfer) === activeGolfer)
-                : rounds;
-
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-10 px-4 bg-lga-cream/60 rounded-2xl border border-dashed border-lga-gold/50">
-                        <p class="font-serif text-base font-bold text-lga-navy">No Live Scorecards Logged Yet</p>
-                        <p class="text-xs text-lga-slate mt-1">Click <strong>Log Round</strong> to post a hole-by-hole Stableford round and update WHS handicaps live across the group.</p>
-                        <button onclick="switchTab('log')" class="mt-3 px-4 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold cursor-pointer">+ Log First Round</button>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = filtered.map(r => {
-                const golferName = normalizePlayerName(r.golfer);
-                const countingSet = memberStats[golferName]?.countingIds;
-                const roundKey = r.id || r.cloudId;
-                const isCounting = countingSet && countingSet.has(roundKey);
-                return `
-                    <div class="p-3.5 rounded-xl bg-lga-cream/70 border border-lga-gold/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="space-y-0.5">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="font-bold text-xs sm:text-sm text-lga-navy">${formatMemberDisplayName(golferName)}</span>
-                                ${isCounting ? '<span class="px-2 py-0.5 rounded-full bg-lga-gold/30 text-lga-navy text-[10px] font-extrabold">★ Best 8</span>' : ''}
-                                <span class="text-[11px] text-lga-slate font-mono">${r.date || ''}</span>
+                        <div class="text-right shrink-0 ml-2 flex items-center gap-2">
+                            <div>
+                                <span class="font-mono text-sm sm:text-base font-extrabold ${isActive ? 'text-lga-gold' : 'text-lga-navy'}">${st.whsIndex.toFixed(1)}</span>
+                                <span class="block text-[9px] uppercase tracking-wider ${isActive ? 'text-gray-300' : 'text-lga-slate'}">${st.isManual ? 'MANUAL' : 'WHS'}</span>
                             </div>
-                            <p class="text-xs font-medium text-lga-slate">${r.courseName || 'LGA Tour Venue'} • Daily Hcp: <strong>${r.dailyHcp ?? '—'}</strong></p>
-                            ${r.notes ? `<p class="text-[11px] italic text-lga-goldDark">"${r.notes}"</p>` : ''}
-                        </div>
-                        <div class="flex items-center gap-3 self-end sm:self-center">
-                            <div class="text-center px-2.5 py-1 rounded-lg bg-white border border-gray-200">
-                                <span class="block text-[9px] uppercase text-lga-slate font-bold">Gross</span>
-                                <span class="font-mono text-sm font-extrabold text-lga-navy">${r.gross}</span>
-                            </div>
-                            <div class="text-center px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200">
-                                <span class="block text-[9px] uppercase text-emerald-700 font-bold">Pts</span>
-                                <span class="font-mono text-sm font-extrabold text-emerald-800">${r.stableford ?? '—'}</span>
-                            </div>
-                            <div class="text-center px-2.5 py-1 rounded-lg bg-lga-navy text-lga-gold">
-                                <span class="block text-[9px] uppercase text-lga-goldLight font-bold">Diff</span>
-                                <span class="font-mono text-sm font-extrabold">${Number(r.differential).toFixed(1)}</span>
-                            </div>
-                            <button onclick="deleteRound('${roundKey}')" title="Delete Round (Commissioner PIN)" class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            <button type="button" onclick="event.stopPropagation(); openManualWhsModal('${m.name.replace(/'/g, "\\'")}')" title="Set Manual Handicap" class="p-1.5 rounded-lg ${isActive ? 'bg-lga-navyLight text-lga-gold hover:bg-lga-gold hover:text-lga-navy' : 'bg-white text-lga-slate hover:text-lga-navy border border-gray-200'} transition cursor-pointer">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
                     </div>
                 `;
             }).join('');
             if (window.lucide) lucide.createIcons();
-        };
-
-        window.deleteRound = function(roundKey) {
-            requireAdmin(async () => {
-                const target = rounds.find(r => (r.id || r.cloudId) === roundKey);
-                rounds = rounds.filter(r => (r.id || r.cloudId) !== roundKey);
-                recalculateWHS();
-                renderDashboard();
-                if (db && currentUser && target && target.cloudId) {
-                    try {
-                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'lga_rounds', target.cloudId));
-                    } catch (err) {
-                        console.error('Failed to delete cloud round:', err);
-                    }
-                }
-                showToast('Round removed by Commissioner.');
-            });
-        };
-
-        // =========================================================================
-        // 8. HOLE-BY-HOLE SCORECARD & ROUND LOGGING
-        // =========================================================================
-        window.setScoreEntryMode = function(mode) {
-            scoreEntryMode = mode;
-            const holesWrap = document.getElementById('hole-by-hole-wrapper');
-            const totalWrap = document.getElementById('quick-total-wrapper');
-            const holesBtn = document.getElementById('mode-holes-btn');
-            const totalBtn = document.getElementById('mode-total-btn');
-
-            if (mode === 'holes') {
-                if (holesWrap) holesWrap.classList.remove('hidden');
-                if (totalWrap) totalWrap.classList.add('hidden');
-                if (holesBtn) holesBtn.className = 'px-3.5 py-2 rounded-lg text-xs font-bold bg-lga-navy text-lga-gold shadow cursor-pointer';
-                if (totalBtn) totalBtn.className = 'px-3.5 py-2 rounded-lg text-xs font-bold text-lga-navy hover:bg-white/60 cursor-pointer';
-                recalcHoleByHoleCard();
-            } else {
-                if (holesWrap) holesWrap.classList.add('hidden');
-                if (totalWrap) totalWrap.classList.remove('hidden');
-                if (totalBtn) totalBtn.className = 'px-3.5 py-2 rounded-lg text-xs font-bold bg-lga-navy text-lga-gold shadow cursor-pointer';
-                if (holesBtn) holesBtn.className = 'px-3.5 py-2 rounded-lg text-xs font-bold text-lga-navy hover:bg-white/60 cursor-pointer';
-                recalcQuickTotalCard();
-            }
-        };
-
-        function renderHoleTables() {
-            const frontBody = document.getElementById('front-9-tbody');
-            const backBody = document.getElementById('back-9-tbody');
-            if (!frontBody || !backBody) return;
-
-            const buildNineHtml = (startIdx, sumPrefix) => {
-                const slice = DEFAULT_HOLES.slice(startIdx, startIdx + 9);
-                const parCells = slice.map(h => `
-                    <td class="p-1">
-                        <input type="number" id="hole-par-${h.hole}" value="${h.par}" min="3" max="6" oninput="recalcHoleByHoleCard()" class="hole-input w-10 py-1 text-center font-mono font-bold text-lga-slate bg-lga-sand/60 rounded border border-gray-200 focus:border-lga-gold focus:outline-none">
-                    </td>
-                `).join('');
-
-                const siCells = slice.map(h => `
-                    <td class="p-1">
-                        <input type="number" id="hole-si-${h.hole}" value="${h.si}" min="1" max="18" oninput="recalcHoleByHoleCard()" class="hole-input w-10 py-1 text-center font-mono text-xs text-gray-500 bg-gray-50 rounded border border-gray-200 focus:border-lga-gold focus:outline-none">
-                    </td>
-                `).join('');
-
-                const scoreCells = slice.map(h => `
-                    <td class="p-1">
-                        <input type="number" id="hole-score-${h.hole}" min="1" max="15" placeholder="—" oninput="recalcHoleByHoleCard()" class="hole-input w-11 py-1.5 text-center font-mono text-sm font-extrabold text-lga-navy bg-white rounded-lg border-2 border-lga-gold/60 focus:border-lga-navy focus:outline-none">
-                    </td>
-                `).join('');
-
-                const ptsCells = slice.map(h => `
-                    <td id="hole-pts-${h.hole}" class="py-1.5 px-1 font-mono font-extrabold text-emerald-700 bg-emerald-50/50">0</td>
-                `).join('');
-
-                return `
-                    <tr>
-                        <td class="py-1.5 px-3 text-left font-bold text-lga-slate bg-lga-sand/50">PAR</td>
-                        ${parCells}
-                        <td id="${sumPrefix}-par-sum" class="py-1.5 px-2 font-mono font-bold bg-lga-sand text-lga-navy">36</td>
-                    </tr>
-                    <tr>
-                        <td class="py-1.5 px-3 text-left font-bold text-gray-500 bg-gray-50">SI</td>
-                        ${siCells}
-                        <td class="py-1.5 px-2 font-mono text-xs text-gray-400 bg-gray-50">—</td>
-                    </tr>
-                    <tr>
-                        <td class="py-2 px-3 text-left font-extrabold text-lga-navy bg-lga-cream">STROKES</td>
-                        ${scoreCells}
-                        <td id="${sumPrefix}-score-sum" class="py-2 px-2 font-mono font-extrabold bg-lga-cream text-lga-navy">—</td>
-                    </tr>
-                    <tr>
-                        <td class="py-1.5 px-3 text-left font-bold text-emerald-800 bg-emerald-50/70">PTS</td>
-                        ${ptsCells}
-                        <td id="${sumPrefix}-pts-sum" class="py-1.5 px-2 font-mono font-extrabold bg-emerald-100 text-emerald-900">0</td>
-                    </tr>
-                `;
-            };
-
-            frontBody.innerHTML = buildNineHtml(0, 'front');
-            backBody.innerHTML = buildNineHtml(9, 'back');
         }
-
-        function syncLogDailyHandicap() {
-            const golferSel = document.getElementById('log-golfer');
-            const courseSel = document.getElementById('log-course');
-            const dailyInput = document.getElementById('log-daily-hcp');
-            if (!golferSel || !courseSel || !dailyInput) return;
-
-            const golfer = normalizePlayerName(golferSel.value);
-            const course = getAllCourses().find(c => c.id === courseSel.value) || getAllCourses()[0];
-            const stats = memberStats[golfer] || { whsIndex: 18.0 };
-            dailyInput.value = calculateDailyHandicap(stats.whsIndex, course);
-            recalcHoleByHoleCard();
-        }
-
-        window.handleLogGolferChange = function() {
-            syncLogDailyHandicap();
-        };
-
-        window.handleLogCourseChange = function() {
-            syncLogDailyHandicap();
-        };
-
-        function populateLogForm() {
-            const dateInput = document.getElementById('log-date');
-            if (dateInput && !dateInput.value) {
-                dateInput.value = new Date().toISOString().split('T')[0];
-            }
-            renderHoleTables();
-            syncLogDailyHandicap();
-        }
-
-        window.fillAllPars = function() {
-            for (let i = 1; i <= 18; i++) {
-                const parEl = document.getElementById(`hole-par-${i}`);
-                const scoreEl = document.getElementById(`hole-score-${i}`);
-                if (parEl && scoreEl) scoreEl.value = parEl.value;
-            }
-            recalcHoleByHoleCard();
-        };
-
-        window.clearHoleScores = function() {
-            for (let i = 1; i <= 18; i++) {
-                const scoreEl = document.getElementById(`hole-score-${i}`);
-                if (scoreEl) scoreEl.value = '';
-            }
-            recalcHoleByHoleCard();
-        };
-
-        window.recalcHoleByHoleCard = function() {
-            if (scoreEntryMode === 'total') {
-                recalcQuickTotalCard();
-                return;
-            }
-            const dailyHcp = parseInt(document.getElementById('log-daily-hcp')?.value, 10) || 0;
-            const pcc = parseInt(document.getElementById('log-pcc')?.value, 10) || 0;
-            const courseSel = document.getElementById('log-course');
-            const course = getAllCourses().find(c => c.id === courseSel?.value) || getAllCourses()[0];
-
-            let frontPar = 0, backPar = 0;
-            let frontGross = 0, backGross = 0;
-            let frontEntered = 0, backEntered = 0;
-            let frontPts = 0, backPts = 0;
-
-            for (let h = 1; h <= 18; h++) {
-                const par = parseInt(document.getElementById(`hole-par-${h}`)?.value, 10) || 4;
-                const si = parseInt(document.getElementById(`hole-si-${h}`)?.value, 10) || h;
-                const rawScore = document.getElementById(`hole-score-${h}`)?.value;
-                const strokes = rawScore ? parseInt(rawScore, 10) : 0;
-                const pts = strokes > 0 ? calculateHoleStablefordPoints(strokes, par, dailyHcp, si) : 0;
-
-                const ptsCell = document.getElementById(`hole-pts-${h}`);
-                if (ptsCell) ptsCell.textContent = strokes > 0 ? pts : '0';
-
-                if (h <= 9) {
-                    frontPar += par;
-                    if (strokes > 0) {
-                        frontGross += strokes;
-                        frontEntered++;
-                        frontPts += pts;
-                    }
-                } else {
-                    backPar += par;
-                    if (strokes > 0) {
-                        backGross += strokes;
-                        backEntered++;
-                        backPts += pts;
-                    }
-                }
-            }
-
-            const fParEl = document.getElementById('front-par-sum');
-            const bParEl = document.getElementById('back-par-sum');
-            const fScoreEl = document.getElementById('front-score-sum');
-            const bScoreEl = document.getElementById('back-score-sum');
-            const fPtsEl = document.getElementById('front-pts-sum');
-            const bPtsEl = document.getElementById('back-pts-sum');
-
-            if (fParEl) fParEl.textContent = frontPar;
-            if (bParEl) bParEl.textContent = backPar;
-            if (fScoreEl) fScoreEl.textContent = frontEntered > 0 ? frontGross : '—';
-            if (bScoreEl) bScoreEl.textContent = backEntered > 0 ? backGross : '—';
-            if (fPtsEl) fPtsEl.textContent = frontPts;
-            if (bPtsEl) bPtsEl.textContent = backPts;
-
-            const totalPar = frontPar + backPar;
-            const totalGross = frontGross + backGross;
-            const totalEntered = frontEntered + backEntered;
-            const totalPts = frontPts + backPts;
-
-            const sumParEl = document.getElementById('summary-par');
-            const sumGrossEl = document.getElementById('summary-gross');
-            const sumNetEl = document.getElementById('summary-net');
-            const sumPtsEl = document.getElementById('summary-pts');
-            const diffValEl = document.getElementById('preview-diff-val');
-            const diffFormEl = document.getElementById('preview-diff-formula');
-
-            if (sumParEl) sumParEl.textContent = totalPar;
-            if (sumGrossEl) sumGrossEl.textContent = totalEntered > 0 ? totalGross : '—';
-            if (sumNetEl) sumNetEl.textContent = totalEntered > 0 ? (totalGross - dailyHcp) : '—';
-            if (sumPtsEl) sumPtsEl.textContent = totalPts;
-
-            if (totalEntered > 0 && course) {
-                const diff = calculateScoreDifferential(totalGross, course, pcc);
-                if (diffValEl) diffValEl.textContent = diff.toFixed(1);
-                if (diffFormEl) diffFormEl.textContent = `(113 ÷ ${course.slope}) × (${totalGross} − ${course.cr} − ${pcc})`;
-            } else {
-                if (diffValEl) diffValEl.textContent = '—';
-                if (diffFormEl) diffFormEl.textContent = 'Enter gross strokes to preview differential';
-            }
-        };
-
-        window.recalcQuickTotalCard = function() {
-            const dailyHcp = parseInt(document.getElementById('log-daily-hcp')?.value, 10) || 0;
-            const pcc = parseInt(document.getElementById('log-pcc')?.value, 10) || 0;
-            const gross = parseInt(document.getElementById('quick-gross-input')?.value, 10) || 0;
-            const manualPtsRaw = document.getElementById('quick-pts-input')?.value;
-            const courseSel = document.getElementById('log-course');
-            const course = getAllCourses().find(c => c.id === courseSel?.value) || getAllCourses()[0];
-            const par = course ? course.par : 72;
-
-            const estPts = gross > 0
-                ? (manualPtsRaw !== '' ? parseInt(manualPtsRaw, 10) : Math.max(0, 36 - ((gross - dailyHcp) - par)))
-                : 0;
-
-            document.getElementById('summary-par').textContent = par;
-            document.getElementById('summary-gross').textContent = gross > 0 ? gross : '—';
-            document.getElementById('summary-net').textContent = gross > 0 ? (gross - dailyHcp) : '—';
-            document.getElementById('summary-pts').textContent = estPts;
-
-            if (gross > 0 && course) {
-                const diff = calculateScoreDifferential(gross, course, pcc);
-                document.getElementById('preview-diff-val').textContent = diff.toFixed(1);
-                document.getElementById('preview-diff-formula').textContent = `(113 ÷ ${course.slope}) × (${gross} − ${course.cr} − ${pcc})`;
-            } else {
-                document.getElementById('preview-diff-val').textContent = '—';
-                document.getElementById('preview-diff-formula').textContent = 'Enter gross strokes to preview differential';
-            }
-        };
-
-        window.submitNewRound = async function(e) {
-            e.preventDefault();
-            const golfer = normalizePlayerName(document.getElementById('log-golfer').value);
-            const courseId = document.getElementById('log-course').value;
-            const course = getAllCourses().find(c => c.id === courseId) || getAllCourses()[0];
-            const date = document.getElementById('log-date').value || new Date().toISOString().split('T')[0];
-            const dailyHcp = parseInt(document.getElementById('log-daily-hcp').value, 10) || 0;
-            const pcc = parseInt(document.getElementById('log-pcc').value, 10) || 0;
-            const notes = document.getElementById('log-notes').value.trim();
-
-            let gross = 0;
-            let stableford = 0;
-            let holeScores = [];
-
-            if (scoreEntryMode === 'holes') {
-                let enteredCount = 0;
-                for (let h = 1; h <= 18; h++) {
-                    const par = parseInt(document.getElementById(`hole-par-${h}`).value, 10) || 4;
-                    const si = parseInt(document.getElementById(`hole-si-${h}`).value, 10) || h;
-                    const val = parseInt(document.getElementById(`hole-score-${h}`).value, 10) || 0;
-                    if (val > 0) {
-                        enteredCount++;
-                        gross += val;
-                        const pts = calculateHoleStablefordPoints(val, par, dailyHcp, si);
-                        stableford += pts;
-                        holeScores.push({ hole: h, par, si, strokes: val, pts });
-                    }
-                }
-                if (enteredCount < 18) {
-                    showToast(`Please enter scores for all 18 holes (${enteredCount}/18 entered).`, 'error');
-                    return;
-                }
-            } else {
-                gross = parseInt(document.getElementById('quick-gross-input').value, 10) || 0;
-                if (gross < 50) {
-                    showToast('Please enter a valid 18-hole gross score.', 'error');
-                    return;
-                }
-                const manualPts = document.getElementById('quick-pts-input').value;
-                stableford = manualPts !== ''
-                    ? parseInt(manualPts, 10)
-                    : Math.max(0, 36 - ((gross - dailyHcp) - (course?.par || 72)));
-            }
-
-            const differential = calculateScoreDifferential(gross, course, pcc);
-            const newRound = {
-                id: 'r_' + Date.now(),
-                golfer,
-                courseId: course.id,
-                courseName: course.name,
-                date,
-                dailyHcp,
-                pcc,
-                gross,
-                net: gross - dailyHcp,
-                stableford,
-                differential,
-                notes,
-                holeScores,
-                createdAt: Date.now()
-            };
-
-            rounds.unshift(newRound);
-            recalculateWHS();
-            renderDashboard();
-
-            if (db && currentUser) {
-                try {
-                    const roundsCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_rounds');
-                    await addDoc(roundsCol, newRound);
-                } catch (err) {
-                    console.error('Cloud round save error:', err);
-                }
-            }
-
-            clearHoleScores();
-            document.getElementById('quick-gross-input').value = '';
-            document.getElementById('quick-pts-input').value = '';
-            document.getElementById('log-notes').value = '';
-            showToast(`Round logged for ${formatMemberDisplayName(golfer)}: ${gross} gross (${stableford} pts, Diff ${differential.toFixed(1)})!`);
-            switchTab('dashboard');
-        };
-
-        // =========================================================================
-        // 9. LGA HISTORY MATRIX (2015–2025) & YEAR BREAKDOWNS
-        // =========================================================================
-        function renderHistoryMatrix() {
-            const table = document.getElementById('history-matrix-table');
-            if (!table) return;
-
-            const yearHeaders = TOUR_YEARS.map(y => `
-                <th onclick="selectBreakdownYear('${y.year}')" class="py-3 px-2.5 text-center border-l border-white/15 cursor-pointer hover:bg-lga-navyLight transition">
-                    <span class="block font-mono text-sm font-extrabold text-lga-gold">${y.year}</span>
-                    <span class="block text-[10px] font-normal text-lga-goldLight/90 truncate max-w-[85px] mx-auto">${y.venue}</span>
-                </th>
-            `).join('');
-
-            const rowsHtml = historyMatrix.map(row => {
-                const player = normalizePlayerName(row.player);
-                const displayPlayer = formatMemberDisplayName(player);
-                let apps = 0;
-                let wins = 0;
-
-                const yearCells = TOUR_YEARS.map(y => {
-                    const cell = row.results ? row.results[y.year] : null;
-                    if (cell && (cell.pos || cell.score)) {
-                        apps++;
-                        const isWin = cell.pos === '1' || cell.pos === '1=';
-                        if (isWin) wins++;
-
-                        let cellClass = 'bg-white hover:bg-lga-sand/70 text-lga-navy';
-                        if (isWin) cellClass = 'bg-amber-100/90 hover:bg-amber-200/80 text-lga-navy font-extrabold';
-                        else if (cell.pos === '2') cellClass = 'bg-slate-100 hover:bg-slate-200/70 text-lga-navy font-bold';
-                        else if (cell.pos === '3') cellClass = 'bg-orange-50 hover:bg-orange-100/70 text-lga-navy font-bold';
-                        else if (cell.pos === 'Played') cellClass = 'bg-sky-50/70 hover:bg-sky-100/70 text-sky-900';
-
-                        const posBadge = isWin ? `🏆 ${cell.pos}` : cell.pos;
-                        const scoreLine = cell.score ? `${cell.score}${cell.unit ? ' ' + cell.unit : ''}` : '';
-
-                        return `
-                            <td onclick="openHistoryEditModal('${player.replace(/'/g, "\\'")}', '${y.year}')" class="py-2 px-2 text-center border-l border-gray-200 cursor-pointer transition ${cellClass}">
-                                <span class="block text-[11px] font-bold leading-tight">${posBadge}</span>
-                                ${scoreLine ? `<span class="block font-mono text-[10px] text-lga-slate mt-0.5">${scoreLine}</span>` : ''}
-                            </td>
-                        `;
-                    }
-                    return `
-                        <td onclick="openHistoryEditModal('${player.replace(/'/g, "\\'")}', '${y.year}')" class="py-2 px-2 text-center border-l border-gray-200 text-gray-300 hover:bg-lga-sand/50 cursor-pointer transition">—</td>
-                    `;
-                }).join('');
-
-                return `
-                    <tr class="border-t border-gray-200 hover:bg-lga-cream/40">
-                        <td class="py-2.5 px-3 font-bold text-lga-navy sticky left-0 bg-white z-10 border-r border-gray-200 whitespace-nowrap">
-                            ${displayPlayer}
-                        </td>
-                        <td class="py-2.5 px-2 text-center font-mono font-bold text-lga-slate bg-lga-sand/40">${apps}</td>
-                        <td class="py-2.5 px-2 text-center font-mono font-extrabold ${wins > 0 ? 'text-amber-700 bg-amber-50' : 'text-gray-400'}">${wins > 0 ? '🏆 ' + wins : '0'}</td>
-                        ${yearCells}
-                    </tr>
-                `;
-            }).join('');
-
-            table.innerHTML = `
-                <thead>
-                    <tr class="bg-lga-navy text-white">
-                        <th class="py-3 px-3 text-left sticky left-0 bg-lga-navy z-20 min-w-[200px]">LGA Member</th>
-                        <th class="py-3 px-2 text-center text-lga-goldLight">Tours</th>
-                        <th class="py-3 px-2 text-center text-lga-gold">Titles</th>
-                        ${yearHeaders}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rowsHtml}
-                </tbody>
-            `;
-        }
-
-        window.selectBreakdownYear = function(year) {
-            selectedBreakdownYear = year;
-            renderYearBreakdown();
-        };
-
-        function renderYearBreakdown() {
-            const pillsContainer = document.getElementById('year-selector-pills');
-            const titleEl = document.getElementById('breakdown-title');
-            const contentEl = document.getElementById('year-breakdown-content');
-            if (!pillsContainer || !titleEl || !contentEl) return;
-
-            pillsContainer.innerHTML = TOUR_YEARS.map(y => {
-                const active = y.year === selectedBreakdownYear;
-                return `
-                    <button onclick="selectBreakdownYear('${y.year}')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition cursor-pointer ${active ? 'bg-lga-navy text-lga-gold shadow' : 'bg-lga-sand text-lga-navy hover:bg-lga-gold/30'}">
-                        ${y.year}
-                    </button>
-                `;
-            }).join('');
-
-            const data = YEAR_BREAKDOWNS[selectedBreakdownYear];
-            if (!data) {
-                titleEl.textContent = `${selectedBreakdownYear} LGA Championship`;
-                contentEl.innerHTML = `<p class="text-xs text-lga-slate">No detailed breakdown recorded for this year yet.</p>`;
-                return;
-            }
-
-            titleEl.textContent = data.title;
-            const headHtml = data.columns.map(col => `<th class="py-2.5 px-3 text-left">${col}</th>`).join('');
-            const bodyHtml = data.rows.map((r, idx) => `
-                <tr class="border-t border-gray-200 ${idx === 0 ? 'bg-amber-50/80 font-bold' : 'bg-white'}">
-                    ${r.map((cell, cIdx) => `<td class="py-2.5 px-3 ${cIdx === 1 ? 'font-bold text-lga-navy' : 'font-mono text-xs'}">${cIdx === 1 ? formatMemberDisplayName(normalizePlayerName(cell)) : cell}</td>`).join('')}
-                </tr>
-            `).join('');
-
-            contentEl.innerHTML = `
-                <table class="w-full text-left border-collapse rounded-xl overflow-hidden border border-gray-200 text-xs sm:text-sm">
-                    <thead>
-                        <tr class="bg-lga-navy text-lga-gold text-xs uppercase tracking-wider">${headHtml}</tr>
-                    </thead>
-                    <tbody>${bodyHtml}</tbody>
-                </table>
-            `;
-        }
-
-        window.openHistoryEditModal = function(player, year) {
-            requireAdmin(() => {
-                editingHistoryTarget = { player, year };
-                const row = historyMatrix.find(r => normalizePlayerName(r.player) === player);
-                const cell = (row && row.results && row.results[year]) || { pos: '', score: '', unit: 'pts' };
-
-                document.getElementById('edit-hist-player').value = formatMemberDisplayName(player);
-                document.getElementById('edit-hist-year').value = year;
-                document.getElementById('edit-hist-pos').value = cell.pos || '';
-                document.getElementById('edit-hist-score').value = cell.score || '';
-                document.getElementById('edit-hist-unit').value = cell.unit || '';
-
-                const modal = document.getElementById('history-edit-modal');
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            });
-        };
-
-        window.closeHistoryEditModal = function() {
-            const modal = document.getElementById('history-edit-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            editingHistoryTarget = null;
-        };
-
-        window.saveHistoryCell = function() {
-            if (!editingHistoryTarget) return;
-            const { player, year } = editingHistoryTarget;
-            const pos = document.getElementById('edit-hist-pos').value.trim();
-            const score = document.getElementById('edit-hist-score').value.trim();
-            const unit = document.getElementById('edit-hist-unit').value;
-
-            let row = historyMatrix.find(r => normalizePlayerName(r.player) === player);
-            if (!row) {
-                row = { player, results: {} };
-                historyMatrix.push(row);
-                historyMatrix.sort((a, b) => sortByLastName(a.player, b.player));
-            }
-            if (!row.results) row.results = {};
-
-            if (!pos && !score) {
-                delete row.results[year];
-            } else {
-                row.results[year] = { pos, score, unit };
-            }
-
-            renderHistoryMatrix();
-            pushSharedStateToCloud();
-            closeHistoryEditModal();
-            showToast(`Updated ${formatMemberDisplayName(player)} (${year}) record!`);
-        };
-
-        window.resetHistoryData = function() {
-            requireAdmin(() => {
-                historyMatrix = mergeHistoryRows(DEFAULT_HISTORY_MATRIX);
-                handicapHistory = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
-                renderHistoryMatrix();
-                renderHandicapHistoryMatrix();
-                pushSharedStateToCloud();
-                showToast('LGA Historical Archive & Handicaps restored to official defaults.');
-            });
-        };
-
-        // =========================================================================
-        // 9B. HANDICAP HISTORY MATRIX (2015–2025)
-        // =========================================================================
-        function renderHandicapHistoryMatrix() {
-            const table = document.getElementById('handicap-history-table');
-            if (!table) return;
-
-            const yearHeaders = TOUR_YEARS.map(y => `
-                <th class="py-3 px-2.5 text-center border-l border-white/15">
-                    <span class="block font-mono text-sm font-extrabold text-lga-gold">${y.year}</span>
-                    <span class="block text-[10px] font-normal text-lga-goldLight/90 truncate max-w-[85px] mx-auto">${y.venue}</span>
-                </th>
-            `).join('');
-
-            const rowsHtml = LGA_MEMBERS.map(member => {
-                const player = member.name;
-                const displayPlayer = formatMemberDisplayName(player);
-                const playerHcps = handicapHistory[player] || {};
-                const liveStats = memberStats[player] || { whsIndex: member.baselineIndex };
-
-                const numericHcps = TOUR_YEARS
-                    .map(y => parseFloat(playerHcps[y.year]?.start))
-                    .filter(v => !isNaN(v));
-                const lowestTourHcp = numericHcps.length > 0 ? Math.min(...numericHcps) : '—';
-
-                const yearCells = TOUR_YEARS.map(y => {
-                    const entry = playerHcps[y.year];
-                    if (entry && entry.start) {
-                        const isTbc = entry.start === 'TBC';
-                        const hasEnd = entry.end && entry.end !== '';
-                        let cellBg = 'bg-white hover:bg-lga-sand/70';
-                        let textStyle = 'font-mono font-bold text-lga-navy';
-
-                        if (isTbc) {
-                            cellBg = 'bg-sky-50/70 hover:bg-sky-100/70';
-                            textStyle = 'text-sky-800 font-semibold text-[11px]';
-                        } else if (hasEnd) {
-                            const sVal = parseFloat(entry.start);
-                            const eVal = parseFloat(entry.end);
-                            if (!isNaN(sVal) && !isNaN(eVal) && eVal < sVal) {
-                                cellBg = 'bg-emerald-50/80 hover:bg-emerald-100/80';
-                            } else {
-                                cellBg = 'bg-amber-50/70 hover:bg-amber-100/70';
-                            }
-                        }
-
-                        const label = hasEnd
-                            ? `<span class="font-mono font-extrabold text-lga-navy">${entry.start}</span> <span class="text-lga-slate">→</span> <span class="font-mono font-bold ${parseFloat(entry.end) < parseFloat(entry.start) ? 'text-emerald-700' : 'text-amber-800'}">${entry.end}</span>`
-                            : `<span class="${textStyle}">${entry.start}</span>`;
-
-                        return `
-                            <td onclick="openHcpEditModal('${player.replace(/'/g, "\\'")}', '${y.year}')" class="py-2.5 px-2 text-center border-l border-gray-200 cursor-pointer transition ${cellBg}">
-                                ${label}
-                            </td>
-                        `;
-                    }
-                    return `
-                        <td onclick="openHcpEditModal('${player.replace(/'/g, "\\'")}', '${y.year}')" class="py-2.5 px-2 text-center border-l border-gray-200 text-gray-300 hover:bg-lga-sand/50 cursor-pointer transition">—</td>
-                    `;
-                }).join('');
-
-                return `
-                    <tr class="border-t border-gray-200 hover:bg-lga-cream/40">
-                        <td class="py-2.5 px-3 font-bold text-lga-navy sticky left-0 bg-white z-10 border-r border-gray-200 whitespace-nowrap">
-                            ${displayPlayer}
-                        </td>
-                        <td class="py-2.5 px-2 text-center font-mono font-extrabold text-emerald-700 bg-emerald-50/40">${lowestTourHcp}</td>
-                        <td class="py-2.5 px-2 text-center font-mono font-extrabold text-lga-navy bg-lga-sand/50">${liveStats.whsIndex.toFixed(1)}</td>
-                        ${yearCells}
-                    </tr>
-                `;
-            }).join('');
-
-            table.innerHTML = `
-                <thead>
-                    <tr class="bg-lga-navy text-white">
-                        <th class="py-3 px-3 text-left sticky left-0 bg-lga-navy z-20 min-w-[200px]">LGA Member</th>
-                        <th class="py-3 px-2 text-center text-emerald-300">Low Hcp</th>
-                        <th class="py-3 px-2 text-center text-lga-gold">Live WHS</th>
-                        ${yearHeaders}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rowsHtml}
-                </tbody>
-            `;
-        }
-
-        window.openHcpEditModal = function(player, year) {
-            requireAdmin(() => {
-                editingHcpTarget = { player, year };
-                const current = (handicapHistory[player] && handicapHistory[player][year]) || { start: '', end: '' };
-                document.getElementById('edit-hcp-player').value = formatMemberDisplayName(player);
-                document.getElementById('edit-hcp-year').value = year;
-                document.getElementById('edit-hcp-start').value = current.start || '';
-                document.getElementById('edit-hcp-end').value = current.end || '';
-
-                const modal = document.getElementById('hcp-edit-modal');
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            });
-        };
-
-        window.closeHcpEditModal = function() {
-            const modal = document.getElementById('hcp-edit-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            editingHcpTarget = null;
-        };
-
-        window.saveHcpCell = function() {
-            if (!editingHcpTarget) return;
-            const { player, year } = editingHcpTarget;
-            const start = document.getElementById('edit-hcp-start').value.trim();
-            const end = document.getElementById('edit-hcp-end').value.trim();
-
-            if (!handicapHistory[player]) handicapHistory[player] = {};
-            if (!start && !end) {
-                delete handicapHistory[player][year];
-            } else {
-                handicapHistory[player][year] = { start, ...(end ? { end } : {}) };
-            }
-
-            renderHandicapHistoryMatrix();
-            pushSharedStateToCloud();
-            closeHcpEditModal();
-            showToast(`Handicap updated for ${formatMemberDisplayName(player)} (${year})!`);
-        };
-
-        // =========================================================================
-        // 10. COURSES & LINEUP TABS
-        // =========================================================================
-        window.renderCoursesTab = function() {
-            const grid = document.getElementById('courses-grid');
-            if (!grid) return;
-            const q = (document.getElementById('course-search-input')?.value || '').toLowerCase();
-            const stateFilter = document.getElementById('course-state-filter')?.value || 'ALL';
-            const stats = memberStats[activeGolfer] || { whsIndex: 18.0 };
-
-            const filtered = getAllCourses().filter(c => {
-                const matchState = stateFilter === 'ALL' || c.state === stateFilter;
-                const matchQ = !q || c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q);
-                return matchState && matchQ;
-            });
-
-            grid.innerHTML = filtered.map(c => {
-                const daily = calculateDailyHandicap(stats.whsIndex, c);
-                return `
-                    <div class="p-4 rounded-2xl bg-lga-cream/70 border border-lga-gold/40 flex flex-col justify-between gap-3">
-                        <div>
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="px-2 py-0.5 rounded bg-lga-navy text-lga-gold font-mono text-[10px] font-bold">${c.state}</span>
-                                <span class="font-mono text-xs text-lga-slate">Par ${c.par} • CR ${c.cr} • Slope ${c.slope}</span>
-                            </div>
-                            <h4 class="font-serif font-bold text-lga-navy text-base mt-1.5">${c.name}</h4>
-                        </div>
-                        <div class="flex items-center justify-between pt-2 border-t border-gray-200">
-                            <span class="text-xs text-lga-slate">Your Daily Hcp: <strong class="font-mono text-lga-navy">${daily}</strong></span>
-                            <button onclick="selectCourseAndLog('${c.id}')" class="px-2.5 py-1 rounded-lg bg-lga-navy text-lga-gold text-xs font-bold hover:bg-lga-navyLight transition cursor-pointer">
-                                Log Score →
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        };
-
-        window.selectCourseAndLog = function(courseId) {
-            switchTab('log');
-            const logCourse = document.getElementById('log-course');
-            if (logCourse) {
-                logCourse.value = courseId;
-                syncLogDailyHandicap();
-            }
-        };
-
-        window.addCustomCourse = async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('new-course-name').value.trim();
-            const state = document.getElementById('new-course-state').value;
-            const par = parseInt(document.getElementById('new-course-par').value, 10) || 72;
-            const cr = parseFloat(document.getElementById('new-course-cr').value) || 72.0;
-            const slope = parseInt(document.getElementById('new-course-slope').value, 10) || 125;
-
-            if (!name) return;
-            const newCourse = { id: 'custom_' + Date.now(), name, state, par, cr, slope };
-            customCourses.push(newCourse);
-            populateCourseDropdowns();
-            renderCoursesTab();
-
-            if (db && currentUser) {
-                try {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'lga_courses'), newCourse);
-                } catch (err) {
-                    console.error('Failed to sync custom course:', err);
-                }
-            }
-
-            document.getElementById('new-course-name').value = '';
-            showToast(`Added ${name} (${state}) to the LGA Course Directory!`);
-        };
-
-        function renderLineupTab() {
-            const grid = document.getElementById('lineup-grid');
-            if (!grid) return;
-
-            grid.innerHTML = LGA_MEMBERS.map(m => {
-                const st = memberStats[m.name] || { whsIndex: m.baselineIndex, roundsCount: 0, avgPts: null };
-                const isSelected = m.name === activeGolfer;
-                const histRow = historyMatrix.find(r => normalizePlayerName(r.player) === m.name);
-                const toursPlayed = histRow && histRow.results ? Object.keys(histRow.results).length : 0;
-
                 return `
                     <div onclick="switchActiveGolfer('${m.name.replace(/'/g, "\\'")}')" class="p-4 rounded-2xl border-2 transition cursor-pointer ${isSelected ? 'bg-lga-navy text-white border-lga-gold shadow-md' : 'bg-white hover:bg-lga-cream border-lga-gold/30 text-lga-navy'}">
                         <div class="flex items-start justify-between gap-2">
@@ -2570,97 +1848,107 @@
                                 <h3 class="font-serif font-bold text-base sm:text-lg">${formatMemberDisplayName(m.name)}</h3>
                                 <p class="text-xs mt-0.5 ${isSelected ? 'text-lga-goldLight' : 'text-lga-slate'}">${toursPlayed} Tour Appearance${toursPlayed === 1 ? '' : 's'} (2015–2025)</p>
                             </div>
-                            <span class="px-2.5 py-1 rounded-xl font-mono text-sm font-extrabold ${isSelected ? 'bg-lga-gold text-lga-navy' : 'bg-lga-sand text-lga-navy'}">
-                                ${st.whsIndex.toFixed(1)}
-                            </span>
+                            <button type="button" onclick="event.stopPropagation(); openManualWhsModal('${m.name.replace(/'/g, "\\'")}')" title="Edit Manual Handicap" class="px-2.5 py-1 rounded-xl font-mono text-sm font-extrabold flex items-center gap-1 transition cursor-pointer ${isSelected ? 'bg-lga-gold text-lga-navy hover:bg-lga-goldLight' : 'bg-lga-sand text-lga-navy hover:bg-lga-gold/30'}">
+                                <span>${st.whsIndex.toFixed(1)}</span>
+                                <i data-lucide="edit-3" class="w-3 h-3"></i>
+                            </button>
                         </div>
                         <div class="mt-3 pt-2.5 border-t ${isSelected ? 'border-white/15' : 'border-gray-100'} flex items-center justify-between text-xs">
-                            <span>Live Rounds: <strong>${st.roundsCount}</strong></span>
+                            <span>Live Rounds: <strong>${st.roundsCount}</strong>${st.isManual ? ' • <span class="underline">Manual Hcp</span>' : ''}</span>
                             <span class="font-bold ${isSelected ? 'text-lga-gold' : 'text-lga-goldDark'}">${isSelected ? '✓ Active Profile' : 'Select Profile →'}</span>
                         </div>
                     </div>
                 `;
             }).join('');
-        }
-
-        // =========================================================================
-        // 11. COMMISSIONER ADMIN PIN LOCK (PIN: 1986)
-        // =========================================================================
-        function updateAdminUI() {
-            const btn = document.getElementById('admin-lock-btn');
-            const label = document.getElementById('admin-lock-label');
-            const icon = document.getElementById('admin-lock-icon');
-            if (!btn || !label) return;
-
-            if (isAdminUnlocked) {
-                btn.className = 'px-3 py-2.5 rounded-xl border border-emerald-400 bg-emerald-900/60 text-emerald-200 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0';
-                label.textContent = 'Admin Unlocked';
-                if (icon) icon.setAttribute('data-lucide', 'unlock');
-            } else {
-                btn.className = 'px-3 py-2.5 rounded-xl border border-lga-gold/50 bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0';
-                label.textContent = 'Admin Locked';
-                if (icon) icon.setAttribute('data-lucide', 'lock');
-            }
             if (window.lucide) lucide.createIcons();
         }
 
-        window.toggleAdminAuth = function() {
-            if (isAdminUnlocked) {
-                isAdminUnlocked = false;
-                updateAdminUI();
-                showToast('Commissioner Admin Locked.');
-            } else {
-                pendingAdminAction = null;
-                openAdminPinModal();
+        // =========================================================================
+        // 10B. MANUAL WHS HANDICAP OVERRIDE MODAL
+        // =========================================================================
+        window.openManualWhsModal = function(targetPlayer) {
+            const player = normalizePlayerName(targetPlayer || activeGolfer);
+            const sel = document.getElementById('manual-whs-player');
+            if (sel) {
+                sel.innerHTML = LGA_MEMBERS.map(m =>
+                    `<option value="${m.name.replace(/"/g, '&quot;')}">${formatMemberDisplayName(m.name)}</option>`
+                ).join('');
+                sel.value = player;
             }
-        };
-
-        function requireAdmin(callback) {
-            if (isAdminUnlocked) {
-                callback();
-            } else {
-                pendingAdminAction = callback;
-                openAdminPinModal();
-            }
-        }
-
-        function openAdminPinModal() {
-            const modal = document.getElementById('admin-pin-modal');
-            const input = document.getElementById('admin-pin-input');
-            const err = document.getElementById('admin-pin-error');
-            if (input) input.value = '';
-            if (err) err.classList.add('hidden');
+            handleManualWhsPlayerChange();
+            const modal = document.getElementById('manual-whs-modal');
             if (modal) {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
-                setTimeout(() => input && input.focus(), 50);
+                setTimeout(() => document.getElementById('manual-whs-input')?.focus(), 50);
             }
-        }
+        };
 
-        window.closeAdminPinModal = function() {
-            const modal = document.getElementById('admin-pin-modal');
+        window.handleManualWhsPlayerChange = function() {
+            const sel = document.getElementById('manual-whs-player');
+            const input = document.getElementById('manual-whs-input');
+            const note = document.getElementById('manual-whs-status-note');
+            if (!sel || !input) return;
+
+            const player = normalizePlayerName(sel.value);
+            const st = memberStats[player] || { whsIndex: 18.0, calculatedIndex: 18.0, isManual: false };
+            input.value = st.whsIndex.toFixed(1);
+            if (note) {
+                note.textContent = st.isManual
+                    ? `Currently using Manual Handicap (${st.whsIndex.toFixed(1)}). Auto-calculated WHS from rounds/baseline is ${st.calculatedIndex.toFixed(1)}.`
+                    : `Currently using Auto WHS (${st.calculatedIndex.toFixed(1)}). Enter a custom Golf Australia / WHS Index below to override.`;
+            }
+        };
+
+        window.closeManualWhsModal = function() {
+            const modal = document.getElementById('manual-whs-modal');
             if (modal) {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
-            pendingAdminAction = null;
         };
 
-        window.verifyAdminPin = function() {
-            const val = (document.getElementById('admin-pin-input')?.value || '').trim();
-            const err = document.getElementById('admin-pin-error');
-            if (val === adminPin) {
-                isAdminUnlocked = true;
-                updateAdminUI();
-                const action = pendingAdminAction;
-                closeAdminPinModal();
-                showToast('Commissioner Admin Mode Unlocked.');
-                if (typeof action === 'function') action();
-            } else {
-                if (err) err.classList.remove('hidden');
+        window.saveManualWhsOverride = function() {
+            const sel = document.getElementById('manual-whs-player');
+            const input = document.getElementById('manual-whs-input');
+            if (!sel || !input) return;
+
+            const player = normalizePlayerName(sel.value);
+            const val = parseFloat(input.value);
+            if (isNaN(val) || val < -5.0 || val > 54.0) {
+                showToast('Please enter a valid handicap between -5.0 and 54.0.', 'error');
+                return;
             }
+
+            const rounded = Math.round(val * 10) / 10;
+            manualWhsOverrides[player] = rounded;
+            recalculateWHS();
+            renderDashboard();
+            renderHandicapHistoryMatrix();
+            renderLineupTab();
+            syncLogDailyHandicap();
+            pushSharedStateToCloud();
+            closeManualWhsModal();
+            showToast(`Manual handicap for ${formatMemberDisplayName(player)} set to ${rounded.toFixed(1)}!`);
         };
 
+        window.clearManualWhsOverride = function() {
+            const sel = document.getElementById('manual-whs-player');
+            if (!sel) return;
+            const player = normalizePlayerName(sel.value);
+            delete manualWhsOverrides[player];
+            recalculateWHS();
+            renderDashboard();
+            renderHandicapHistoryMatrix();
+            renderLineupTab();
+            syncLogDailyHandicap();
+            pushSharedStateToCloud();
+            closeManualWhsModal();
+            showToast(`Reverted ${formatMemberDisplayName(player)} to automatic WHS calculation.`);
+        };
+
+        // =========================================================================
+        // 11. COMMISSIONER ADMIN PIN LOCK (PIN: 1986)
         // =========================================================================
         // 12. BOOT APPLICATION
         // =========================================================================
