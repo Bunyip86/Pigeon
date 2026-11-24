@@ -173,7 +173,7 @@
                             <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Official WHS Index Card
                         </div>
                         <h2 id="dash-golfer-name" class="font-serif text-2xl sm:text-4xl font-extrabold text-lga-navy">Ben Burke (President)</h2>
-                        <p id="dash-golfer-meta" class="text-sm text-lga-slate mt-1">Home Club: Legends Touring Chapter • 19 Active Members</p>
+                        <p id="dash-golfer-meta" class="text-sm text-lga-slate mt-1">Home Club: Legends Touring Chapter • 18 Active Members</p>
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
@@ -226,7 +226,7 @@
                             <h3 class="font-serif text-lg font-bold text-lga-navy">LGA Live Handicap Board</h3>
                             <p class="text-xs text-lga-slate">Click any golfer to inspect or log their rounds</p>
                         </div>
-                        <span class="px-2.5 py-1 rounded-full bg-lga-sand text-lga-navy text-xs font-bold">19 Members</span>
+                        <span class="px-2.5 py-1 rounded-full bg-lga-sand text-lga-navy text-xs font-bold">18 Members</span>
                     </div>
                     <div id="group-whs-list" class="space-y-2 max-h-[460px] overflow-y-auto lga-scroll pr-1">
                         <!-- Populated via JS -->
@@ -569,7 +569,7 @@
                         <h2 class="font-serif text-2xl font-bold text-lga-navy">Official LGA Member Lineup</h2>
                         <p class="text-xs text-lga-slate mt-0.5">Select any member card to activate their profile for score entry and WHS tracking.</p>
                     </div>
-                    <span class="px-3 py-1 rounded-full bg-lga-navy text-lga-gold text-xs font-bold self-start">19 Touring Members</span>
+                    <span class="px-3 py-1 rounded-full bg-lga-navy text-lga-gold text-xs font-bold self-start">18 Touring Members</span>
                 </div>
                 <div id="lineup-grid" class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <!-- Populated via renderLineupTab() -->
@@ -725,7 +725,7 @@
         import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================
-        // 1. MASTER LGA ROSTER (SORTED ALPHABETICALLY BY SURNAME)
+        // 1. MASTER LGA ROSTER (SORTED ALPHABETICALLY BY SURNAME — 18 MEMBERS)
         // =========================================================================
         const LGA_MEMBERS_RAW = [
             { name: 'Daniel Bennets', title: '', baselineIndex: 22.0 },
@@ -738,7 +738,6 @@
             { name: 'Alex Kostov', title: '', baselineIndex: 21.0 },
             { name: 'Oscar Kus', title: '', baselineIndex: 32.0 },
             { name: 'Ben Lenz', title: '', baselineIndex: 20.5 },
-            { name: "Dave O'Connor", title: '', baselineIndex: 25.0 },
             { name: "David O'Connor", title: '', baselineIndex: 24.0 },
             { name: 'James Patrick', title: 'Reigning Champion', baselineIndex: 17.8 },
             { name: 'Rob Rosengarten', title: '', baselineIndex: 19.6 },
@@ -774,6 +773,9 @@
             const aliases = {
                 'Doz': 'Andrew Dorrington',
                 'Frederico': 'Frederico Bianco',
+                "Dave O'Connor": "David O'Connor",
+                'Dave OConnor': "David O'Connor",
+                'David OConnor': "David O'Connor",
                 'Stowey': 'Michael Stowe',
                 'Craig': 'Craig Tubb',
                 'Dylan': 'Dylan Willcock',
@@ -787,6 +789,22 @@
             if (aliases[clean]) return aliases[clean];
             const found = LGA_MEMBERS.find(m => m.name.toLowerCase() === clean.toLowerCase());
             return found ? found.name : clean;
+        }
+
+        function mergeHistoryRows(rawList) {
+            const map = new Map();
+            LGA_MEMBERS.forEach(m => {
+                map.set(m.name, { player: m.name, results: {} });
+            });
+            (rawList || []).forEach(row => {
+                const canon = normalizePlayerName(row.player);
+                if (!map.has(canon)) {
+                    map.set(canon, { player: canon, results: {} });
+                }
+                const target = map.get(canon);
+                target.results = { ...target.results, ...(row.results || {}) };
+            });
+            return Array.from(map.values()).sort((a, b) => sortByLastName(a.player, b.player));
         }
 
         // =========================================================================
@@ -940,14 +958,11 @@
             },
             { player: 'Ben Lenz', results: {} },
             {
-                player: "Dave O'Connor",
-                results: { '2024': { pos: '7', score: '62', unit: 'pts' } }
-            },
-            {
                 player: "David O'Connor",
                 results: {
                     '2017': { pos: '1', score: '149', unit: 'stroke' },
-                    '2018': { pos: '8', score: '39', unit: 'pts' }
+                    '2018': { pos: '8', score: '39', unit: 'pts' },
+                    '2024': { pos: '7', score: '62', unit: 'pts' }
                 }
             },
             {
@@ -1156,7 +1171,7 @@
                     ['4', 'Michael Stowe', '30', '37', '67'],
                     ['5', 'Simon Willcock', '25', '40', '65'],
                     ['6', 'James Patrick', '31', '32', '63'],
-                    ['7', "Dave O'Connor", '30', '32', '62'],
+                    ['7', "David O'Connor", '30', '32', '62'],
                     ['8', 'Craig Tubb', '35', '26', '61'],
                     ['9', 'Jason Daye', '25', '32', '57'],
                     ['10', 'Dylan Willcock', '18', '22', '40'],
@@ -1238,12 +1253,10 @@
                 '2018': { start: '36' }
             },
             'Ben Lenz': {},
-            "Dave O'Connor": {
-                '2024': { start: 'TBC' }
-            },
             "David O'Connor": {
                 '2017': { start: '28' },
-                '2018': { start: '24' }
+                '2018': { start: '24' },
+                '2024': { start: 'TBC' }
             },
             'James Patrick': {
                 '2017': { start: '36' },
@@ -1322,7 +1335,7 @@
         let selectedBreakdownYear = '2025';
         let rounds = [];
         let customCourses = [];
-        let historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
+        let historyMatrix = mergeHistoryRows(DEFAULT_HISTORY_MATRIX);
         let handicapHistory = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
         let memberStats = {};
         let isAdminUnlocked = false;
@@ -1414,16 +1427,16 @@
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         if (Array.isArray(data.historyMatrix) && data.historyMatrix.length > 0) {
-                            historyMatrix = data.historyMatrix
-                                .map(row => ({
-                                    ...row,
-                                    player: normalizePlayerName(row.player)
-                                }))
-                                .sort((a, b) => sortByLastName(a.player, b.player));
+                            historyMatrix = mergeHistoryRows(data.historyMatrix);
                             renderHistoryMatrix();
                         }
                         if (data.handicapHistory && typeof data.handicapHistory === 'object') {
-                            handicapHistory = { ...JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY)), ...data.handicapHistory };
+                            const mergedHcps = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
+                            Object.entries(data.handicapHistory).forEach(([k, val]) => {
+                                const canon = normalizePlayerName(k);
+                                mergedHcps[canon] = { ...(mergedHcps[canon] || {}), ...(val || {}) };
+                            });
+                            handicapHistory = mergedHcps;
                             renderHandicapHistoryMatrix();
                         }
                         if (data.adminPin && data.adminPin !== '1919') {
@@ -2286,7 +2299,7 @@
 
         window.resetHistoryData = function() {
             requireAdmin(() => {
-                historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
+                historyMatrix = mergeHistoryRows(DEFAULT_HISTORY_MATRIX);
                 handicapHistory = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
                 renderHistoryMatrix();
                 renderHandicapHistoryMatrix();
@@ -2609,12 +2622,7 @@
         // 12. BOOT APPLICATION
         // =========================================================================
         function loadState() {
-            historyMatrix = historyMatrix
-                .map(row => ({
-                    ...row,
-                    player: normalizePlayerName(row.player)
-                }))
-                .sort((a, b) => sortByLastName(a.player, b.player));
+            historyMatrix = mergeHistoryRows(historyMatrix);
         }
 
         function renderAll() {
