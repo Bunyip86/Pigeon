@@ -818,22 +818,22 @@
         const RAW_LGA_MEMBERS = [
             { name: 'Ben Burke', role: 'President', baselineIndex: 11.4 },
             { name: 'James Patrick', role: 'Reigning Champion', baselineIndex: 12.8 },
-            { name: 'Frederico Bianco', role: '', baselineIndex: 16.5 },
+            { name: 'Federico Bianco', role: '', baselineIndex: 16.5 },
             { name: 'Ben Cohen', role: '', baselineIndex: 15.2 },
-            { name: 'Dan Cohen', role: '', baselineIndex: 19.4 },
-            { name: 'Andrew Deller', role: '', baselineIndex: 14.0 },
-            { name: 'Josh Fisher', role: '', baselineIndex: 17.6 },
-            { name: 'Liam Foley', role: '', baselineIndex: 13.5 },
-            { name: 'Simon Gold', role: '', baselineIndex: 20.2 },
-            { name: 'Matt Green', role: '', baselineIndex: 15.8 },
-            { name: 'Tom Harris', role: '', baselineIndex: 18.0 },
-            { name: 'Alex King', role: '', baselineIndex: 10.9 },
-            { name: 'Sam Miller', role: '', baselineIndex: 16.2 },
+            { name: 'Ben Lenz', role: '', baselineIndex: 13.8 },
+            { name: 'Craig Tubb', role: '', baselineIndex: 16.0 },
+            { name: 'Daniel Bennets', role: '', baselineIndex: 14.6 },
             { name: "David O'Connor", role: '', baselineIndex: 21.5 },
-            { name: 'Nick Roberts', role: '', baselineIndex: 14.7 },
-            { name: 'Chris Taylor', role: '', baselineIndex: 17.1 },
-            { name: 'Luke Walker', role: '', baselineIndex: 13.9 },
-            { name: 'Dylan Willcock', role: '', baselineIndex: 15.6 }
+            { name: 'Dylan Willcock', role: '', baselineIndex: 15.6 },
+            { name: 'Frederico', role: '', baselineIndex: 16.5 },
+            { name: 'James Patrick', role: 'Reigning Champion', baselineIndex: 12.8 },
+            { name: 'Jason Daye', role: '', baselineIndex: 15.0 },
+            { name: 'Jon Dardaganis', role: '', baselineIndex: 17.2 },
+            { name: 'Michael Stowe', role: '', baselineIndex: 13.4 },
+            { name: 'Nigel Willcock', role: '', baselineIndex: 18.1 },
+            { name: 'Oscar Kus', role: '', baselineIndex: 12.9 },
+            { name: 'Rob Rosengarten', role: '', baselineIndex: 16.4 },
+            { name: 'Simon Willcock', role: '', baselineIndex: 14.9 }
         ];
 
         function normalizePlayerName(raw) {
@@ -842,8 +842,8 @@
             if (/^dave\s+o'?connor$/i.test(clean) || /^david\s+o'?connor$/i.test(clean)) {
                 return "David O'Connor";
             }
-            if (/^frederico$/i.test(clean)) {
-                return 'Frederico Bianco';
+            if (/^(frederico|federico)(\s+bianco)?$/i.test(clean)) {
+                return 'Federico Bianco';
             }
             return clean;
         }
@@ -976,7 +976,7 @@
                 }
             },
             {
-                player: 'Frederico Bianco',
+                player: 'Federico Bianco',
                 results: {
                     '2019': { pos: '6', score: '61', unit: 'pts' },
                     '2020': { pos: '4', score: '66', unit: 'pts' },
@@ -1168,7 +1168,7 @@
                     ['1', 'James Patrick', '13', '38 pts', '36 pts', '74 pts'],
                     ['2', 'Ben Burke', '11', '35 pts', '36 pts', '71 pts'],
                     ['3', 'Ben Cohen', '15', '34 pts', '35 pts', '69 pts'],
-                    ['4', 'Frederico Bianco', '16', '33 pts', '34 pts', '67 pts'],
+                    ['4', 'Federico Bianco', '16', '33 pts', '34 pts', '67 pts'],
                     ['5', 'Andrew Deller', '14', '34 pts', '32 pts', '66 pts'],
                     ['6', 'Dan Cohen', '19', '31 pts', '33 pts', '64 pts'],
                     ['7', 'Josh Fisher', '18', '32 pts', '31 pts', '63 pts'],
@@ -1188,7 +1188,7 @@
                     ['2', 'Ben Cohen', '15', '70 pts'],
                     ['3', 'James Patrick', '14', '68 pts'],
                     ['4', 'Ben Burke', '12', '66 pts'],
-                    ['5', 'Frederico Bianco', '17', '65 pts'],
+                    ['5', 'Federico Bianco', '17', '65 pts'],
                     ['6', 'Josh Fisher', '18', '63 pts'],
                     ['7', "David O'Connor", '21', '62 pts'],
                     ['8', 'Dan Cohen', '20', '61 pts'],
@@ -1203,7 +1203,7 @@
                 rows: [
                     ['1', 'Andrew Deller', '14', '73 pts'],
                     ['2', 'Ben Burke', '12', '70 pts'],
-                    ['3', 'Frederico Bianco', '17', '68 pts'],
+                    ['3', 'Federico Bianco', '17', '68 pts'],
                     ['4', 'James Patrick', '14', '66 pts'],
                     ['5', 'Ben Cohen', '15', '64 pts'],
                     ['6', 'Matt Green', '16', '62 pts'],
@@ -1222,7 +1222,7 @@
                     ['3=', 'Ben Burke', '13 → 12', '68 pts'],
                     ['3=', 'Liam Foley', '14 → 13', '68 pts'],
                     ['5', 'Ben Cohen', '16 → 15', '65 pts'],
-                    ['6', 'Frederico Bianco', '18 → 17', '64 pts'],
+                    ['6', 'Federico Bianco', '18 → 17', '64 pts'],
                     ['7', 'Dan Cohen', '20 → 20', '62 pts'],
                     ['8', 'Josh Fisher', '18 → 18', '60 pts'],
                     ['9', 'Tom Harris', '19 → 19', '58 pts'],
@@ -1239,7 +1239,7 @@
                     ['2', 'James Patrick', '16 → 15', '68 pts'],
                     ['3', 'Ben Cohen', '16 → 16', '66 pts'],
                     ['4', 'Ben Burke', '13 → 13', '64 pts'],
-                    ['5', 'Frederico Bianco', '18 → 18', '63 pts'],
+                    ['5', 'Federico Bianco', '18 → 18', '63 pts'],
                     ['6', 'Andrew Deller', '15 → 15', '61 pts'],
                     ['7', 'Matt Green', '16 → 16', '60 pts'],
                     ['8', 'Simon Gold', '21 → 21', '58 pts'],
@@ -1255,7 +1255,7 @@
                     ['1', 'Liam Foley', '15 → 14', '74 pts'],
                     ['2', 'Ben Burke', '14 → 13', '71 pts'],
                     ['3', 'Ben Cohen', '17 → 16', '69 pts'],
-                    ['4', 'Frederico Bianco', '19 → 18', '66 pts'],
+                    ['4', 'Federico Bianco', '19 → 18', '66 pts'],
                     ['5', 'James Patrick', '16 → 16', '64 pts'],
                     ['6', 'Josh Fisher', '19 → 18', '63 pts'],
                     ['7', 'Tom Harris', '20 → 19', '61 pts'],
@@ -1273,80 +1273,15 @@
                     ['3', 'Ben Burke', '14', '67 pts'],
                     ['4', 'Matt Green', '17', '65 pts'],
                     ['5', 'Ben Cohen', '17', '63 pts'],
-                    ['6', 'Frederico Bianco', '20', '61 pts'],
+                    ['6', 'Federico Bianco', '20', '61 pts'],
                     ['7', 'Alex King', '14', '59 pts'],
-                    ['8', 'Simon Gold', '22', '57 pts'],
-                    ['9', 'Chris Taylor', '18', '55 pts'],
-                    ['10', 'Dylan Willcock', '18', '54 pts']
-                ]
-            },
-            '2018': {
-                title: '2018 LGA Championship — Yarrawonga',
-                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
-                rows: [
-                    ['1', 'Ben Burke', '15', '73 pts'],
-                    ['2', 'Liam Foley', '16', '70 pts'],
-                    ['3', 'Ben Cohen', '18', '68 pts'],
-                    ['4', 'James Patrick', '18', '66 pts'],
-                    ['5', 'Josh Fisher', '20', '64 pts'],
-                    ['6', 'Sam Miller', '18', '61 pts'],
-                    ['7', 'Dan Cohen', '22', '58 pts'],
-                    ['8', "David O'Connor", '24', '39 pts'],
-                    ['9', 'Luke Walker', '16', '54 pts'],
-                    ['10', 'Dylan Willcock', '18', '52 pts']
-                ]
-            },
-            '2017': {
-                title: '2017 LGA Championship — Mornington (Net Strokeplay)',
-                columns: ['Pos', 'Golfer', 'Hcp', 'Net Total'],
-                rows: [
-                    ['1', "David O'Connor", '28', '149'],
-                    ['2', 'Andrew Deller', '18', '151'],
-                    ['3', 'Ben Cohen', '19', '154'],
-                    ['4', 'Ben Burke', '16', '156'],
-                    ['5', 'Matt Green', '18', '159'],
-                    ['6', 'Nick Roberts', '17', '162'],
-                    ['7', 'Dylan Willcock', '19', '164']
-                ]
-            },
-            '2016': {
-                title: '2016 LGA Championship — Barwon Heads',
-                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
-                rows: [
-                    ['1', 'Liam Foley', '18', '70 pts'],
-                    ['2', 'Alex King', '16', '67 pts'],
-                    ['3', 'Ben Burke', '17', '65 pts'],
-                    ['4', 'Ben Cohen', '20', '63 pts'],
-                    ['5', 'Chris Taylor', '19', '61 pts'],
-                    ['6', 'Dan Cohen', '24', '59 pts'],
-                    ['7', 'Dylan Willcock', '20', '58 pts']
-                ]
-            },
-            '2015': {
-                title: '2015 Inaugural LGA Championship — Torquay',
-                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
-                rows: [
-                    ['1', 'Ben Cohen', '21', '71 pts'],
-                    ['2', 'Ben Burke', '18', '68 pts'],
-                    ['3', 'Dylan Willcock', '21', '65 pts'],
-                    ['4', 'Nick Roberts', '18', '62 pts']
-                ]
-            }
-        };
-
-        const DEFAULT_HANDICAP_HISTORY = {
-            'Ben Burke': {
-                '2015': { start: '18' }, '2016': { start: '17' }, '2017': { start: '16' },
-                '2018': { start: '15' }, '2019': { start: '14' }, '2020': { start: '14', end: '13' },
-                '2021': { start: '13', end: '13' }, '2022': { start: '13', end: '12' },
-                '2023': { start: '12' }, '2024': { start: '12' }, '2025': { start: '11' }
-            },
+<!-- ... existing ... -->
             'James Patrick': {
                 '2018': { start: '18' }, '2019': { start: '17' }, '2020': { start: '16', end: '16' },
                 '2021': { start: '16', end: '15' }, '2022': { start: '15', end: '14' },
                 '2023': { start: '14' }, '2024': { start: '14' }, '2025': { start: '13' }
             },
-            'Frederico Bianco': {
+            'Federico Bianco': {
                 '2019': { start: '20' }, '2020': { start: '19', end: '18' },
                 '2021': { start: '18', end: '18' }, '2022': { start: '18', end: '17' },
                 '2023': { start: '17' }, '2024': { start: '17' }, '2025': { start: '16' }
