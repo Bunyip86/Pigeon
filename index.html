@@ -72,7 +72,6 @@
         .hole-input {
             -moz-appearance: textfield;
         }
-        /* Custom scrollbar for wide historical tables */
         .lga-scroll::-webkit-scrollbar {
             height: 8px;
             width: 8px;
@@ -122,7 +121,7 @@
                         <i data-lucide="user-check" class="w-4 h-4 text-lga-gold shrink-0"></i>
                         <div class="min-w-0 flex-1">
                             <label for="active-golfer-select" class="block text-[10px] uppercase tracking-wider text-lga-goldLight font-semibold">Active Golfer</label>
-                            <select id="active-golfer-select" onchange="switchActiveGolfer(this.value)" class="bg-transparent text-white font-semibold text-xs sm:text-sm focus:outline-none w-full cursor-pointer">
+                            <select id="active-golfer-select" onchange="switchActiveGolfer(this.value)" class="bg-lga-navyLight text-white font-semibold text-xs sm:text-sm focus:outline-none w-full cursor-pointer">
                                 <!-- Populated via JS -->
                             </select>
                         </div>
@@ -136,7 +135,7 @@
             </div>
 
             <!-- Navigation Tabs -->
-            <nav class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pt-3 mt-3 border-t border-white/10 pb-1 no-scrollbar">
+            <nav class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pt-3 mt-3 border-t border-white/10 pb-1">
                 <button onclick="switchTab('dashboard')" data-tab="dashboard" class="tab-btn active px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-transparent flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Clubhouse &amp; WHS
                 </button>
@@ -167,7 +166,6 @@
 
         <!-- TAB 1: CLUBHOUSE & WHS HANDICAP DASHBOARD -->
         <section id="tab-dashboard" class="space-y-6">
-            <!-- Active Golfer Hero Banner -->
             <div class="lga-card p-5 sm:p-7 bg-gradient-to-br from-white via-white to-lga-sand/60">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     <div>
@@ -181,12 +179,12 @@
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                         <div class="bg-lga-navy text-white rounded-2xl p-4 border-2 border-lga-gold text-center">
                             <span class="block text-[11px] uppercase tracking-wider text-lga-goldLight font-semibold">WHS Index</span>
-                            <span id="dash-whs-index" class="block font-mono text-2xl sm:text-3xl font-extrabold text-lga-gold mt-1">18.4</span>
+                            <span id="dash-whs-index" class="block font-mono text-2xl sm:text-3xl font-extrabold text-lga-gold mt-1">11.4</span>
                             <span id="dash-whs-basis" class="block text-[10px] text-gray-300 mt-0.5">Baseline Index</span>
                         </div>
                         <div class="bg-lga-sand rounded-2xl p-4 border border-lga-gold/40 text-center">
                             <span class="block text-[11px] uppercase tracking-wider text-lga-slate font-semibold">Low Cap (12m)</span>
-                            <span id="dash-low-cap" class="block font-mono text-2xl sm:text-3xl font-bold text-lga-navy mt-1">18.4</span>
+                            <span id="dash-low-cap" class="block font-mono text-2xl sm:text-3xl font-bold text-lga-navy mt-1">11.4</span>
                             <span class="block text-[10px] text-lga-slate mt-0.5">Soft/Hard Cap Anchor</span>
                         </div>
                         <div class="bg-lga-sand rounded-2xl p-4 border border-lga-gold/40 text-center">
@@ -212,7 +210,7 @@
                     </div>
                     <div class="flex items-center gap-3 bg-lga-cream px-4 py-2 rounded-xl border border-lga-gold/40">
                         <span class="text-xs text-lga-slate font-medium">Playing Daily Handicap:</span>
-                        <span id="dash-daily-hcp-val" class="font-mono text-lg font-extrabold text-lga-navy">20</span>
+                        <span id="dash-daily-hcp-val" class="font-mono text-lg font-extrabold text-lga-navy">15</span>
                         <button onclick="switchTab('log')" class="ml-2 px-3 py-1.5 rounded-lg bg-lga-navy text-lga-gold text-xs font-bold hover:bg-lga-navyLight transition cursor-pointer">
                             + Log Round
                         </button>
@@ -222,7 +220,6 @@
 
             <!-- Live Group Leaderboard & Recent Rounds -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Group WHS Standings -->
                 <div class="lg:col-span-5 lga-card p-5">
                     <div class="flex items-center justify-between mb-4">
                         <div>
@@ -236,7 +233,6 @@
                     </div>
                 </div>
 
-                <!-- Recent Logged Rounds Feed -->
                 <div class="lg:col-span-7 lga-card p-5">
                     <div class="flex items-center justify-between mb-4">
                         <div>
@@ -436,7 +432,6 @@
 
         <!-- TAB 3: LGA HISTORY (2015-2025 ARCHIVE & YEAR-BY-YEAR BREAKDOWN) -->
         <section id="tab-history" class="hidden space-y-6">
-            <!-- Master All-Time Standings Matrix -->
             <div class="lga-card p-5 sm:p-6">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-lga-gold/30">
                     <div>
@@ -872,15 +867,10 @@
         ];
 
         const DEFAULT_HISTORY_MATRIX = [
-            {
-                player: 'Daniel Bennets',
-                results: {}
-            },
+            { player: 'Daniel Bennets', results: {} },
             {
                 player: 'Frederico Bianco',
-                results: {
-                    '2025': { pos: '9=', score: '27', unit: 'pts' }
-                }
+                results: { '2025': { pos: '9=', score: '27', unit: 'pts' } }
             },
             {
                 player: 'Ben Burke',
@@ -943,25 +933,15 @@
                     '2025': { pos: '6', score: '48', unit: 'pts' }
                 }
             },
-            {
-                player: 'Alex Kostov',
-                results: {}
-            },
+            { player: 'Alex Kostov', results: {} },
             {
                 player: 'Oscar Kus',
-                results: {
-                    '2018': { pos: '9', score: '28', unit: 'pts' }
-                }
+                results: { '2018': { pos: '9', score: '28', unit: 'pts' } }
             },
-            {
-                player: 'Ben Lenz',
-                results: {}
-            },
+            { player: 'Ben Lenz', results: {} },
             {
                 player: "Dave O'Connor",
-                results: {
-                    '2024': { pos: '7', score: '62', unit: 'pts' }
-                }
+                results: { '2024': { pos: '7', score: '62', unit: 'pts' } }
             },
             {
                 player: "David O'Connor",
@@ -986,9 +966,7 @@
             },
             {
                 player: 'Rob Rosengarten',
-                results: {
-                    '2025': { pos: '8', score: '32', unit: 'pts' }
-                }
+                results: { '2025': { pos: '8', score: '32', unit: 'pts' } }
             },
             {
                 player: 'Michael Stowe',
@@ -1075,8 +1053,131 @@
                 columns: ['Rank', 'Golfer', 'Starting Hcp', 'Total Strokes'],
                 rows: [
                     ['1', "David O'Connor", '28', '149'],
-                    '9=': null
-                }
+                    ['2', 'Dylan Willcock', '26', '150'],
+                    ['3', 'Ben Cohen', '20', '152'],
+                    ['4', 'Ben Burke', '22', '153'],
+                    ['5', 'Michael Stowe', '19', '156'],
+                    ['6', 'Craig Tubb', '22', '161'],
+                    ['7', 'James Patrick', '36', '202']
+                ]
+            },
+            '2018': {
+                title: '2018 LGA Championship — Melbourne (36-Hole Stableford)',
+                columns: ['Rank', 'Golfer', 'Starting Hcp', 'Total Pts'],
+                rows: [
+                    ['1', 'Ben Cohen', '17', '69'],
+                    ['2', 'Ben Burke', '21', '66'],
+                    ['3', 'Dylan Willcock', '23', '59'],
+                    ['4', 'James Patrick', '36', '57'],
+                    ['5=', 'Craig Tubb', '18', '52'],
+                    ['5=', 'Simon Willcock', '36', '52'],
+                    ['7', 'Andrew Dorrington', '36', '50'],
+                    ['8', "David O'Connor", '24', '39'],
+                    ['9', 'Oscar Kus', '36', '28']
+                ]
+            },
+            '2019': {
+                title: '2019 LGA Championship — Full Field Scorecard (36-Hole Stableford)',
+                columns: ['Rank', 'Golfer', 'Starting Hcp', 'Rd 1', 'Rd 2', 'Total Pts'],
+                rows: [
+                    ['1', 'Ben Cohen', '16', '35', '34', '69'],
+                    ['2', 'Michael Stowe', '18', '31', '33', '64'],
+                    ['3', 'Dylan Willcock', '22', '30', '31', '61'],
+                    ['4', 'Ben Burke', '19', '28', '30', '58'],
+                    ['5', 'Craig Tubb', '18', '27', '29', '56'],
+                    ['6', 'James Patrick', '34', '25', '28', '53']
+                ]
+            },
+            '2020': {
+                title: '2020 LGA Championship — Full Field & Handicap Adjustments',
+                columns: ['Rank', 'Golfer', 'Start Hcp', 'End Hcp', 'Hcp Shift', 'Total Pts'],
+                rows: [
+                    ['1', 'Ben Burke', '20', '15', '-5', '77'],
+                    ['2', 'Michael Stowe', '21', '20', '-1', '69'],
+                    ['3', 'James Patrick', '36', '37', '+1', '64'],
+                    ['4', 'Craig Tubb', '20', '24', '+4', '58'],
+                    ['5', 'Ben Cohen', '15', '22', '+7', '53'],
+                    ['6', 'Dylan Willcock', '24', '31', '+7', '52'],
+                    ['7', 'Andrew Dorrington', '36', '49', '+13', '41'],
+                    ['8', 'Jon Dardaganis', '36', '52', '+16', '35']
+                ]
+            },
+            '2021': {
+                title: '2021 LGA Championship — Full Field & Handicap Adjustments',
+                columns: ['Rank', 'Golfer', 'Start Hcp', 'End Hcp', 'Hcp Shift', 'Total Pts'],
+                rows: [
+                    ['1', 'Craig Tubb', '23', '21', '-2', '71'],
+                    ['2', 'Dylan Willcock', '27', '25', '-2', '70'],
+                    ['3', 'Ben Cohen', '19', '18', '-1', '69'],
+                    ['4', 'James Patrick', '36', '37', '+1', '65'],
+                    ['5', 'Ben Burke', '12', '20', '+8', '50'],
+                    ['6', 'Jon Dardaganis', '36', '50', '+14', '39'],
+                    ['7', 'Andrew Dorrington', '36', '59', '+23', '21']
+                ]
+            },
+            '2022': {
+                title: '2022 LGA Championship — Full Field & Handicap Adjustments',
+                columns: ['Rank', 'Golfer', 'Start Hcp', 'End Hcp', 'Hcp Shift', 'Total Pts'],
+                rows: [
+                    ['1=', 'Dylan Willcock', '27', '30', '+3', '60'],
+                    ['1=', 'James Patrick', '32', '35', '+3', '60'],
+                    ['3', 'Ben Cohen', '18', '23', '+5', '57'],
+                    ['4', 'Ben Burke', '16', '24', '+8', '51'],
+                    ['5=', 'Craig Tubb', '16', '27', '+11', '45'],
+                    ['5=', 'Andrew Dorrington', '36', '47', '+11', '45'],
+                    ['7', 'Michael Stowe', '20', '33', '+13', '41'],
+                    ['8', 'Jon Dardaganis', '36', '54', '+18', '30']
+                ]
+            },
+            '2023': {
+                title: '2023 LGA Championship — Round-by-Round Breakdown',
+                columns: ['Rank', 'Golfer', 'Rd 1', 'Rd 2', 'Total Pts'],
+                rows: [
+                    ['1', 'Dylan Willcock', '34', '34', '68'],
+                    ['2', 'Ben Cohen', '33', '33', '66'],
+                    ['3', 'Jason Daye', '27', '36', '63'],
+                    ['4', 'Michael Stowe', '32', '30', '62'],
+                    ['5=', 'Ben Burke', '29', '22', '51'],
+                    ['5=', 'Simon Willcock', '26', '25', '51'],
+                    ['7', 'Craig Tubb', '26', '24', '50'],
+                    ['8=', 'Andrew Dorrington', '20', '26', '46'],
+                    ['8=', 'Jon Dardaganis', '18', '28', '46'],
+                    ['10', 'James Patrick', '20', '24', '44'],
+                    ['11', 'Nigel Willcock', '9', '12', '21']
+                ]
+            },
+            '2024': {
+                title: '2024 LGA Championship — Round-by-Round Breakdown',
+                columns: ['Rank', 'Golfer', 'Rd 1', 'Rd 2', 'Total Pts'],
+                rows: [
+                    ['1', 'Ben Burke', '38', '35', '73'],
+                    ['2', 'Ben Cohen', '35', '37', '72'],
+                    ['3', 'Jon Dardaganis', '30', '39', '69'],
+                    ['4', 'Michael Stowe', '30', '37', '67'],
+                    ['5', 'Simon Willcock', '25', '40', '65'],
+                    ['6', 'James Patrick', '31', '32', '63'],
+                    ['7', "Dave O'Connor", '30', '32', '62'],
+                    ['8', 'Craig Tubb', '35', '26', '61'],
+                    ['9', 'Jason Daye', '25', '32', '57'],
+                    ['10', 'Dylan Willcock', '18', '22', '40'],
+                    ['11', 'Nigel Willcock', '16', '5', '21']
+                ]
+            },
+            '2025': {
+                title: '2025 LGA Championship — Port Fairy (36-Hole Stableford)',
+                columns: ['Rank', 'Golfer', 'Starting Hcp', 'Total Pts'],
+                rows: [
+                    ['1', 'James Patrick', '18', '65'],
+                    ['2', 'Craig Tubb', '18', '60'],
+                    ['3', 'Dylan Willcock', '22', '59'],
+                    ['4', 'Ben Cohen', '15', '55'],
+                    ['5', 'Michael Stowe', '17', '49'],
+                    ['6', 'Andrew Dorrington', '38', '48'],
+                    ['7', 'Ben Burke', '9', '37'],
+                    ['8', 'Rob Rosengarten', '20', '32'],
+                    ['9=', 'Frederico Bianco', '30', '27'],
+                    ['9=', 'Jon Dardaganis', '37', '27']
+                ]
             }
         };
 
@@ -1223,13 +1324,95 @@
         let customCourses = [];
         let historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
         let handicapHistory = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
-        let memberStats = {}; // computed WHS stats per golfer
+        let memberStats = {};
         let isAdminUnlocked = false;
         let adminPin = '1986';
         let pendingAdminAction = null;
         let editingHistoryTarget = null;
         let editingHcpTarget = null;
-// ... existing code ... -->
+
+        // Firebase Cloud Sync handles
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'lga-golf-tracker';
+
+        function setSyncBadge(status, label) {
+            const badge = document.getElementById('sync-status-badge');
+            const dot = document.getElementById('sync-status-dot');
+            const text = document.getElementById('sync-status-text');
+            if (!badge || !dot || !text) return;
+
+            text.textContent = label;
+            if (status === 'live') {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40';
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+            } else if (status === 'local') {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-500/20 text-sky-200 border border-sky-400/40';
+                dot.className = 'w-2 h-2 rounded-full bg-sky-400';
+            } else {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30';
+                dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+            }
+        }
+
+        async function initCloudSync() {
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    setSyncBadge('local', 'Local Session');
+                    return;
+                }
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                currentUser = auth.currentUser;
+                if (!currentUser) {
+                    setSyncBadge('local', 'Local Session');
+                    return;
+                }
+
+                // Listen to shared rounds collection
+                const roundsCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_rounds');
+                onSnapshot(roundsCol, (snapshot) => {
+                    const loaded = [];
+                    snapshot.forEach(docSnap => {
+                        loaded.push({ cloudId: docSnap.id, ...docSnap.data() });
+                    });
+                    loaded.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                    rounds = loaded;
+                    recalculateWHS();
+                    renderDashboard();
+                    renderHandicapHistoryMatrix();
+                }, (err) => {
+                    console.error('Rounds sync error:', err);
+                });
+
+                // Listen to shared custom courses
+                const coursesCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_courses');
+                onSnapshot(coursesCol, (snapshot) => {
+                    const loadedCourses = [];
+                    snapshot.forEach(docSnap => {
+                        loadedCourses.push({ cloudId: docSnap.id, ...docSnap.data() });
+                    });
+                    customCourses = loadedCourses;
+                    populateCourseDropdowns();
+                    renderCoursesTab();
+                }, (err) => {
+                    console.error('Courses sync error:', err);
+                });
+
+                // Listen to shared historical archive, handicap history & admin PIN
+                const sharedMetaDoc = doc(db, 'artifacts', appId, 'public', 'data', 'lga_meta', 'master');
+                onSnapshot(sharedMetaDoc, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
                         if (Array.isArray(data.historyMatrix) && data.historyMatrix.length > 0) {
                             historyMatrix = data.historyMatrix
                                 .map(row => ({
@@ -1244,7 +1427,25 @@
                             renderHandicapHistoryMatrix();
                         }
                         if (data.adminPin && data.adminPin !== '1919') {
-// ... existing code ... -->
+                            adminPin = data.adminPin;
+                        } else if (data.adminPin === '1919') {
+                            adminPin = '1986';
+                            pushSharedStateToCloud();
+                        }
+                    } else {
+                        pushSharedStateToCloud();
+                    }
+                    setSyncBadge('live', 'Live Sync');
+                }, (err) => {
+                    console.error('Meta sync error:', err);
+                    setSyncBadge('local', 'Local Session');
+                });
+            } catch (err) {
+                console.error('Cloud init fallback:', err);
+                setSyncBadge('local', 'Local Session');
+            }
+        }
+
         async function pushSharedStateToCloud() {
             if (!db || !currentUser) return;
             try {
@@ -1259,7 +1460,114 @@
                 console.error('Failed to push shared meta:', err);
             }
         }
-// ... existing code ... -->
+
+        // =========================================================================
+        // 5. WHS HANDICAP & STABLEFORD ENGINE
+        // =========================================================================
+        function getAllCourses() {
+            return [...DEFAULT_COURSES, ...customCourses].sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        function calculateDailyHandicap(whsIndex, course) {
+            if (!course) return Math.round(whsIndex);
+            const raw = whsIndex * (course.slope / 113) + (course.cr - course.par);
+            return Math.round(raw);
+        }
+
+        function calculateScoreDifferential(gross, course, pcc = 0) {
+            if (!course || !gross) return 0;
+            const diff = (113 / course.slope) * (gross - course.cr - pcc);
+            return Math.round(diff * 10) / 10;
+        }
+
+        function getStrokesReceivedOnHole(dailyHcp, strokeIndex) {
+            const hcp = parseInt(dailyHcp, 10) || 0;
+            if (hcp === 0) return 0;
+            if (hcp > 0) {
+                const base = Math.floor(hcp / 18);
+                const rem = hcp % 18;
+                return base + (strokeIndex <= rem ? 1 : 0);
+            } else {
+                const absHcp = Math.abs(hcp);
+                const base = Math.floor(absHcp / 18);
+                const rem = absHcp % 18;
+                const given = base + ((19 - strokeIndex) <= rem ? 1 : 0);
+                return -given;
+            }
+        }
+
+        function calculateHoleStablefordPoints(grossStrokes, par, dailyHcp, strokeIndex) {
+            if (!grossStrokes || grossStrokes <= 0) return 0;
+            const strokesRec = getStrokesReceivedOnHole(dailyHcp, strokeIndex);
+            const netStrokes = grossStrokes - strokesRec;
+            const diffToPar = netStrokes - par;
+            const pts = 2 - diffToPar;
+            return Math.max(0, pts);
+        }
+
+        function recalculateWHS() {
+            const stats = {};
+            LGA_MEMBERS.forEach(member => {
+                const playerRounds = rounds
+                    .filter(r => normalizePlayerName(r.golfer) === member.name)
+                    .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0));
+
+                const recent20 = playerRounds.slice(0, 20);
+                let whsIndex = member.baselineIndex;
+                let countingIds = new Set();
+
+                if (recent20.length > 0) {
+                    const sortedByDiff = [...recent20].sort((a, b) => a.differential - b.differential);
+                    const countMap = {
+                        1: [1, -2.0], 2: [1, -2.0], 3: [1, -2.0],
+                        4: [1, -1.0], 5: [1, 0],
+                        6: [2, -1.0], 7: [2, 0], 8: [2, 0],
+                        9: [3, 0], 10: [3, 0], 11: [3, 0],
+                        12: [4, 0], 13: [4, 0], 14: [4, 0],
+                        15: [5, 0], 16: [5, 0],
+                        17: [6, 0], 18: [6, 0],
+                        19: [7, 0], 20: [8, 0]
+                    };
+                    const [numTake, adj] = countMap[recent20.length] || [8, 0];
+                    const bestSlice = sortedByDiff.slice(0, numTake);
+                    bestSlice.forEach(r => countingIds.add(r.id || r.cloudId));
+                    const avgDiff = bestSlice.reduce((sum, r) => sum + r.differential, 0) / numTake;
+                    whsIndex = Math.max(-5.0, Math.min(54.0, Math.round((avgDiff + adj) * 10) / 10));
+                }
+
+                const ptsRounds = playerRounds.filter(r => typeof r.stableford === 'number');
+                const avgPts = ptsRounds.length > 0
+                    ? Math.round((ptsRounds.reduce((s, r) => s + r.stableford, 0) / ptsRounds.length) * 10) / 10
+                    : null;
+
+                stats[member.name] = {
+                    whsIndex,
+                    lowCap: Math.min(member.baselineIndex, whsIndex),
+                    roundsCount: playerRounds.length,
+                    avgPts,
+                    countingIds
+                };
+            });
+            memberStats = stats;
+        }
+
+        // =========================================================================
+        // 6. UI NAVIGATION & TOASTS
+        // =========================================================================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' ? 'bg-red-900 border-red-400 text-white' : 'bg-lga-navy border-lga-gold text-white';
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl border-2 shadow-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all ${bgClass}`;
+            toast.innerHTML = `<span class="w-2 h-2 rounded-full ${type === 'error' ? 'bg-red-400' : 'bg-lga-gold'} shrink-0"></span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3400);
+        }
+
         window.switchTab = function(tabName) {
             const tabs = ['dashboard', 'log', 'history', 'handicaps', 'courses', 'lineup', 'lingo'];
             tabs.forEach(t => {
@@ -1281,7 +1589,701 @@
                 renderHandicapHistoryMatrix();
             }
         };
-// ... existing code ... -->
+
+        window.switchActiveGolfer = function(name) {
+            activeGolfer = normalizePlayerName(name);
+            const topSel = document.getElementById('active-golfer-select');
+            const logSel = document.getElementById('log-golfer');
+            if (topSel) topSel.value = activeGolfer;
+            if (logSel) logSel.value = activeGolfer;
+            renderDashboard();
+            renderLineupTab();
+            syncLogDailyHandicap();
+        };
+
+        // =========================================================================
+        // 7. POPULATE DROPDOWNS & CLUBHOUSE DASHBOARD
+        // =========================================================================
+        function populateGolferDropdowns() {
+            const optionsHtml = LGA_MEMBERS.map(m =>
+                `<option value="${m.name.replace(/"/g, '&quot;')}">${formatMemberDisplayName(m.name)}</option>`
+            ).join('');
+
+            const topSel = document.getElementById('active-golfer-select');
+            const logSel = document.getElementById('log-golfer');
+            if (topSel) {
+                topSel.innerHTML = optionsHtml;
+                topSel.value = activeGolfer;
+            }
+            if (logSel) {
+                logSel.innerHTML = optionsHtml;
+                logSel.value = activeGolfer;
+            }
+        }
+
+        function populateCourseDropdowns() {
+            const courses = getAllCourses();
+            const optionsHtml = courses.map(c =>
+                `<option value="${c.id}">${c.name} (${c.state} • Par ${c.par} / CR ${c.cr} / Slope ${c.slope})</option>`
+            ).join('');
+
+            const dashCourse = document.getElementById('dash-course-preview');
+            const logCourse = document.getElementById('log-course');
+            if (dashCourse) {
+                const prev = dashCourse.value;
+                dashCourse.innerHTML = optionsHtml;
+                if (prev && courses.some(c => c.id === prev)) dashCourse.value = prev;
+                else if (courses.some(c => c.id === 'c30')) dashCourse.value = 'c30';
+            }
+            if (logCourse) {
+                const prev = logCourse.value;
+                logCourse.innerHTML = optionsHtml;
+                if (prev && courses.some(c => c.id === prev)) logCourse.value = prev;
+                else if (courses.some(c => c.id === 'c30')) logCourse.value = 'c30';
+            }
+            updateDashboardDailyPreview();
+        }
+
+        window.updateDashboardDailyPreview = function() {
+            const dashCourse = document.getElementById('dash-course-preview');
+            const valEl = document.getElementById('dash-daily-hcp-val');
+            if (!dashCourse || !valEl) return;
+            const course = getAllCourses().find(c => c.id === dashCourse.value) || getAllCourses()[0];
+            const stats = memberStats[activeGolfer] || { whsIndex: 18.0 };
+            valEl.textContent = calculateDailyHandicap(stats.whsIndex, course);
+        };
+
+        function renderDashboard() {
+            const member = LGA_MEMBERS.find(m => m.name === activeGolfer) || LGA_MEMBERS[0];
+            const stats = memberStats[activeGolfer] || {
+                whsIndex: member.baselineIndex,
+                lowCap: member.baselineIndex,
+                roundsCount: 0,
+                avgPts: null
+            };
+
+            const nameEl = document.getElementById('dash-golfer-name');
+            const indexEl = document.getElementById('dash-whs-index');
+            const basisEl = document.getElementById('dash-whs-basis');
+            const lowEl = document.getElementById('dash-low-cap');
+            const countEl = document.getElementById('dash-rounds-count');
+            const avgEl = document.getElementById('dash-avg-pts');
+
+            if (nameEl) nameEl.textContent = formatMemberDisplayName(activeGolfer);
+            if (indexEl) indexEl.textContent = stats.whsIndex.toFixed(1);
+            if (basisEl) basisEl.textContent = stats.roundsCount > 0 ? `From ${stats.roundsCount} Round${stats.roundsCount === 1 ? '' : 's'}` : 'Baseline Index';
+            if (lowEl) lowEl.textContent = stats.lowCap.toFixed(1);
+            if (countEl) countEl.textContent = stats.roundsCount;
+            if (avgEl) avgEl.textContent = stats.avgPts !== null ? `${stats.avgPts} pts` : '—';
+
+            updateDashboardDailyPreview();
+            renderGroupWHSBoard();
+            renderRoundsFeed();
+        }
+
+        function renderGroupWHSBoard() {
+            const container = document.getElementById('group-whs-list');
+            if (!container) return;
+
+            const ranked = [...LGA_MEMBERS].sort((a, b) => {
+                const idxA = (memberStats[a.name]?.whsIndex ?? a.baselineIndex);
+                const idxB = (memberStats[b.name]?.whsIndex ?? b.baselineIndex);
+                return idxA - idxB;
+            });
+
+            container.innerHTML = ranked.map((m, idx) => {
+                const st = memberStats[m.name] || { whsIndex: m.baselineIndex, roundsCount: 0 };
+                const isActive = m.name === activeGolfer;
+                return `
+                    <div onclick="switchActiveGolfer('${m.name.replace(/'/g, "\\'")}')" class="flex items-center justify-between p-3 rounded-xl border transition cursor-pointer ${isActive ? 'bg-lga-navy text-white border-lga-gold shadow-sm' : 'bg-lga-cream/60 hover:bg-lga-sand border-gray-200 text-lga-navy'}">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="w-6 h-6 rounded-full flex items-center justify-center font-mono text-xs font-bold ${isActive ? 'bg-lga-gold text-lga-navy' : 'bg-white border border-gray-300 text-lga-slate'}">${idx + 1}</span>
+                            <div class="truncate">
+                                <span class="block text-xs sm:text-sm font-bold truncate">${formatMemberDisplayName(m.name)}</span>
+                                <span class="block text-[10px] ${isActive ? 'text-lga-goldLight' : 'text-lga-slate'}">${st.roundsCount} logged round${st.roundsCount === 1 ? '' : 's'}</span>
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0 ml-2">
+                            <span class="font-mono text-sm sm:text-base font-extrabold ${isActive ? 'text-lga-gold' : 'text-lga-navy'}">${st.whsIndex.toFixed(1)}</span>
+                            <span class="block text-[9px] uppercase tracking-wider ${isActive ? 'text-gray-300' : 'text-lga-slate'}">WHS</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.renderRoundsFeed = function() {
+            const container = document.getElementById('rounds-feed-list');
+            const filterSel = document.getElementById('rounds-filter-golfer');
+            if (!container) return;
+
+            const mode = filterSel ? filterSel.value : 'ALL';
+            const filtered = mode === 'ACTIVE'
+                ? rounds.filter(r => normalizePlayerName(r.golfer) === activeGolfer)
+                : rounds;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 px-4 bg-lga-cream/60 rounded-2xl border border-dashed border-lga-gold/50">
+                        <p class="font-serif text-base font-bold text-lga-navy">No Live Scorecards Logged Yet</p>
+                        <p class="text-xs text-lga-slate mt-1">Click <strong>Log Round</strong> to post a hole-by-hole Stableford round and update WHS handicaps live across the group.</p>
+                        <button onclick="switchTab('log')" class="mt-3 px-4 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold cursor-pointer">+ Log First Round</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(r => {
+                const golferName = normalizePlayerName(r.golfer);
+                const countingSet = memberStats[golferName]?.countingIds;
+                const roundKey = r.id || r.cloudId;
+                const isCounting = countingSet && countingSet.has(roundKey);
+                return `
+                    <div class="p-3.5 rounded-xl bg-lga-cream/70 border border-lga-gold/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-xs sm:text-sm text-lga-navy">${formatMemberDisplayName(golferName)}</span>
+                                ${isCounting ? '<span class="px-2 py-0.5 rounded-full bg-lga-gold/30 text-lga-navy text-[10px] font-extrabold">★ Best 8</span>' : ''}
+                                <span class="text-[11px] text-lga-slate font-mono">${r.date || ''}</span>
+                            </div>
+                            <p class="text-xs font-medium text-lga-slate">${r.courseName || 'LGA Tour Venue'} • Daily Hcp: <strong>${r.dailyHcp ?? '—'}</strong></p>
+                            ${r.notes ? `<p class="text-[11px] italic text-lga-goldDark">"${r.notes}"</p>` : ''}
+                        </div>
+                        <div class="flex items-center gap-3 self-end sm:self-center">
+                            <div class="text-center px-2.5 py-1 rounded-lg bg-white border border-gray-200">
+                                <span class="block text-[9px] uppercase text-lga-slate font-bold">Gross</span>
+                                <span class="font-mono text-sm font-extrabold text-lga-navy">${r.gross}</span>
+                            </div>
+                            <div class="text-center px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200">
+                                <span class="block text-[9px] uppercase text-emerald-700 font-bold">Pts</span>
+                                <span class="font-mono text-sm font-extrabold text-emerald-800">${r.stableford ?? '—'}</span>
+                            </div>
+                            <div class="text-center px-2.5 py-1 rounded-lg bg-lga-navy text-lga-gold">
+                                <span class="block text-[9px] uppercase text-lga-goldLight font-bold">Diff</span>
+                                <span class="font-mono text-sm font-extrabold">${Number(r.differential).toFixed(1)}</span>
+                            </div>
+                            <button onclick="deleteRound('${roundKey}')" title="Delete Round (Commissioner PIN)" class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            if (window.lucide) lucide.createIcons();
+        };
+
+        window.deleteRound = function(roundKey) {
+            requireAdmin(async () => {
+                const target = rounds.find(r => (r.id || r.cloudId) === roundKey);
+                rounds = rounds.filter(r => (r.id || r.cloudId) !== roundKey);
+                recalculateWHS();
+                renderDashboard();
+                if (db && currentUser && target && target.cloudId) {
+                    try {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'lga_rounds', target.cloudId));
+                    } catch (err) {
+                        console.error('Failed to delete cloud round:', err);
+                    }
+                }
+                showToast('Round removed by Commissioner.');
+            });
+        };
+
+        // =========================================================================
+        // 8. HOLE-BY-HOLE SCORECARD & ROUND LOGGING
+        // =========================================================================
+        window.setScoreEntryMode = function(mode) {
+            scoreEntryMode = mode;
+            const holesWrap = document.getElementById('hole-by-hole-wrapper');
+            const totalWrap = document.getElementById('quick-total-wrapper');
+            const holesBtn = document.getElementById('mode-holes-btn');
+            const totalBtn = document.getElementById('mode-total-btn');
+
+            if (mode === 'holes') {
+                if (holesWrap) holesWrap.classList.remove('hidden');
+                if (totalWrap) totalWrap.classList.add('hidden');
+                if (holesBtn) holesBtn.className = 'px-3.5 py-2 rounded-lg text-xs font-bold bg-lga-navy text-lga-gold shadow cursor-pointer';
+                if (totalBtn) totalBtn.className = 'px-3.5 py-2 rounded-lg text-xs font-bold text-lga-navy hover:bg-white/60 cursor-pointer';
+                recalcHoleByHoleCard();
+            } else {
+                if (holesWrap) holesWrap.classList.add('hidden');
+                if (totalWrap) totalWrap.classList.remove('hidden');
+                if (totalBtn) totalBtn.className = 'px-3.5 py-2 rounded-lg text-xs font-bold bg-lga-navy text-lga-gold shadow cursor-pointer';
+                if (holesBtn) holesBtn.className = 'px-3.5 py-2 rounded-lg text-xs font-bold text-lga-navy hover:bg-white/60 cursor-pointer';
+                recalcQuickTotalCard();
+            }
+        };
+
+        function renderHoleTables() {
+            const frontBody = document.getElementById('front-9-tbody');
+            const backBody = document.getElementById('back-9-tbody');
+            if (!frontBody || !backBody) return;
+
+            const buildNineHtml = (startIdx, sumPrefix) => {
+                const slice = DEFAULT_HOLES.slice(startIdx, startIdx + 9);
+                const parCells = slice.map(h => `
+                    <td class="p-1">
+                        <input type="number" id="hole-par-${h.hole}" value="${h.par}" min="3" max="6" oninput="recalcHoleByHoleCard()" class="hole-input w-10 py-1 text-center font-mono font-bold text-lga-slate bg-lga-sand/60 rounded border border-gray-200 focus:border-lga-gold focus:outline-none">
+                    </td>
+                `).join('');
+
+                const siCells = slice.map(h => `
+                    <td class="p-1">
+                        <input type="number" id="hole-si-${h.hole}" value="${h.si}" min="1" max="18" oninput="recalcHoleByHoleCard()" class="hole-input w-10 py-1 text-center font-mono text-xs text-gray-500 bg-gray-50 rounded border border-gray-200 focus:border-lga-gold focus:outline-none">
+                    </td>
+                `).join('');
+
+                const scoreCells = slice.map(h => `
+                    <td class="p-1">
+                        <input type="number" id="hole-score-${h.hole}" min="1" max="15" placeholder="—" oninput="recalcHoleByHoleCard()" class="hole-input w-11 py-1.5 text-center font-mono text-sm font-extrabold text-lga-navy bg-white rounded-lg border-2 border-lga-gold/60 focus:border-lga-navy focus:outline-none">
+                    </td>
+                `).join('');
+
+                const ptsCells = slice.map(h => `
+                    <td id="hole-pts-${h.hole}" class="py-1.5 px-1 font-mono font-extrabold text-emerald-700 bg-emerald-50/50">0</td>
+                `).join('');
+
+                return `
+                    <tr>
+                        <td class="py-1.5 px-3 text-left font-bold text-lga-slate bg-lga-sand/50">PAR</td>
+                        ${parCells}
+                        <td id="${sumPrefix}-par-sum" class="py-1.5 px-2 font-mono font-bold bg-lga-sand text-lga-navy">36</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 px-3 text-left font-bold text-gray-500 bg-gray-50">SI</td>
+                        ${siCells}
+                        <td class="py-1.5 px-2 font-mono text-xs text-gray-400 bg-gray-50">—</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 px-3 text-left font-extrabold text-lga-navy bg-lga-cream">STROKES</td>
+                        ${scoreCells}
+                        <td id="${sumPrefix}-score-sum" class="py-2 px-2 font-mono font-extrabold bg-lga-cream text-lga-navy">—</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 px-3 text-left font-bold text-emerald-800 bg-emerald-50/70">PTS</td>
+                        ${ptsCells}
+                        <td id="${sumPrefix}-pts-sum" class="py-1.5 px-2 font-mono font-extrabold bg-emerald-100 text-emerald-900">0</td>
+                    </tr>
+                `;
+            };
+
+            frontBody.innerHTML = buildNineHtml(0, 'front');
+            backBody.innerHTML = buildNineHtml(9, 'back');
+        }
+
+        function syncLogDailyHandicap() {
+            const golferSel = document.getElementById('log-golfer');
+            const courseSel = document.getElementById('log-course');
+            const dailyInput = document.getElementById('log-daily-hcp');
+            if (!golferSel || !courseSel || !dailyInput) return;
+
+            const golfer = normalizePlayerName(golferSel.value);
+            const course = getAllCourses().find(c => c.id === courseSel.value) || getAllCourses()[0];
+            const stats = memberStats[golfer] || { whsIndex: 18.0 };
+            dailyInput.value = calculateDailyHandicap(stats.whsIndex, course);
+            recalcHoleByHoleCard();
+        }
+
+        window.handleLogGolferChange = function() {
+            syncLogDailyHandicap();
+        };
+
+        window.handleLogCourseChange = function() {
+            syncLogDailyHandicap();
+        };
+
+        function populateLogForm() {
+            const dateInput = document.getElementById('log-date');
+            if (dateInput && !dateInput.value) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+            renderHoleTables();
+            syncLogDailyHandicap();
+        }
+
+        window.fillAllPars = function() {
+            for (let i = 1; i <= 18; i++) {
+                const parEl = document.getElementById(`hole-par-${i}`);
+                const scoreEl = document.getElementById(`hole-score-${i}`);
+                if (parEl && scoreEl) scoreEl.value = parEl.value;
+            }
+            recalcHoleByHoleCard();
+        };
+
+        window.clearHoleScores = function() {
+            for (let i = 1; i <= 18; i++) {
+                const scoreEl = document.getElementById(`hole-score-${i}`);
+                if (scoreEl) scoreEl.value = '';
+            }
+            recalcHoleByHoleCard();
+        };
+
+        window.recalcHoleByHoleCard = function() {
+            if (scoreEntryMode === 'total') {
+                recalcQuickTotalCard();
+                return;
+            }
+            const dailyHcp = parseInt(document.getElementById('log-daily-hcp')?.value, 10) || 0;
+            const pcc = parseInt(document.getElementById('log-pcc')?.value, 10) || 0;
+            const courseSel = document.getElementById('log-course');
+            const course = getAllCourses().find(c => c.id === courseSel?.value) || getAllCourses()[0];
+
+            let frontPar = 0, backPar = 0;
+            let frontGross = 0, backGross = 0;
+            let frontEntered = 0, backEntered = 0;
+            let frontPts = 0, backPts = 0;
+
+            for (let h = 1; h <= 18; h++) {
+                const par = parseInt(document.getElementById(`hole-par-${h}`)?.value, 10) || 4;
+                const si = parseInt(document.getElementById(`hole-si-${h}`)?.value, 10) || h;
+                const rawScore = document.getElementById(`hole-score-${h}`)?.value;
+                const strokes = rawScore ? parseInt(rawScore, 10) : 0;
+                const pts = strokes > 0 ? calculateHoleStablefordPoints(strokes, par, dailyHcp, si) : 0;
+
+                const ptsCell = document.getElementById(`hole-pts-${h}`);
+                if (ptsCell) ptsCell.textContent = strokes > 0 ? pts : '0';
+
+                if (h <= 9) {
+                    frontPar += par;
+                    if (strokes > 0) {
+                        frontGross += strokes;
+                        frontEntered++;
+                        frontPts += pts;
+                    }
+                } else {
+                    backPar += par;
+                    if (strokes > 0) {
+                        backGross += strokes;
+                        backEntered++;
+                        backPts += pts;
+                    }
+                }
+            }
+
+            const fParEl = document.getElementById('front-par-sum');
+            const bParEl = document.getElementById('back-par-sum');
+            const fScoreEl = document.getElementById('front-score-sum');
+            const bScoreEl = document.getElementById('back-score-sum');
+            const fPtsEl = document.getElementById('front-pts-sum');
+            const bPtsEl = document.getElementById('back-pts-sum');
+
+            if (fParEl) fParEl.textContent = frontPar;
+            if (bParEl) bParEl.textContent = backPar;
+            if (fScoreEl) fScoreEl.textContent = frontEntered > 0 ? frontGross : '—';
+            if (bScoreEl) bScoreEl.textContent = backEntered > 0 ? backGross : '—';
+            if (fPtsEl) fPtsEl.textContent = frontPts;
+            if (bPtsEl) bPtsEl.textContent = backPts;
+
+            const totalPar = frontPar + backPar;
+            const totalGross = frontGross + backGross;
+            const totalEntered = frontEntered + backEntered;
+            const totalPts = frontPts + backPts;
+
+            const sumParEl = document.getElementById('summary-par');
+            const sumGrossEl = document.getElementById('summary-gross');
+            const sumNetEl = document.getElementById('summary-net');
+            const sumPtsEl = document.getElementById('summary-pts');
+            const diffValEl = document.getElementById('preview-diff-val');
+            const diffFormEl = document.getElementById('preview-diff-formula');
+
+            if (sumParEl) sumParEl.textContent = totalPar;
+            if (sumGrossEl) sumGrossEl.textContent = totalEntered > 0 ? totalGross : '—';
+            if (sumNetEl) sumNetEl.textContent = totalEntered > 0 ? (totalGross - dailyHcp) : '—';
+            if (sumPtsEl) sumPtsEl.textContent = totalPts;
+
+            if (totalEntered > 0 && course) {
+                const diff = calculateScoreDifferential(totalGross, course, pcc);
+                if (diffValEl) diffValEl.textContent = diff.toFixed(1);
+                if (diffFormEl) diffFormEl.textContent = `(113 ÷ ${course.slope}) × (${totalGross} − ${course.cr} − ${pcc})`;
+            } else {
+                if (diffValEl) diffValEl.textContent = '—';
+                if (diffFormEl) diffFormEl.textContent = 'Enter gross strokes to preview differential';
+            }
+        };
+
+        window.recalcQuickTotalCard = function() {
+            const dailyHcp = parseInt(document.getElementById('log-daily-hcp')?.value, 10) || 0;
+            const pcc = parseInt(document.getElementById('log-pcc')?.value, 10) || 0;
+            const gross = parseInt(document.getElementById('quick-gross-input')?.value, 10) || 0;
+            const manualPtsRaw = document.getElementById('quick-pts-input')?.value;
+            const courseSel = document.getElementById('log-course');
+            const course = getAllCourses().find(c => c.id === courseSel?.value) || getAllCourses()[0];
+            const par = course ? course.par : 72;
+
+            const estPts = gross > 0
+                ? (manualPtsRaw !== '' ? parseInt(manualPtsRaw, 10) : Math.max(0, 36 - ((gross - dailyHcp) - par)))
+                : 0;
+
+            document.getElementById('summary-par').textContent = par;
+            document.getElementById('summary-gross').textContent = gross > 0 ? gross : '—';
+            document.getElementById('summary-net').textContent = gross > 0 ? (gross - dailyHcp) : '—';
+            document.getElementById('summary-pts').textContent = estPts;
+
+            if (gross > 0 && course) {
+                const diff = calculateScoreDifferential(gross, course, pcc);
+                document.getElementById('preview-diff-val').textContent = diff.toFixed(1);
+                document.getElementById('preview-diff-formula').textContent = `(113 ÷ ${course.slope}) × (${gross} − ${course.cr} − ${pcc})`;
+            } else {
+                document.getElementById('preview-diff-val').textContent = '—';
+                document.getElementById('preview-diff-formula').textContent = 'Enter gross strokes to preview differential';
+            }
+        };
+
+        window.submitNewRound = async function(e) {
+            e.preventDefault();
+            const golfer = normalizePlayerName(document.getElementById('log-golfer').value);
+            const courseId = document.getElementById('log-course').value;
+            const course = getAllCourses().find(c => c.id === courseId) || getAllCourses()[0];
+            const date = document.getElementById('log-date').value || new Date().toISOString().split('T')[0];
+            const dailyHcp = parseInt(document.getElementById('log-daily-hcp').value, 10) || 0;
+            const pcc = parseInt(document.getElementById('log-pcc').value, 10) || 0;
+            const notes = document.getElementById('log-notes').value.trim();
+
+            let gross = 0;
+            let stableford = 0;
+            let holeScores = [];
+
+            if (scoreEntryMode === 'holes') {
+                let enteredCount = 0;
+                for (let h = 1; h <= 18; h++) {
+                    const par = parseInt(document.getElementById(`hole-par-${h}`).value, 10) || 4;
+                    const si = parseInt(document.getElementById(`hole-si-${h}`).value, 10) || h;
+                    const val = parseInt(document.getElementById(`hole-score-${h}`).value, 10) || 0;
+                    if (val > 0) {
+                        enteredCount++;
+                        gross += val;
+                        const pts = calculateHoleStablefordPoints(val, par, dailyHcp, si);
+                        stableford += pts;
+                        holeScores.push({ hole: h, par, si, strokes: val, pts });
+                    }
+                }
+                if (enteredCount < 18) {
+                    showToast(`Please enter scores for all 18 holes (${enteredCount}/18 entered).`, 'error');
+                    return;
+                }
+            } else {
+                gross = parseInt(document.getElementById('quick-gross-input').value, 10) || 0;
+                if (gross < 50) {
+                    showToast('Please enter a valid 18-hole gross score.', 'error');
+                    return;
+                }
+                const manualPts = document.getElementById('quick-pts-input').value;
+                stableford = manualPts !== ''
+                    ? parseInt(manualPts, 10)
+                    : Math.max(0, 36 - ((gross - dailyHcp) - (course?.par || 72)));
+            }
+
+            const differential = calculateScoreDifferential(gross, course, pcc);
+            const newRound = {
+                id: 'r_' + Date.now(),
+                golfer,
+                courseId: course.id,
+                courseName: course.name,
+                date,
+                dailyHcp,
+                pcc,
+                gross,
+                net: gross - dailyHcp,
+                stableford,
+                differential,
+                notes,
+                holeScores,
+                createdAt: Date.now()
+            };
+
+            rounds.unshift(newRound);
+            recalculateWHS();
+            renderDashboard();
+
+            if (db && currentUser) {
+                try {
+                    const roundsCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_rounds');
+                    await addDoc(roundsCol, newRound);
+                } catch (err) {
+                    console.error('Cloud round save error:', err);
+                }
+            }
+
+            clearHoleScores();
+            document.getElementById('quick-gross-input').value = '';
+            document.getElementById('quick-pts-input').value = '';
+            document.getElementById('log-notes').value = '';
+            showToast(`Round logged for ${formatMemberDisplayName(golfer)}: ${gross} gross (${stableford} pts, Diff ${differential.toFixed(1)})!`);
+            switchTab('dashboard');
+        };
+
+        // =========================================================================
+        // 9. LGA HISTORY MATRIX (2015–2025) & YEAR BREAKDOWNS
+        // =========================================================================
+        function renderHistoryMatrix() {
+            const table = document.getElementById('history-matrix-table');
+            if (!table) return;
+
+            const yearHeaders = TOUR_YEARS.map(y => `
+                <th onclick="selectBreakdownYear('${y.year}')" class="py-3 px-2.5 text-center border-l border-white/15 cursor-pointer hover:bg-lga-navyLight transition">
+                    <span class="block font-mono text-sm font-extrabold text-lga-gold">${y.year}</span>
+                    <span class="block text-[10px] font-normal text-lga-goldLight/90 truncate max-w-[85px] mx-auto">${y.venue}</span>
+                </th>
+            `).join('');
+
+            const rowsHtml = historyMatrix.map(row => {
+                const player = normalizePlayerName(row.player);
+                const displayPlayer = formatMemberDisplayName(player);
+                let apps = 0;
+                let wins = 0;
+
+                const yearCells = TOUR_YEARS.map(y => {
+                    const cell = row.results ? row.results[y.year] : null;
+                    if (cell && (cell.pos || cell.score)) {
+                        apps++;
+                        const isWin = cell.pos === '1' || cell.pos === '1=';
+                        if (isWin) wins++;
+
+                        let cellClass = 'bg-white hover:bg-lga-sand/70 text-lga-navy';
+                        if (isWin) cellClass = 'bg-amber-100/90 hover:bg-amber-200/80 text-lga-navy font-extrabold';
+                        else if (cell.pos === '2') cellClass = 'bg-slate-100 hover:bg-slate-200/70 text-lga-navy font-bold';
+                        else if (cell.pos === '3') cellClass = 'bg-orange-50 hover:bg-orange-100/70 text-lga-navy font-bold';
+                        else if (cell.pos === 'Played') cellClass = 'bg-sky-50/70 hover:bg-sky-100/70 text-sky-900';
+
+                        const posBadge = isWin ? `🏆 ${cell.pos}` : cell.pos;
+                        const scoreLine = cell.score ? `${cell.score}${cell.unit ? ' ' + cell.unit : ''}` : '';
+
+                        return `
+                            <td onclick="openHistoryEditModal('${player.replace(/'/g, "\\'")}', '${y.year}')" class="py-2 px-2 text-center border-l border-gray-200 cursor-pointer transition ${cellClass}">
+                                <span class="block text-[11px] font-bold leading-tight">${posBadge}</span>
+                                ${scoreLine ? `<span class="block font-mono text-[10px] text-lga-slate mt-0.5">${scoreLine}</span>` : ''}
+                            </td>
+                        `;
+                    }
+                    return `
+                        <td onclick="openHistoryEditModal('${player.replace(/'/g, "\\'")}', '${y.year}')" class="py-2 px-2 text-center border-l border-gray-200 text-gray-300 hover:bg-lga-sand/50 cursor-pointer transition">—</td>
+                    `;
+                }).join('');
+
+                return `
+                    <tr class="border-t border-gray-200 hover:bg-lga-cream/40">
+                        <td class="py-2.5 px-3 font-bold text-lga-navy sticky left-0 bg-white z-10 border-r border-gray-200 whitespace-nowrap">
+                            ${displayPlayer}
+                        </td>
+                        <td class="py-2.5 px-2 text-center font-mono font-bold text-lga-slate bg-lga-sand/40">${apps}</td>
+                        <td class="py-2.5 px-2 text-center font-mono font-extrabold ${wins > 0 ? 'text-amber-700 bg-amber-50' : 'text-gray-400'}">${wins > 0 ? '🏆 ' + wins : '0'}</td>
+                        ${yearCells}
+                    </tr>
+                `;
+            }).join('');
+
+            table.innerHTML = `
+                <thead>
+                    <tr class="bg-lga-navy text-white">
+                        <th class="py-3 px-3 text-left sticky left-0 bg-lga-navy z-20 min-w-[200px]">LGA Member</th>
+                        <th class="py-3 px-2 text-center text-lga-goldLight">Tours</th>
+                        <th class="py-3 px-2 text-center text-lga-gold">Titles</th>
+                        ${yearHeaders}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            `;
+        }
+
+        window.selectBreakdownYear = function(year) {
+            selectedBreakdownYear = year;
+            renderYearBreakdown();
+        };
+
+        function renderYearBreakdown() {
+            const pillsContainer = document.getElementById('year-selector-pills');
+            const titleEl = document.getElementById('breakdown-title');
+            const contentEl = document.getElementById('year-breakdown-content');
+            if (!pillsContainer || !titleEl || !contentEl) return;
+
+            pillsContainer.innerHTML = TOUR_YEARS.map(y => {
+                const active = y.year === selectedBreakdownYear;
+                return `
+                    <button onclick="selectBreakdownYear('${y.year}')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition cursor-pointer ${active ? 'bg-lga-navy text-lga-gold shadow' : 'bg-lga-sand text-lga-navy hover:bg-lga-gold/30'}">
+                        ${y.year}
+                    </button>
+                `;
+            }).join('');
+
+            const data = YEAR_BREAKDOWNS[selectedBreakdownYear];
+            if (!data) {
+                titleEl.textContent = `${selectedBreakdownYear} LGA Championship`;
+                contentEl.innerHTML = `<p class="text-xs text-lga-slate">No detailed breakdown recorded for this year yet.</p>`;
+                return;
+            }
+
+            titleEl.textContent = data.title;
+            const headHtml = data.columns.map(col => `<th class="py-2.5 px-3 text-left">${col}</th>`).join('');
+            const bodyHtml = data.rows.map((r, idx) => `
+                <tr class="border-t border-gray-200 ${idx === 0 ? 'bg-amber-50/80 font-bold' : 'bg-white'}">
+                    ${r.map((cell, cIdx) => `<td class="py-2.5 px-3 ${cIdx === 1 ? 'font-bold text-lga-navy' : 'font-mono text-xs'}">${cIdx === 1 ? formatMemberDisplayName(normalizePlayerName(cell)) : cell}</td>`).join('')}
+                </tr>
+            `).join('');
+
+            contentEl.innerHTML = `
+                <table class="w-full text-left border-collapse rounded-xl overflow-hidden border border-gray-200 text-xs sm:text-sm">
+                    <thead>
+                        <tr class="bg-lga-navy text-lga-gold text-xs uppercase tracking-wider">${headHtml}</tr>
+                    </thead>
+                    <tbody>${bodyHtml}</tbody>
+                </table>
+            `;
+        }
+
+        window.openHistoryEditModal = function(player, year) {
+            requireAdmin(() => {
+                editingHistoryTarget = { player, year };
+                const row = historyMatrix.find(r => normalizePlayerName(r.player) === player);
+                const cell = (row && row.results && row.results[year]) || { pos: '', score: '', unit: 'pts' };
+
+                document.getElementById('edit-hist-player').value = formatMemberDisplayName(player);
+                document.getElementById('edit-hist-year').value = year;
+                document.getElementById('edit-hist-pos').value = cell.pos || '';
+                document.getElementById('edit-hist-score').value = cell.score || '';
+                document.getElementById('edit-hist-unit').value = cell.unit || '';
+
+                const modal = document.getElementById('history-edit-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            });
+        };
+
+        window.closeHistoryEditModal = function() {
+            const modal = document.getElementById('history-edit-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            editingHistoryTarget = null;
+        };
+
+        window.saveHistoryCell = function() {
+            if (!editingHistoryTarget) return;
+            const { player, year } = editingHistoryTarget;
+            const pos = document.getElementById('edit-hist-pos').value.trim();
+            const score = document.getElementById('edit-hist-score').value.trim();
+            const unit = document.getElementById('edit-hist-unit').value;
+
+            let row = historyMatrix.find(r => normalizePlayerName(r.player) === player);
+            if (!row) {
+                row = { player, results: {} };
+                historyMatrix.push(row);
+                historyMatrix.sort((a, b) => sortByLastName(a.player, b.player));
+            }
+            if (!row.results) row.results = {};
+
+            if (!pos && !score) {
+                delete row.results[year];
+            } else {
+                row.results[year] = { pos, score, unit };
+            }
+
+            renderHistoryMatrix();
+            pushSharedStateToCloud();
+            closeHistoryEditModal();
+            showToast(`Updated ${formatMemberDisplayName(player)} (${year}) record!`);
+        };
+
         window.resetHistoryData = function() {
             requireAdmin(() => {
                 historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
@@ -1424,7 +2426,197 @@
 
         // =========================================================================
         // 10. COURSES & LINEUP TABS
-// ... existing code ... -->
+        // =========================================================================
+        window.renderCoursesTab = function() {
+            const grid = document.getElementById('courses-grid');
+            if (!grid) return;
+            const q = (document.getElementById('course-search-input')?.value || '').toLowerCase();
+            const stateFilter = document.getElementById('course-state-filter')?.value || 'ALL';
+            const stats = memberStats[activeGolfer] || { whsIndex: 18.0 };
+
+            const filtered = getAllCourses().filter(c => {
+                const matchState = stateFilter === 'ALL' || c.state === stateFilter;
+                const matchQ = !q || c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q);
+                return matchState && matchQ;
+            });
+
+            grid.innerHTML = filtered.map(c => {
+                const daily = calculateDailyHandicap(stats.whsIndex, c);
+                return `
+                    <div class="p-4 rounded-2xl bg-lga-cream/70 border border-lga-gold/40 flex flex-col justify-between gap-3">
+                        <div>
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="px-2 py-0.5 rounded bg-lga-navy text-lga-gold font-mono text-[10px] font-bold">${c.state}</span>
+                                <span class="font-mono text-xs text-lga-slate">Par ${c.par} • CR ${c.cr} • Slope ${c.slope}</span>
+                            </div>
+                            <h4 class="font-serif font-bold text-lga-navy text-base mt-1.5">${c.name}</h4>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-gray-200">
+                            <span class="text-xs text-lga-slate">Your Daily Hcp: <strong class="font-mono text-lga-navy">${daily}</strong></span>
+                            <button onclick="selectCourseAndLog('${c.id}')" class="px-2.5 py-1 rounded-lg bg-lga-navy text-lga-gold text-xs font-bold hover:bg-lga-navyLight transition cursor-pointer">
+                                Log Score →
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.selectCourseAndLog = function(courseId) {
+            switchTab('log');
+            const logCourse = document.getElementById('log-course');
+            if (logCourse) {
+                logCourse.value = courseId;
+                syncLogDailyHandicap();
+            }
+        };
+
+        window.addCustomCourse = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-course-name').value.trim();
+            const state = document.getElementById('new-course-state').value;
+            const par = parseInt(document.getElementById('new-course-par').value, 10) || 72;
+            const cr = parseFloat(document.getElementById('new-course-cr').value) || 72.0;
+            const slope = parseInt(document.getElementById('new-course-slope').value, 10) || 125;
+
+            if (!name) return;
+            const newCourse = { id: 'custom_' + Date.now(), name, state, par, cr, slope };
+            customCourses.push(newCourse);
+            populateCourseDropdowns();
+            renderCoursesTab();
+
+            if (db && currentUser) {
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'lga_courses'), newCourse);
+                } catch (err) {
+                    console.error('Failed to sync custom course:', err);
+                }
+            }
+
+            document.getElementById('new-course-name').value = '';
+            showToast(`Added ${name} (${state}) to the LGA Course Directory!`);
+        };
+
+        function renderLineupTab() {
+            const grid = document.getElementById('lineup-grid');
+            if (!grid) return;
+
+            grid.innerHTML = LGA_MEMBERS.map(m => {
+                const st = memberStats[m.name] || { whsIndex: m.baselineIndex, roundsCount: 0, avgPts: null };
+                const isSelected = m.name === activeGolfer;
+                const histRow = historyMatrix.find(r => normalizePlayerName(r.player) === m.name);
+                const toursPlayed = histRow && histRow.results ? Object.keys(histRow.results).length : 0;
+
+                return `
+                    <div onclick="switchActiveGolfer('${m.name.replace(/'/g, "\\'")}')" class="p-4 rounded-2xl border-2 transition cursor-pointer ${isSelected ? 'bg-lga-navy text-white border-lga-gold shadow-md' : 'bg-white hover:bg-lga-cream border-lga-gold/30 text-lga-navy'}">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <h3 class="font-serif font-bold text-base sm:text-lg">${formatMemberDisplayName(m.name)}</h3>
+                                <p class="text-xs mt-0.5 ${isSelected ? 'text-lga-goldLight' : 'text-lga-slate'}">${toursPlayed} Tour Appearance${toursPlayed === 1 ? '' : 's'} (2015–2025)</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-xl font-mono text-sm font-extrabold ${isSelected ? 'bg-lga-gold text-lga-navy' : 'bg-lga-sand text-lga-navy'}">
+                                ${st.whsIndex.toFixed(1)}
+                            </span>
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t ${isSelected ? 'border-white/15' : 'border-gray-100'} flex items-center justify-between text-xs">
+                            <span>Live Rounds: <strong>${st.roundsCount}</strong></span>
+                            <span class="font-bold ${isSelected ? 'text-lga-gold' : 'text-lga-goldDark'}">${isSelected ? '✓ Active Profile' : 'Select Profile →'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // =========================================================================
+        // 11. COMMISSIONER ADMIN PIN LOCK (PIN: 1986)
+        // =========================================================================
+        function updateAdminUI() {
+            const btn = document.getElementById('admin-lock-btn');
+            const label = document.getElementById('admin-lock-label');
+            const icon = document.getElementById('admin-lock-icon');
+            if (!btn || !label) return;
+
+            if (isAdminUnlocked) {
+                btn.className = 'px-3 py-2.5 rounded-xl border border-emerald-400 bg-emerald-900/60 text-emerald-200 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0';
+                label.textContent = 'Admin Unlocked';
+                if (icon) icon.setAttribute('data-lucide', 'unlock');
+            } else {
+                btn.className = 'px-3 py-2.5 rounded-xl border border-lga-gold/50 bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0';
+                label.textContent = 'Admin Locked';
+                if (icon) icon.setAttribute('data-lucide', 'lock');
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        window.toggleAdminAuth = function() {
+            if (isAdminUnlocked) {
+                isAdminUnlocked = false;
+                updateAdminUI();
+                showToast('Commissioner Admin Locked.');
+            } else {
+                pendingAdminAction = null;
+                openAdminPinModal();
+            }
+        };
+
+        function requireAdmin(callback) {
+            if (isAdminUnlocked) {
+                callback();
+            } else {
+                pendingAdminAction = callback;
+                openAdminPinModal();
+            }
+        }
+
+        function openAdminPinModal() {
+            const modal = document.getElementById('admin-pin-modal');
+            const input = document.getElementById('admin-pin-input');
+            const err = document.getElementById('admin-pin-error');
+            if (input) input.value = '';
+            if (err) err.classList.add('hidden');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => input && input.focus(), 50);
+            }
+        }
+
+        window.closeAdminPinModal = function() {
+            const modal = document.getElementById('admin-pin-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            pendingAdminAction = null;
+        };
+
+        window.verifyAdminPin = function() {
+            const val = (document.getElementById('admin-pin-input')?.value || '').trim();
+            const err = document.getElementById('admin-pin-error');
+            if (val === adminPin) {
+                isAdminUnlocked = true;
+                updateAdminUI();
+                const action = pendingAdminAction;
+                closeAdminPinModal();
+                showToast('Commissioner Admin Mode Unlocked.');
+                if (typeof action === 'function') action();
+            } else {
+                if (err) err.classList.remove('hidden');
+            }
+        };
+
+        // =========================================================================
+        // 12. BOOT APPLICATION
+        // =========================================================================
+        function loadState() {
+            historyMatrix = historyMatrix
+                .map(row => ({
+                    ...row,
+                    player: normalizePlayerName(row.player)
+                }))
+                .sort((a, b) => sortByLastName(a.player, b.player));
+        }
+
         function renderAll() {
             populateGolferDropdowns();
             renderDashboard();
@@ -1435,4 +2627,20 @@
             renderLineupTab();
             if (window.lucide) lucide.createIcons();
         }
-// ... existing code ... -->
+
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                loadState();
+                recalculateWHS();
+                populateCourseDropdowns();
+                populateLogForm();
+                renderAll();
+                updateAdminUI();
+                initCloudSync();
+            } catch (bootErr) {
+                console.error('LGA Tracker boot error:', bootErr);
+            }
+        });
+    </script>
+</body>
+</html>
