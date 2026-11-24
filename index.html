@@ -1,4 +1,280 @@
-<!-- ... existing code ... -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LGA — Legends Golfing Association Score &amp; Handicap Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cinzel, Playfair Display & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lgaNavy: '#0F2537',
+                        lgaGold: '#C5A059',
+                        lgaGoldLight: '#E2C78E',
+                        ivoryMist: '#F8F6F0',
+                        pureWhite: '#FFFFFF'
+                    },
+                    fontFamily: {
+                        crest: ['Cinzel', 'serif'],
+                        serifDisplay: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F8F6F0; color: #0F2537; font-family: 'Inter', sans-serif; }
+        .tab-active { background-color: #0F2537; color: #C5A059; border-color: #C5A059; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top Crest Header -->
+    <header class="bg-lgaNavy text-pureWhite border-b-4 border-lgaGold shadow-lg sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-lgaGold/15 border-2 border-lgaGold flex items-center justify-center text-lgaGold font-crest font-extrabold text-base tracking-wider shrink-0">
+                    LGA
+                </div>
+                <div>
+                    <div class="text-[10px] font-crest uppercase tracking-[0.22em] text-lgaGold font-bold">Est. 2015 • Melbourne, VIC</div>
+                    <h1 class="font-crest text-base sm:text-xl font-extrabold tracking-wide leading-tight">Legends Golfing Association</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Active Member Pill -->
+                <button onclick="openProfileModal()" class="flex items-center gap-2 bg-pureWhite/10 hover:bg-pureWhite/20 border border-lgaGold/50 px-3 py-1.5 rounded-full text-left transition">
+                    <div class="w-6 h-6 rounded-full bg-lgaGold text-lgaNavy font-crest font-bold text-xs flex items-center justify-center" id="header-avatar">BB</div>
+                    <div class="hidden sm:block">
+                        <div class="text-xs font-bold text-pureWhite leading-none" id="header-player-name">Ben Burke</div>
+                        <div class="text-[10px] text-lgaGold leading-tight" id="header-player-meta">President • GA 18.4</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-lgaGold ml-1"></i>
+                </button>
+
+                <!-- Admin Lock Status Button -->
+                <button id="admin-lock-btn" onclick="toggleAdminLock()" class="text-xs bg-pureWhite hover:bg-lgaGold text-lgaNavy font-bold px-3 py-1.5 rounded-full border border-lgaGold transition shrink-0">
+                    <i class="fa-solid fa-lock mr-1"></i>Admin Locked
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-lgaNavy/95 border-t border-pureWhite/10">
+            <div class="max-w-6xl mx-auto px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn tab-active px-3.5 py-2 rounded-xl border border-transparent text-xs font-bold uppercase tracking-wider whitespace-nowrap transition">
+                    <i class="fa-solid fa-gauge-high mr-1.5"></i>Clubhouse
+                </button>
+                <button onclick="switchTab('log-round')" id="nav-log-round" class="nav-btn text-pureWhite/80 hover:text-lgaGold px-3.5 py-2 rounded-xl border border-transparent text-xs font-bold uppercase tracking-wider whitespace-nowrap transition">
+                    <i class="fa-solid fa-pen-to-square mr-1.5"></i>Log Round
+                </button>
+                <button onclick="switchTab('history')" id="nav-history" class="nav-btn text-pureWhite/80 hover:text-lgaGold px-3.5 py-2 rounded-xl border border-transparent text-xs font-bold uppercase tracking-wider whitespace-nowrap transition">
+                    <i class="fa-solid fa-trophy mr-1.5"></i>LGA History
+                </button>
+                <button onclick="switchTab('courses')" id="nav-courses" class="nav-btn text-pureWhite/80 hover:text-lgaGold px-3.5 py-2 rounded-xl border border-transparent text-xs font-bold uppercase tracking-wider whitespace-nowrap transition">
+                    <i class="fa-solid fa-flag mr-1.5"></i>Courses (52)
+                </button>
+                <button onclick="switchTab('roster')" id="nav-roster" class="nav-btn text-pureWhite/80 hover:text-lgaGold px-3.5 py-2 rounded-xl border border-transparent text-xs font-bold uppercase tracking-wider whitespace-nowrap transition">
+                    <i class="fa-solid fa-users mr-1.5"></i>LGA Lineup
+                </button>
+                <button onclick="switchTab('lingo')" id="nav-lingo" class="nav-btn text-pureWhite/80 hover:text-lgaGold px-3.5 py-2 rounded-xl border border-transparent text-xs font-bold uppercase tracking-wider whitespace-nowrap transition">
+                    <i class="fa-solid fa-book-open mr-1.5"></i>LGA Lingo
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast-banner" class="fixed bottom-5 right-5 z-50 hidden bg-lgaNavy text-pureWhite border-2 border-lgaGold px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2.5">
+        <i class="fa-solid fa-circle-check text-lgaGold text-base"></i>
+        <span id="toast-text">Saved!</span>
+    </div>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-6 flex-1 space-y-6">
+
+        <!-- TAB 1: CLUBHOUSE DASHBOARD -->
+        <section id="tab-dashboard" class="tab-section space-y-6">
+            <!-- Hero Handicap Card -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2 bg-lgaNavy text-pureWhite rounded-2xl p-6 border-2 border-lgaGold shadow-md flex flex-col justify-between">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <span class="text-[11px] font-crest uppercase tracking-widest text-lgaGold font-bold">Official WHS Handicap Index</span>
+                            <h2 class="font-crest text-2xl sm:text-3xl font-extrabold mt-1" id="dash-player-title">Ben Burke</h2>
+                            <p class="text-xs text-pureWhite/70 mt-0.5" id="dash-player-subtitle">President • Best 8 of Last 20 Differentials</p>
+                        </div>
+                        <div class="text-right bg-pureWhite/10 border border-lgaGold/40 px-4 py-3 rounded-2xl">
+                            <div class="text-[10px] uppercase tracking-wider text-lgaGold font-bold">GA Index</div>
+                            <div class="font-crest text-3xl sm:text-4xl font-extrabold text-pureWhite" id="dash-whs-index">18.4</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 mt-6 pt-4 border-t border-pureWhite/15 text-center">
+                        <div>
+                            <div class="text-[10px] uppercase text-pureWhite/60 font-bold">Rounds Logged</div>
+                            <div class="text-lg font-extrabold text-lgaGold" id="dash-rounds-count">0</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] uppercase text-pureWhite/60 font-bold">Best Differential</div>
+                            <div class="text-lg font-extrabold text-pureWhite" id="dash-best-diff">—</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] uppercase text-pureWhite/60 font-bold">Avg Gross</div>
+                            <div class="text-lg font-extrabold text-pureWhite" id="dash-avg-gross">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Daily Handicap Calculator -->
+                <div class="bg-pureWhite rounded-2xl p-5 border-2 border-lgaNavy shadow-sm flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="text-[10px] font-crest uppercase tracking-widest text-lgaGold font-bold">Course Allowance</div>
+                        <h3 class="font-crest text-base font-bold text-lgaNavy">Daily Handicap Calc</h3>
+                    </div>
+                    <div class="space-y-2.5">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-lgaNavy/70 mb-1">Select Course &amp; Tee</label>
+                            <select id="calc-course-select" onchange="updateQuickDailyCalc()" class="w-full p-2 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-xs font-semibold text-lgaNavy"></select>
+                        </div>
+                        <div class="bg-ivoryMist rounded-xl p-3 border border-lgaNavy/15 flex items-center justify-between">
+                            <div>
+                                <div class="text-[10px] text-lgaNavy/60 font-semibold" id="calc-course-specs">Slope 125 • Scratch 72.0</div>
+                                <div class="text-xs font-bold text-lgaNavy">Playing Daily Hcp</div>
+                            </div>
+                            <div class="font-crest text-2xl font-extrabold text-lgaNavy bg-lgaGold/30 px-3 py-1 rounded-xl border border-lgaGold" id="calc-daily-result">19</div>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('log-round')" class="w-full py-2.5 rounded-xl bg-lgaNavy text-lgaGold border border-lgaGold text-xs font-bold uppercase tracking-wider hover:bg-lgaNavy/90 transition">
+                        <i class="fa-solid fa-plus mr-1.5"></i>Post New Score
+                    </button>
+                </div>
+            </div>
+
+            <!-- Legendary Log (Recent Rounds) -->
+            <div class="bg-pureWhite rounded-2xl border-2 border-lgaNavy shadow-sm overflow-hidden">
+                <div class="p-5 bg-lgaNavy text-pureWhite flex items-center justify-between border-b-2 border-lgaGold">
+                    <div>
+                        <div class="text-[10px] font-crest uppercase tracking-widest text-lgaGold font-bold">Personal &amp; Tour Scorecards</div>
+                        <h3 class="font-crest text-lg font-bold uppercase tracking-wide">Legendary Log</h3>
+                    </div>
+                    <button onclick="switchTab('log-round')" class="text-xs bg-lgaGold text-lgaNavy font-bold px-3.5 py-1.5 rounded-full hover:bg-lgaGoldLight transition">
+                        + Log Round
+                    </button>
+                </div>
+                <div id="rounds-list-container" class="divide-y divide-lgaNavy/10"></div>
+            </div>
+        </section>
+
+        <!-- TAB 2: LOG A ROUND -->
+        <section id="tab-log-round" class="tab-section hidden">
+            <div class="max-w-2xl mx-auto bg-pureWhite rounded-2xl border-2 border-lgaNavy shadow-md overflow-hidden">
+                <div class="p-5 bg-lgaNavy text-pureWhite border-b-2 border-lgaGold">
+                    <div class="text-[10px] font-crest uppercase tracking-widest text-lgaGold font-bold">WHS Differential Entry</div>
+                    <h2 class="font-crest text-xl font-bold uppercase tracking-wide">Post Official LGA Round</h2>
+                </div>
+                <form onsubmit="handleLogRoundSubmit(event)" class="p-6 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Golfer</label>
+                            <select id="log-player-select" class="w-full p-3 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Date Played</label>
+                            <input id="log-date" type="date" required class="w-full p-3 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Golf Course &amp; Tee Box</label>
+                        <select id="log-course-select" onchange="updateLogPreview()" class="w-full p-3 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy"></select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Gross Strokes</label>
+                            <input id="log-gross" type="number" min="50" max="180" required placeholder="e.g. 89" oninput="updateLogPreview()" class="w-full p-3 rounded-xl border border-lgaNavy/25 text-sm font-bold text-lgaNavy">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Stableford Pts</label>
+                            <input id="log-stableford" type="number" min="0" max="65" placeholder="e.g. 36" class="w-full p-3 rounded-xl border border-lgaNavy/25 text-sm font-bold text-lgaNavy">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">PCC Adjustment</label>
+                            <select id="log-pcc" onchange="updateLogPreview()" class="w-full p-3 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy">
+                                <option value="0">0 (Standard)</option>
+                                <option value="-1">-1 (Easy Conditions)</option>
+                                <option value="1">+1 (Tough Wind/Rain)</option>
+                                <option value="2">+2 (Severe Weather)</option>
+                                <option value="3">+3 (Extreme)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Round Notes / Highlights</label>
+                        <input id="log-notes" type="text" placeholder="e.g. Birdied the 18th to clinch the jacket" class="w-full p-3 rounded-xl border border-lgaNavy/25 text-sm text-lgaNavy">
+                    </div>
+
+                    <!-- Live Differential Preview Box -->
+                    <div class="bg-ivoryMist rounded-2xl p-4 border border-lgaNavy/20 flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] font-bold uppercase text-lgaNavy/60">Calculated WHS Score Differential</div>
+                            <div class="text-xs text-lgaNavy/80" id="log-formula-caption">Enter gross strokes to preview differential</div>
+                        </div>
+                        <div class="font-crest text-2xl font-extrabold text-lgaNavy bg-lgaGold/30 px-4 py-1.5 rounded-xl border border-lgaGold" id="log-diff-preview">—</div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 rounded-xl bg-lgaNavy text-lgaGold border-2 border-lgaGold font-crest text-sm font-bold uppercase tracking-wider hover:bg-lgaNavy/90 transition shadow-md">
+                        Save Round to Legendary Log
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 3: LGA HISTORICAL RECORDS (2015–2025 & 2019 BREAKDOWN) -->
+        <section id="tab-history" class="tab-section hidden space-y-6">
+            <!-- Master All-Time Standings Matrix -->
+            <div class="bg-pureWhite rounded-2xl border-2 border-lgaNavy shadow-sm overflow-hidden">
+                <div class="p-5 bg-lgaNavy text-pureWhite flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-lgaGold">
+                    <div>
+                        <div class="text-[10px] font-crest uppercase tracking-widest text-lgaGold font-bold">Official Tour Archive (2015 – 2025)</div>
+                        <h2 class="font-crest text-lg font-bold uppercase tracking-wide">Master All-Time Standings Matrix</h2>
+                        <p class="text-[11px] text-pureWhite/70 mt-0.5">Early years with missing scores are marked <span class="text-lgaGold font-bold">—</span> until uncovered. Unlock Admin Mode to edit cells.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button data-admin-only onclick="openHistoryEditModal()" class="hidden text-xs bg-lgaGold text-lgaNavy font-bold px-3.5 py-1.5 rounded-full hover:bg-lgaGoldLight transition">
+                            <i class="fa-solid fa-pen mr-1"></i>Edit / Add Score
+                        </button>
+                        <button data-admin-only onclick="resetHistoryData()" class="hidden text-xs bg-pureWhite/15 hover:bg-red-600 text-pureWhite font-bold px-3.5 py-1.5 rounded-full border border-pureWhite/30 transition">
+                            <i class="fa-solid fa-rotate-left mr-1"></i>Reset Archive
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                        <thead>
+                            <tr id="history-matrix-thead" class="bg-lgaNavy/95 text-pureWhite border-b-2 border-lgaGold"></tr>
+                        </thead>
+                        <tbody id="history-matrix-tbody" class="divide-y divide-lgaNavy/10"></tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- 2019 Detailed Championship Card (From 2019 Official Sheet) -->
             <div class="bg-pureWhite rounded-2xl border-2 border-lgaNavy shadow-sm overflow-hidden">
                 <div class="p-5 bg-lgaNavy text-pureWhite flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-lgaGold">
@@ -8,283 +284,1054 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
                         <span class="text-xs bg-lgaGold text-lgaNavy font-bold px-3 py-1 rounded-full">Champion: Ben Cohen (69 pts)</span>
-                        <button onclick="sync2019SheetIntoMatrix()" class="text-xs bg-pureWhite hover:bg-lgaGold text-lgaNavy font-bold px-3 py-1 rounded-full border border-lgaGold transition">
+                        <button id="sync-2019-btn" onclick="requireAdmin(() => sync2019SheetIntoMatrix())" class="hidden text-xs bg-pureWhite hover:bg-lgaGold text-lgaNavy font-bold px-3 py-1 rounded-full border border-lgaGold transition">
                             <i class="fa-solid fa-arrows-rotate mr-1"></i>Sync to 2019 Column
                         </button>
                     </div>
                 </div>
-<!-- ... existing code ... -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-ivoryMist border-b border-lgaNavy/15 text-lgaNavy/70 uppercase tracking-wider text-[10px]">
+                                <th class="p-3 font-crest">Rank</th>
+                                <th class="p-3 font-crest">Golfer</th>
+                                <th class="p-3 font-crest text-center">Handicap</th>
+                                <th class="p-3 font-crest text-center">Rd 1</th>
+                                <th class="p-3 font-crest text-center">Rd 2</th>
+                                <th class="p-3 font-crest text-right">Total Pts</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-2019-tbody" class="divide-y divide-lgaNavy/10"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: COURSE DIRECTORY (52 COURSES) -->
+        <section id="tab-courses" class="tab-section hidden space-y-5">
+            <div class="bg-pureWhite rounded-2xl border-2 border-lgaNavy p-5 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div>
+                    <div class="text-[10px] font-crest uppercase tracking-widest text-lgaGold font-bold">Australian &amp; World Championship Venues</div>
+                    <h2 class="font-crest text-lg font-bold text-lgaNavy uppercase">Official Course Slope &amp; Rating Directory</h2>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <input id="course-search" type="text" oninput="renderCoursesTab()" placeholder="Search 52+ courses..." class="p-2.5 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-xs font-semibold text-lgaNavy w-full sm:w-56">
+                    <button onclick="openAddCourseModal()" class="px-4 py-2.5 rounded-xl bg-lgaNavy text-lgaGold border border-lgaGold text-xs font-bold uppercase tracking-wider hover:bg-lgaNavy/90 transition">
+                        + Add Course
+                    </button>
+                </div>
+            </div>
+            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- TAB 5: LGA LINEUP (ROSTER) -->
+        <section id="tab-roster" class="tab-section hidden space-y-5">
+            <div class="bg-pureWhite rounded-2xl border-2 border-lgaNavy p-5 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div>
+                    <div class="text-[10px] font-crest uppercase tracking-widest text-lgaGold font-bold">Official Playing Membership</div>
+                    <h2 class="font-crest text-lg font-bold text-lgaNavy uppercase">LGA Lineup &amp; Handicap Indexes</h2>
+                </div>
+                <input id="roster-search" type="text" oninput="renderLgaRosterTab()" placeholder="Filter member or role..." class="p-2.5 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-xs font-semibold text-lgaNavy w-full sm:w-60">
+            </div>
+            <div id="roster-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- TAB 6: LGA LINGO -->
+        <section id="tab-lingo" class="tab-section hidden space-y-5">
+            <div class="bg-lgaNavy text-pureWhite rounded-2xl border-2 border-lgaGold p-6 shadow-md">
+                <div class="text-[10px] font-crest uppercase tracking-widest text-lgaGold font-bold">Clubhouse Lexicon</div>
+                <h2 class="font-crest text-xl font-bold uppercase mt-1">Official LGA Lingo &amp; Tour Rules</h2>
+                <p class="text-xs text-pureWhite/75 mt-1">Essential terminology heard on the 1st tee, in the bunker, and at the 19th hole.</p>
+            </div>
+            <div id="lingo-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+    </main>
+
+    <!-- Profile / Active Member Modal -->
+    <div id="profile-modal" class="fixed inset-0 bg-lgaNavy/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-pureWhite rounded-2xl border-2 border-lgaNavy max-w-md w-full overflow-hidden shadow-2xl">
+            <div class="p-4 bg-lgaNavy text-pureWhite flex items-center justify-between border-b-2 border-lgaGold">
+                <h3 class="font-crest font-bold uppercase tracking-wide text-sm">Active Golfer &amp; Handicap Settings</h3>
+                <button onclick="closeProfileModal()" class="text-pureWhite/70 hover:text-lgaGold text-lg leading-none">&times;</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Switch Active Member</label>
+                    <select id="profile-member-select" onchange="handleSwitchMember(this.value)" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Display Name</label>
+                        <input id="profile-name-input" type="text" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 text-sm font-semibold text-lgaNavy">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Base GA Handicap</label>
+                        <input id="profile-hcp-input" type="number" step="0.1" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 text-sm font-semibold text-lgaNavy">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button onclick="closeProfileModal()" class="px-4 py-2 rounded-xl border border-lgaNavy/25 text-xs font-bold text-lgaNavy hover:bg-ivoryMist">Cancel</button>
+                    <button onclick="saveProfileSettings()" class="px-5 py-2 rounded-xl bg-lgaNavy text-lgaGold border border-lgaGold text-xs font-bold hover:bg-lgaNavy/90">Save Profile</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Custom Course Modal -->
+    <div id="add-course-modal" class="fixed inset-0 bg-lgaNavy/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-pureWhite rounded-2xl border-2 border-lgaNavy max-w-md w-full overflow-hidden shadow-2xl">
+            <div class="p-4 bg-lgaNavy text-pureWhite flex items-center justify-between border-b-2 border-lgaGold">
+                <h3 class="font-crest font-bold uppercase tracking-wide text-sm">Add Golf Course to Directory</h3>
+                <button onclick="closeAddCourseModal()" class="text-pureWhite/70 hover:text-lgaGold text-lg leading-none">&times;</button>
+            </div>
+            <form onsubmit="handleAddCourseSubmit(event)" class="p-5 space-y-3">
+                <div>
+                    <label class="block text-[11px] font-bold uppercase text-lgaNavy/70 mb-1">Course Name &amp; Tee</label>
+                    <input id="new-course-name" type="text" required placeholder="e.g. Barnbougle Dunes (Blue)" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 text-sm font-semibold text-lgaNavy">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-lgaNavy/70 mb-1">Location / State</label>
+                        <input id="new-course-loc" type="text" required placeholder="e.g. Bridport, TAS" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 text-sm text-lgaNavy">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-lgaNavy/70 mb-1">Par</label>
+                        <input id="new-course-par" type="number" required value="72" min="54" max="76" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 text-sm font-bold text-lgaNavy">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-lgaNavy/70 mb-1">Scratch Rating</label>
+                        <input id="new-course-rating" type="number" step="0.1" required value="72.0" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 text-sm font-bold text-lgaNavy">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-lgaNavy/70 mb-1">Slope Rating</label>
+                        <input id="new-course-slope" type="number" required value="125" min="55" max="155" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 text-sm font-bold text-lgaNavy">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeAddCourseModal()" class="px-4 py-2 rounded-xl border border-lgaNavy/25 text-xs font-bold text-lgaNavy">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-lgaNavy text-lgaGold border border-lgaGold text-xs font-bold">Add Course</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- History Cell Edit Modal -->
+    <div id="history-edit-modal" class="fixed inset-0 bg-lgaNavy/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-pureWhite rounded-2xl border-2 border-lgaNavy max-w-md w-full overflow-hidden shadow-2xl">
+            <div class="p-4 bg-lgaNavy text-pureWhite flex items-center justify-between border-b-2 border-lgaGold">
+                <h3 class="font-crest font-bold uppercase tracking-wide text-sm">Edit Historical Result</h3>
+                <button onclick="closeHistoryEditModal()" class="text-pureWhite/70 hover:text-lgaGold text-lg leading-none">&times;</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Player</label>
+                        <select id="hist-edit-player" onchange="loadSelectedHistoryCellToModal()" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Year</label>
+                        <select id="hist-edit-year" onchange="loadSelectedHistoryCellToModal()" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy"></select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Finish / Status</label>
+                        <input id="hist-edit-rank" type="text" placeholder="e.g. 1, 5=, DNP" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 text-sm font-semibold text-lgaNavy">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Score</label>
+                        <input id="hist-edit-score" type="number" placeholder="e.g. 65" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 text-sm font-semibold text-lgaNavy">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Format</label>
+                        <select id="hist-edit-unit" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy">
+                            <option value="pts">pts (Stableford)</option>
+                            <option value="stk">stk (Stroke)</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="text-[11px] text-lgaNavy/60">Leave Finish &amp; Score blank to mark as <span class="font-bold">—</span> (missing data).</p>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button onclick="closeHistoryEditModal()" class="px-4 py-2 rounded-xl border border-lgaNavy/25 text-xs font-bold text-lgaNavy hover:bg-ivoryMist">Cancel</button>
+                    <button onclick="saveHistoryCell()" class="px-5 py-2 rounded-xl bg-lgaNavy text-lgaGold border border-lgaGold text-xs font-bold hover:bg-lgaNavy/90">Save Record</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin PIN Unlock Modal -->
+    <div id="admin-pin-modal" class="fixed inset-0 bg-lgaNavy/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-pureWhite rounded-2xl border-2 border-lgaNavy max-w-sm w-full overflow-hidden shadow-2xl">
+            <div class="p-4 bg-lgaNavy text-pureWhite flex items-center justify-between border-b-2 border-lgaGold">
+                <h3 class="font-crest font-bold uppercase tracking-wide text-sm"><i class="fa-solid fa-shield-halved text-lgaGold mr-2"></i>Commissioner Admin Access</h3>
+                <button onclick="closeAdminPinModal()" class="text-pureWhite/70 hover:text-lgaGold text-lg leading-none">&times;</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <p class="text-xs text-lgaNavy/75">Removing or modifying saved rounds, courses, and historical records is restricted to the LGA Commissioner.</p>
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Enter Admin PIN</label>
+                    <input id="admin-pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="••••" onkeydown="if(event.key==='Enter') submitAdminPin()" class="w-full p-2.5 rounded-xl border border-lgaNavy/25 text-center tracking-widest text-lg font-bold text-lgaNavy">
+                    <p id="admin-pin-error" class="hidden text-[11px] text-red-600 font-semibold mt-1">Incorrect PIN. Please try again.</p>
+                    <p class="text-[10px] text-lgaNavy/50 mt-1">Default Commissioner PIN: <span class="font-bold">1919</span> (changeable once unlocked).</p>
+                </div>
+                <div id="admin-change-pin-box" class="hidden pt-2 border-t border-lgaNavy/10">
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Set New Admin PIN (Optional)</label>
+                    <div class="flex gap-2">
+                        <input id="admin-new-pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="New PIN" class="flex-1 p-2 rounded-xl border border-lgaNavy/25 text-xs font-bold text-lgaNavy">
+                        <button onclick="updateAdminPin()" class="px-3 py-2 rounded-xl bg-ivoryMist border border-lgaNavy/25 text-xs font-bold text-lgaNavy hover:bg-lgaGold/30">Update PIN</button>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button onclick="closeAdminPinModal()" class="px-4 py-2 rounded-xl border border-lgaNavy/25 text-xs font-bold text-lgaNavy hover:bg-ivoryMist">Cancel</button>
+                    <button id="admin-pin-submit-btn" onclick="submitAdminPin()" class="px-5 py-2 rounded-xl bg-lgaNavy text-lgaGold border border-lgaGold text-xs font-bold hover:bg-lgaNavy/90">Unlock</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================================
+           1. STORAGE KEYS & DEFAULT DATASETS
+           ========================================================= */
         const STORAGE_KEYS = {
             COURSES: 'lga_golf_courses_v1',
             ROUNDS: 'lga_golf_rounds_v1',
             PROFILE: 'lga_golf_profile_v1',
-            HISTORY: 'lga_golf_history_v1'
-        };
-
-        const DEFAULT_PROFILE = {
-            name: 'Benjamin Burke',
-            memberId: 'Un-Elected Dictator',
-            preferredTee: 'Members (Blue)',
-            hand: 'Right',
-            hcpMode: 'auto',
-            manualIndex: null,
-            goalIndex: 6.0,
-            seedDifferentials: []
+            HISTORY: 'lga_golf_history_v1',
+            ADMIN_PIN: 'lga_golf_admin_pin_v1'
         };
 
         const OFFICIAL_LGA_ROSTER = [
-            { name: 'Benjamin Burke', role: 'Un-Elected Dictator', seedIndex: 8.4, roundsCount: 42, bestGross: 78 },
-            { name: "David O'Connor", role: 'Member', seedIndex: 11.2, roundsCount: 38, bestGross: 81 },
-            { name: 'Ben Cohen', role: 'Member', seedIndex: 9.8, roundsCount: 40, bestGross: 79 },
-            { name: 'Dylan Willcock', role: 'Member', seedIndex: 12.5, roundsCount: 36, bestGross: 83 },
-            { name: 'Michael Stowe', role: 'Member', seedIndex: 14.1, roundsCount: 35, bestGross: 85 },
-            { name: 'Oscur Kus', role: 'Member', seedIndex: 16.4, roundsCount: 29, bestGross: 88 },
-            { name: 'Craig Tubb', role: 'Member', seedIndex: 10.6, roundsCount: 39, bestGross: 80 },
-            { name: 'James Patrick', role: 'Member', seedIndex: 13.8, roundsCount: 34, bestGross: 84 },
-            { name: 'Simon Willcock', role: 'Member', seedIndex: 15.2, roundsCount: 31, bestGross: 86 },
-            { name: 'Andrew Dorrington', role: 'Member', seedIndex: 14.9, roundsCount: 30, bestGross: 85 },
-            { name: 'Daniel Bennetts', role: 'Social Member', seedIndex: 18.5, roundsCount: 18, bestGross: 91 },
-            { name: 'Steven Raphael', role: 'Social Member', seedIndex: 19.2, roundsCount: 16, bestGross: 92 },
-            { name: 'Marcus Harbour', role: 'Social Member', seedIndex: 20.4, roundsCount: 15, bestGross: 94 },
-            { name: 'Jason Daye', role: 'Provisional Member', seedIndex: 17.6, roundsCount: 12, bestGross: 89 },
-            { name: 'John Dardaganis', role: 'Provisional Member', seedIndex: 21.0, roundsCount: 10, bestGross: 95 },
-            { name: 'Alex Kostov', role: 'Provisional Member', seedIndex: 22.3, roundsCount: 9, bestGross: 96 }
+            { id: 'ben-burke', name: 'Ben Burke', role: 'President', baseHcp: 18.4, titles: '2016, 2020, 2024 Champion' },
+            { id: 'ben-cohen', name: 'Ben Cohen', role: 'Founding Legend', baseHcp: 16.2, titles: '2018 & 2019 Champion' },
+            { id: 'james-patrick', name: 'James Patrick', role: 'Reigning Champion', baseHcp: 21.5, titles: '2022= & 2025 Champion' },
+            { id: 'craig-tubb', name: 'Craig (Tubb)', role: 'Founding Legend', baseHcp: 17.8, titles: '2021 Champion' },
+            { id: 'stowey', name: 'Stowey', role: 'Inaugural Champion', baseHcp: 19.6, titles: '2015 Inaugural Champion' },
+            { id: 'dylan-willcock', name: 'Dylan Willcock', role: 'Founding Legend', baseHcp: 20.1, titles: '2022= & 2023 Champion' },
+            { id: 'david-oconnor', name: "David O'Connor", role: 'Founding Legend', baseHcp: 22.0, titles: '2017 Stroke Champion' },
+            { id: 'rob', name: 'Rob', role: 'Tour Member', baseHcp: 24.5, titles: 'Tour Contender' },
+            { id: 'jon', name: 'Jon', role: 'Tour Veteran', baseHcp: 23.4, titles: '2024 Podium Finisher' },
+            { id: 'doz', name: 'Doz', role: 'Tour Veteran', baseHcp: 24.0, titles: 'Consistent Finalist' },
+            { id: 'frederico', name: 'Frederico', role: 'Tour Member', baseHcp: 26.8, titles: '2025 Debutant' },
+            { id: 'jason', name: 'Jason', role: 'Tour Member', baseHcp: 18.9, titles: '2023 Podium Finisher' },
+            { id: 'simon-willcock', name: 'Simon Willcock', role: 'Tour Veteran', baseHcp: 22.7, titles: 'Multi-Year Finalist' },
+            { id: 'dave', name: 'Dave', role: 'Tour Member', baseHcp: 21.0, titles: '2024 Top-10' },
+            { id: 'nigel-willcock', name: 'Nigel Willcock', role: 'Tour Member', baseHcp: 28.4, titles: 'Senior Tour Member' },
+            { id: 'andrew-dorrington', name: 'Andrew Dorrington', role: 'Alumni Member', baseHcp: 27.0, titles: '2018-19 Contender' },
+            { id: 'oscar-kus', name: 'Oscar Kus', role: 'Alumni Member', baseHcp: 31.2, titles: '2018-19 Contender' },
+            { id: 'alex-kostov', name: 'Alex Kostov', role: 'Tour Member', baseHcp: 24.0, titles: 'Tour Squad' }
+        ];
+
+        const DEFAULT_PROFILE = {
+            memberId: 'ben-burke',
+            name: 'Ben Burke',
+            role: 'President',
+            baseHcp: 18.4
+        };
+
+        const DEFAULT_COURSES = [
+            // Melbourne Sandbelt & Victoria
+            { id: 'rm-west', name: 'Royal Melbourne (West)', loc: 'Black Rock, VIC', par: 72, rating: 75.5, slope: 141 },
+            { id: 'rm-east', name: 'Royal Melbourne (East)', loc: 'Black Rock, VIC', par: 71, rating: 73.2, slope: 136 },
+            { id: 'kingston-heath', name: 'Kingston Heath Golf Club', loc: 'Cheltenham, VIC', par: 72, rating: 75.1, slope: 139 },
+            { id: 'victoria-gc', name: 'Victoria Golf Club', loc: 'Cheltenham, VIC', par: 72, rating: 74.6, slope: 137 },
+            { id: 'metro-gc', name: 'Metropolitan Golf Club', loc: 'Oakleigh South, VIC', par: 72, rating: 74.4, slope: 136 },
+            { id: 'peninsula-north', name: 'Peninsula Kingswood (North)', loc: 'Frankston, VIC', par: 72, rating: 74.8, slope: 138 },
+            { id: 'peninsula-south', name: 'Peninsula Kingswood (South)', loc: 'Frankston, VIC', par: 71, rating: 73.5, slope: 135 },
+            { id: 'commonwealth', name: 'Commonwealth Golf Club', loc: 'Oakleigh South, VIC', par: 73, rating: 74.5, slope: 135 },
+            { id: 'yarrayarra', name: 'Yarra Yarra Golf Club', loc: 'Bentleigh East, VIC', par: 72, rating: 74.1, slope: 134 },
+            { id: 'huntingdale', name: 'Huntingdale Golf Club', loc: 'Oakleigh South, VIC', par: 72, rating: 74.2, slope: 135 },
+            { id: 'woodlands', name: 'Woodlands Golf Club', loc: 'Mordialloc, VIC', par: 72, rating: 73.6, slope: 133 },
+            { id: 'spring-valley', name: 'Spring Valley Golf Club', loc: 'Clayton South, VIC', par: 71, rating: 73.0, slope: 132 },
+            { id: 'national-old', name: 'The National (Old Course)', loc: 'Cape Schanck, VIC', par: 72, rating: 75.0, slope: 142 },
+            { id: 'national-moonah', name: 'The National (Moonah)', loc: 'Cape Schanck, VIC', par: 72, rating: 74.9, slope: 140 },
+            { id: 'national-gunnamatta', name: 'The National (Gunnamatta)', loc: 'Cape Schanck, VIC', par: 72, rating: 74.2, slope: 136 },
+            { id: 'st-andrews-beach', name: 'St Andrews Beach Golf Course', loc: 'Fingal, VIC', par: 70, rating: 72.8, slope: 134 },
+            { id: 'moonah-links-open', name: 'Moonah Links (Open Course)', loc: 'Fingal, VIC', par: 72, rating: 76.2, slope: 143 },
+            { id: 'moonah-links-legends', name: 'Moonah Links (Legends)', loc: 'Fingal, VIC', par: 72, rating: 73.4, slope: 131 },
+            { id: 'dunes-rye', name: 'The Dunes Golf Links', loc: 'Rye, VIC', par: 72, rating: 74.0, slope: 135 },
+            { id: 'cape-schanck', name: 'RACV Cape Schanck Resort', loc: 'Cape Schanck, VIC', par: 70, rating: 71.2, slope: 127 },
+            { id: 'portsea', name: 'Portsea Golf Club', loc: 'Portsea, VIC', par: 71, rating: 72.6, slope: 131 },
+            { id: 'sorrento', name: 'Sorrento Golf Club', loc: 'Sorrento, VIC', par: 70, rating: 71.5, slope: 129 },
+            { id: 'barwon-heads', name: 'Barwon Heads Golf Club', loc: 'Barwon Heads, VIC', par: 70, rating: 72.1, slope: 132 },
+            { id: '13th-beach-beach', name: '13th Beach (Beach Course)', loc: 'Barwon Heads, VIC', par: 72, rating: 74.3, slope: 136 },
+            { id: '13th-beach-creek', name: '13th Beach (Creek Course)', loc: 'Barwon Heads, VIC', par: 72, rating: 73.8, slope: 133 },
+            { id: 'lonny', name: 'Lonsdale Links', loc: 'Point Lonsdale, VIC', par: 71, rating: 72.4, slope: 131 },
+            { id: 'torquay', name: 'RACV Torquay Golf Club', loc: 'Torquay, VIC', par: 71, rating: 72.0, slope: 128 },
+            { id: 'sands-torquay', name: 'The Sands Torquay', loc: 'Torquay, VIC', par: 72, rating: 73.9, slope: 134 },
+            { id: 'cathedral-lodge', name: 'Cathedral Lodge Golf Club', loc: 'Thornton, VIC', par: 72, rating: 75.4, slope: 141 },
+            { id: 'heritage-stjohn', name: 'The Heritage (St John)', loc: 'Chirnside Park, VIC', par: 72, rating: 74.5, slope: 137 },
+            { id: 'heritage-henley', name: 'The Heritage (Henley)', loc: 'Chirnside Park, VIC', par: 72, rating: 74.1, slope: 135 },
+            { id: 'settlers-run', name: 'Settlers Run Golf & CC', loc: 'Cranbourne South, VIC', par: 72, rating: 73.8, slope: 134 },
+            { id: 'sandhurst-north', name: 'Sandhurst (North Course)', loc: 'Sandhurst, VIC', par: 72, rating: 73.5, slope: 132 },
+            { id: 'sandhurst-champions', name: 'Sandhurst (Champions)', loc: 'Sandhurst, VIC', par: 72, rating: 74.0, slope: 134 },
+            { id: 'yarra-bend', name: 'Yarra Bend Golf Course', loc: 'Fairfield, VIC', par: 70, rating: 68.5, slope: 118 },
+            { id: 'albert-park', name: 'Albert Park Golf Course', loc: 'Melbourne, VIC', par: 72, rating: 70.2, slope: 120 },
+            { id: 'sandringham', name: 'Sandringham Golf Links', loc: 'Cheltenham, VIC', par: 71, rating: 71.4, slope: 125 },
+            { id: 'brighton', name: 'Brighton Golf Course', loc: 'Brighton East, VIC', par: 69, rating: 67.8, slope: 115 },
+            { id: 'malvern-valley', name: 'Malvern Valley Golf Course', loc: 'Chadstone, VIC', par: 66, rating: 64.5, slope: 109 },
+            { id: 'black-bull', name: 'Black Bull Golf Course', loc: 'Yarrawonga, VIC', par: 72, rating: 73.7, slope: 131 },
+            { id: 'yarrawonga-murray', name: 'Yarrawonga Mulwala (Murray)', loc: 'Mulwala, NSW/VIC', par: 72, rating: 73.2, slope: 129 },
+            { id: 'rich-river-east', name: 'Rich River (East Course)', loc: 'Moama, NSW/VIC', par: 72, rating: 72.9, slope: 127 },
+            // Interstate & Bucket List
+            { id: 'barnbougle-dunes', name: 'Barnbougle Dunes', loc: 'Bridport, TAS', par: 71, rating: 74.2, slope: 138 },
+            { id: 'barnbougle-lostfarm', name: 'Barnbougle Lost Farm', loc: 'Bridport, TAS', par: 72, rating: 74.6, slope: 139 },
+            { id: 'cape-wickham', name: 'Cape Wickham Links', loc: 'King Island, TAS', par: 72, rating: 75.3, slope: 141 },
+            { id: 'ocean-dunes', name: 'Ocean Dunes', loc: 'King Island, TAS', par: 72, rating: 74.8, slope: 139 },
+            { id: 'nsw-gc', name: 'New South Wales Golf Club', loc: 'La Perouse, NSW', par: 72, rating: 75.2, slope: 140 },
+            { id: 'royal-adelaide', name: 'Royal Adelaide Golf Club', loc: 'Seaton, SA', par: 73, rating: 75.0, slope: 138 },
+            { id: 'kooyonga', name: 'Kooyonga Golf Club', loc: 'Lockleys, SA', par: 72, rating: 74.1, slope: 135 },
+            { id: 'lake-karrinyup', name: 'Lake Karrinyup Country Club', loc: 'Karrinyup, WA', par: 72, rating: 74.9, slope: 138 },
+            { id: 'st-andrews-old', name: 'St Andrews (Old Course)', loc: 'Fife, Scotland', par: 72, rating: 76.4, slope: 136 },
+            { id: 'pebble-beach', name: 'Pebble Beach Golf Links', loc: 'Pebble Beach, CA', par: 72, rating: 75.5, slope: 145 }
         ];
 
         const HISTORY_YEARS = ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'];
 
-        const DEFAULT_HISTORY_2019_DETAILS = [
-            { rank: 1, name: 'Ben Cohen', matrixPlayer: 'Ben Cohen', hcp: -17, rd1: 35, rd2: 34, total: 69, status: 'Played' },
-            { rank: 2, name: 'Ben Burke', matrixPlayer: 'Ben Burke (Pres)', hcp: -21, rd1: 37, rd2: 29, total: 66, status: 'Played' },
-            { rank: 3, name: 'Dylan Willcock', matrixPlayer: 'Dylan', hcp: -23, rd1: 29, rd2: 30, total: 59, status: 'Played' },
-            { rank: 4, name: 'James Patrick', matrixPlayer: 'James', hcp: -36, rd1: 30, rd2: 27, total: 57, status: 'Played' },
-            { rank: 5, name: 'Craig Tubb', matrixPlayer: 'Craig (Tubb)', hcp: -18, rd1: 27, rd2: 25, total: 52, status: 'Played' },
-            { rank: 6, name: 'Andrew Dorrington', matrixPlayer: 'Andrew Dorrington', hcp: -36, rd1: 21, rd2: 29, total: 50, status: 'Played' },
-            { rank: 7, name: 'Simon Willcock', matrixPlayer: 'Simon', hcp: -36, rd1: 21, rd2: 25, total: 46, status: 'Played' },
-            { rank: 8, name: "David O'Connor", matrixPlayer: "David O'Connor", hcp: -24, rd1: 22, rd2: 17, total: 39, status: 'Played' },
-            { rank: 9, name: 'Oscar Kus', matrixPlayer: 'Oscar Kus', hcp: -36, rd1: 14, rd2: 14, total: 28, status: 'Played' },
-            { rank: null, name: 'Michael Stowe', matrixPlayer: 'Stowey', hcp: null, rd1: null, rd2: null, total: null, status: 'Scratched' }
+        const DEFAULT_HISTORY_MATRIX = [
+            { player: 'James', scores: { '2017': '7 | 202 stk', '2018': '4 | 57 pts', '2020': '3 | 64 pts', '2021': '4 | 65 pts', '2022': '1= | 60 pts', '2023': '10 | 44 pts', '2024': '6 | 63 pts', '2025': '1 | 65 pts' } },
+            { player: 'Ben Burke (Pres)', scores: { '2016': '1', '2017': '4 | 153 stk', '2018': '2 | 66 pts', '2020': '1 | 77 pts', '2021': '5 | 50 pts', '2022': '4 | 51 pts', '2023': '5= | 51 pts', '2024': '1 | 73 pts', '2025': '7 | 37 pts' } },
+            { player: 'Ben Cohen', scores: { '2017': '3 | 152 stk', '2018': '1 | 69 pts', '2020': '5 | 53 pts', '2021': '3 | 69 pts', '2022': '3 | 57 pts', '2023': '2 | 66 pts', '2024': '2 | 72 pts', '2025': '4 | 55 pts' } },
+            { player: 'Craig (Tubb)', scores: { '2017': '6 | 161 stk', '2018': '5= | 52 pts', '2020': '4 | 58 pts', '2021': '1 | 71 pts', '2022': '5= | 45 pts', '2023': '7 | 50 pts', '2024': '8 | 61 pts', '2025': '2 | 60 pts' } },
+            { player: 'Stowey', scores: { '2015': '1', '2017': '5 | 156 stk', '2019': 'DNP', '2020': '2 | 69 pts', '2021': 'DNP', '2022': '7 | 41 pts', '2023': '4 | 62 pts', '2024': '4 | 67 pts', '2025': '5 | 49 pts' } },
+            { player: 'Dylan', scores: { '2017': '2 | 150 stk', '2018': '3 | 59 pts', '2020': '6 | 52 pts', '2021': '2 | 70 pts', '2022': '1= | 60 pts', '2023': '1 | 68 pts', '2024': '10 | 40 pts', '2025': '3 | 59 pts' } },
+            { player: "David O'Connor", scores: { '2017': '1 | 149 stk', '2018': '8 | 39 pts' } },
+            { player: 'Rob', scores: { '2025': '8 | 32 pts' } },
+            { player: 'Jon', scores: { '2020': '8 | 35 pts', '2021': '6 | 39 pts', '2022': '8 | 30 pts', '2023': '8= | 46 pts', '2024': '3 | 69 pts', '2025': '9= | 27 pts' } },
+            { player: 'Doz', scores: { '2020': '7 | 41 pts', '2021': '7 | 21 pts', '2022': '5= | 45 pts', '2023': '8= | 46 pts', '2025': '6 | 48 pts' } },
+            { player: 'Frederico', scores: { '2025': '9= | 27 pts' } },
+            { player: 'Jason', scores: { '2023': '3 | 63 pts', '2024': '9 | 57 pts' } },
+            { player: 'Simon', scores: { '2018': '5= | 52 pts', '2023': '5= | 51 pts', '2024': '5 | 65 pts' } },
+            { player: 'Dave', scores: { '2024': '7 | 62 pts' } },
+            { player: 'Nigel Willcock', scores: { '2023': '11 | 21 pts', '2024': '11 | 21 pts' } },
+            { player: 'Andrew Dorrington', scores: { '2018': '7 | 50 pts' } },
+            { player: 'Oscar Kus', scores: { '2018': '9 | 28 pts' } },
+            { player: 'Alex Kostov', scores: {} }
         ];
 
-        const DEFAULT_HISTORICAL_RECORDS = [
-            {
-                player: 'James',
-                results: {
-                    '2017': { rank: '7', score: 202, unit: 'stk' },
-                    '2018': { rank: '4', score: 57, unit: 'pts' },
-                    '2020': { rank: '3', score: 64, unit: 'pts' },
-                    '2021': { rank: '4', score: 65, unit: 'pts' },
-                    '2022': { rank: '1=', score: 60, unit: 'pts' },
-                    '2023': { rank: '10', score: 44, unit: 'pts' },
-                    '2024': { rank: '6', score: 63, unit: 'pts' },
-                    '2025': { rank: '1', score: 65, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Ben Burke (Pres)',
-                results: {
-                    '2016': { rank: '1', score: null, unit: '' },
-                    '2017': { rank: '4', score: 153, unit: 'stk' },
-                    '2018': { rank: '2', score: 66, unit: 'pts' },
-                    '2020': { rank: '1', score: 77, unit: 'pts' },
-                    '2021': { rank: '5', score: 50, unit: 'pts' },
-                    '2022': { rank: '4', score: 51, unit: 'pts' },
-                    '2023': { rank: '5=', score: 51, unit: 'pts' },
-                    '2024': { rank: '1', score: 73, unit: 'pts' },
-                    '2025': { rank: '7', score: 37, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Ben Cohen',
-                results: {
-                    '2017': { rank: '3', score: 152, unit: 'stk' },
-                    '2018': { rank: '1', score: 69, unit: 'pts' },
-                    '2020': { rank: '5', score: 53, unit: 'pts' },
-                    '2021': { rank: '3', score: 69, unit: 'pts' },
-                    '2022': { rank: '3', score: 57, unit: 'pts' },
-                    '2023': { rank: '2', score: 66, unit: 'pts' },
-                    '2024': { rank: '2', score: 72, unit: 'pts' },
-                    '2025': { rank: '4', score: 55, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Craig (Tubb)',
-                results: {
-                    '2017': { rank: '6', score: 161, unit: 'stk' },
-                    '2018': { rank: '5=', score: 52, unit: 'pts' },
-                    '2020': { rank: '4', score: 58, unit: 'pts' },
-                    '2021': { rank: '1', score: 71, unit: 'pts' },
-                    '2022': { rank: '5=', score: 45, unit: 'pts' },
-                    '2023': { rank: '7', score: 50, unit: 'pts' },
-                    '2024': { rank: '8', score: 61, unit: 'pts' },
-                    '2025': { rank: '2', score: 60, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Stowey',
-                results: {
-                    '2015': { rank: '1', score: null, unit: '' },
-                    '2017': { rank: '5', score: 156, unit: 'stk' },
-                    '2019': { rank: 'DNP', score: null, unit: '' },
-                    '2020': { rank: '2', score: 69, unit: 'pts' },
-                    '2021': { rank: 'DNP', score: null, unit: '' },
-                    '2022': { rank: '7', score: 41, unit: 'pts' },
-                    '2023': { rank: '4', score: 62, unit: 'pts' },
-                    '2024': { rank: '4', score: 67, unit: 'pts' },
-                    '2025': { rank: '5', score: 49, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Dylan',
-                results: {
-                    '2017': { rank: '2', score: 150, unit: 'stk' },
-                    '2018': { rank: '3', score: 59, unit: 'pts' },
-                    '2020': { rank: '6', score: 52, unit: 'pts' },
-                    '2021': { rank: '2', score: 70, unit: 'pts' },
-                    '2022': { rank: '1=', score: 60, unit: 'pts' },
-                    '2023': { rank: '1', score: 68, unit: 'pts' },
-                    '2024': { rank: '10', score: 40, unit: 'pts' },
-                    '2025': { rank: '3', score: 59, unit: 'pts' }
-                }
-            },
-            {
-                player: "David O'Connor",
-                results: {
-                    '2017': { rank: '1', score: 149, unit: 'stk' },
-                    '2018': { rank: '8', score: 39, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Rob',
-                results: {
-                    '2025': { rank: '8', score: 32, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Jon',
-                results: {
-                    '2020': { rank: '8', score: 35, unit: 'pts' },
-                    '2021': { rank: '6', score: 39, unit: 'pts' },
-                    '2022': { rank: '8', score: 30, unit: 'pts' },
-                    '2023': { rank: '8=', score: 46, unit: 'pts' },
-                    '2024': { rank: '3', score: 69, unit: 'pts' },
-                    '2025': { rank: '9=', score: 27, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Doz',
-                results: {
-                    '2020': { rank: '7', score: 41, unit: 'pts' },
-                    '2021': { rank: '7', score: 21, unit: 'pts' },
-                    '2022': { rank: '5=', score: 45, unit: 'pts' },
-                    '2023': { rank: '8=', score: 46, unit: 'pts' },
-                    '2025': { rank: '6', score: 48, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Frederico',
-                results: {
-                    '2025': { rank: '9=', score: 27, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Jason',
-                results: {
-                    '2023': { rank: '3', score: 63, unit: 'pts' },
-                    '2024': { rank: '9', score: 57, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Simon',
-                results: {
-                    '2018': { rank: '5=', score: 52, unit: 'pts' },
-                    '2023': { rank: '5=', score: 51, unit: 'pts' },
-                    '2024': { rank: '5', score: 65, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Dave',
-                results: {
-                    '2024': { rank: '7', score: 62, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Nigel Willcock',
-                results: {
-                    '2023': { rank: '11', score: 21, unit: 'pts' },
-                    '2024': { rank: '11', score: 21, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Andrew Dorrington',
-                results: {
-                    '2018': { rank: '7', score: 50, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Oscar Kus',
-                results: {
-                    '2018': { rank: '9', score: 28, unit: 'pts' }
-                }
-            },
-            {
-                player: 'Alex Kostov',
-                results: {}
+        const CHAMPIONSHIP_2019_FIELD = [
+            { rank: 1, player: 'Ben Cohen', matrixName: 'Ben Cohen', hcp: -17, rd1: 35, rd2: 34, total: 69 },
+            { rank: 2, player: 'Ben Burke', matrixName: 'Ben Burke (Pres)', hcp: -21, rd1: 37, rd2: 29, total: 66 },
+            { rank: 3, player: 'Dylan Willcock', matrixName: 'Dylan', hcp: -23, rd1: 29, rd2: 30, total: 59 },
+            { rank: 4, player: 'James Patrick', matrixName: 'James', hcp: -36, rd1: 30, rd2: 27, total: 57 },
+            { rank: 5, player: 'Craig Tubb', matrixName: 'Craig (Tubb)', hcp: -18, rd1: 27, rd2: 25, total: 52 },
+            { rank: 6, player: 'Andrew Dorrington', matrixName: 'Andrew Dorrington', hcp: -36, rd1: 21, rd2: 29, total: 50 },
+            { rank: 7, player: 'Simon Willcock', matrixName: 'Simon', hcp: -36, rd1: 21, rd2: 25, total: 46 },
+            { rank: 8, player: "David O'Connor", matrixName: "David O'Connor", hcp: -24, rd1: 22, rd2: 17, total: 39 },
+            { rank: 9, player: 'Oscar Kus', matrixName: 'Oscar Kus', hcp: -36, rd1: 14, rd2: 14, total: 28 },
+            { rank: '—', player: 'Michael Stowe', matrixName: 'Stowey', hcp: 'Scratched', rd1: '—', rd2: '—', total: 'Scratched' }
+        ];
+
+        const LGA_LINGO = [
+            { term: 'The Green Jacket / LGA Shield', def: 'The ultimate annual prize bestowed upon the LGA Champion following the 36-hole Stableford weekend.' },
+            { term: 'Pigeon', def: 'A member who reliably donates side-bets, nearest-the-pins, and clubhouse rounds to the rest of the fourball.' },
+            { term: 'Gimme Inside the Leather', def: 'A putt conceded purely out of mercy so the group does not fall two holes behind the group in front.' },
+            { term: 'Army Golf', def: 'Left, right, left, right — hitting from fairway to opposite rough on consecutive swings.' },
+            { term: 'WHS Differential', def: 'Calculated as (113 / Slope Rating) × (Adjusted Gross Score − Scratch Rating − PCC).' },
+            { term: 'The 19th Hole Audit', def: 'Post-round scorecard verification over cold pots where 3-putt bogeys are furiously debated.' }
+        ];
+
+        /* =========================================================
+           2. STATE & ADMIN LOCK ENGINE
+           ========================================================= */
+        let courses = [];
+        let rounds = [];
+        let profile = { ...DEFAULT_PROFILE };
+        let historyMatrix = [];
+        let isAdminUnlocked = false;
+        let pendingAdminAction = null;
+
+        function loadState() {
+            try {
+                const savedCourses = JSON.parse(localStorage.getItem(STORAGE_KEYS.COURSES));
+                courses = Array.isArray(savedCourses) && savedCourses.length ? savedCourses : [...DEFAULT_COURSES];
+            } catch { courses = [...DEFAULT_COURSES]; }
+
+            try {
+                const savedRounds = JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUNDS));
+                rounds = Array.isArray(savedRounds) ? savedRounds : [];
+            } catch { rounds = []; }
+
+            try {
+                const savedProfile = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROFILE));
+                profile = savedProfile && savedProfile.name ? savedProfile : { ...DEFAULT_PROFILE };
+            } catch { profile = { ...DEFAULT_PROFILE }; }
+
+            try {
+                const savedHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY));
+                historyMatrix = Array.isArray(savedHistory) && savedHistory.length
+                    ? savedHistory
+                    : JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
+            } catch {
+                historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
             }
-        ];
-<!-- ... existing code ... -->
-        function saveHistoryCell() {
-            const pName = document.getElementById('hist-edit-player').value;
-            const yr = document.getElementById('hist-edit-year').value;
-            const rankVal = document.getElementById('hist-edit-rank').value.trim();
-            const rawScore = document.getElementById('hist-edit-score').value.trim();
-            const unitVal = document.getElementById('hist-edit-unit').value;
+        }
 
-            const rec = historicalRecords.find(r => r.player === pName);
-            if (!rec) return;
+        function saveState() {
+            localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(courses));
+            localStorage.setItem(STORAGE_KEYS.ROUNDS, JSON.stringify(rounds));
+            localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
+            localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(historyMatrix));
+        }
 
-            if (!rankVal && !rawScore) {
-                delete rec.results[yr];
+        function showToast(msg) {
+            const banner = document.getElementById('toast-banner');
+            const text = document.getElementById('toast-text');
+            if (!banner || !text) return;
+            text.textContent = msg;
+            banner.classList.remove('hidden');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => banner.classList.add('hidden'), 2800);
+        }
+
+        function getAdminPin() {
+            return localStorage.getItem(STORAGE_KEYS.ADMIN_PIN) || '1919';
+        }
+
+        function updateAdminUI() {
+            const btn = document.getElementById('admin-lock-btn');
+            const syncBtn = document.getElementById('sync-2019-btn');
+            if (btn) {
+                if (isAdminUnlocked) {
+                    btn.innerHTML = '<i class="fa-solid fa-lock-open mr-1"></i>Admin Unlocked';
+                    btn.classList.remove('bg-pureWhite');
+                    btn.classList.add('bg-lgaGold');
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-lock mr-1"></i>Admin Locked';
+                    btn.classList.add('bg-pureWhite');
+                    btn.classList.remove('bg-lgaGold');
+                }
+            }
+            if (syncBtn) {
+                syncBtn.classList.toggle('hidden', !isAdminUnlocked);
+            }
+            document.querySelectorAll('[data-admin-only]').forEach(el => {
+                el.classList.toggle('hidden', !isAdminUnlocked);
+            });
+        }
+
+        function requireAdmin(callback) {
+            if (isAdminUnlocked) {
+                if (typeof callback === 'function') callback();
+                return true;
+            }
+            pendingAdminAction = callback || null;
+            openAdminPinModal();
+            return false;
+        }
+
+        function toggleAdminLock() {
+            if (isAdminUnlocked) {
+                isAdminUnlocked = false;
+                updateAdminUI();
+                renderHistoryTab();
+                renderDashboard();
+                showToast('Commissioner Admin Mode locked.');
             } else {
-                const parsedScore = rawScore !== '' ? parseInt(rawScore, 10) : null;
-                rec.results[yr] = {
-                    rank: rankVal || '-',
-                    score: !isNaN(parsedScore) ? parsedScore : null,
-                    unit: !isNaN(parsedScore) && parsedScore !== null ? unitVal : ''
-                };
+                openAdminPinModal();
             }
+        }
+
+        function openAdminPinModal() {
+            const modal = document.getElementById('admin-pin-modal');
+            const input = document.getElementById('admin-pin-input');
+            const err = document.getElementById('admin-pin-error');
+            const changeBox = document.getElementById('admin-change-pin-box');
+            if (err) err.classList.add('hidden');
+            if (input) input.value = '';
+            if (changeBox) changeBox.classList.toggle('hidden', !isAdminUnlocked);
+            if (modal) modal.classList.remove('hidden');
+            if (input) setTimeout(() => input.focus(), 50);
+        }
+
+        function closeAdminPinModal() {
+            const modal = document.getElementById('admin-pin-modal');
+            if (modal) modal.classList.add('hidden');
+            pendingAdminAction = null;
+        }
+
+        function submitAdminPin() {
+            const input = document.getElementById('admin-pin-input');
+            const err = document.getElementById('admin-pin-error');
+            if (!input) return;
+            if (input.value.trim() === getAdminPin()) {
+                isAdminUnlocked = true;
+                if (err) err.classList.add('hidden');
+                updateAdminUI();
+                renderHistoryTab();
+                renderDashboard();
+                const action = pendingAdminAction;
+                closeAdminPinModal();
+                showToast('Commissioner Admin Mode unlocked.');
+                if (typeof action === 'function') action();
+            } else if (err) {
+                err.classList.remove('hidden');
+            }
+        }
+
+        function updateAdminPin() {
+            if (!isAdminUnlocked) return;
+            const newPinInput = document.getElementById('admin-new-pin-input');
+            const val = newPinInput ? newPinInput.value.trim() : '';
+            if (val.length >= 4) {
+                localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, val);
+                newPinInput.value = '';
+                closeAdminPinModal();
+                showToast('Commissioner Admin PIN updated.');
+            }
+        }
+
+        /* =========================================================
+           3. WHS HANDICAP CALCULATIONS
+           ========================================================= */
+        function calculateDifferential(gross, rating, slope, pcc = 0) {
+            const diff = (113 / slope) * (gross - rating - pcc);
+            return Math.round(diff * 10) / 10;
+        }
+
+        function calculateDailyHandicap(gaIndex, slope, rating, par) {
+            const daily = (gaIndex * (slope / 113)) + (rating - par);
+            return Math.round(daily);
+        }
+
+        function getActiveWhsIndex() {
+            const playerRounds = rounds.filter(r => r.playerName === profile.name);
+            if (playerRounds.length === 0) return Number(profile.baseHcp) || 18.4;
+
+            const recent = playerRounds.slice(0, 20).map(r => r.differential).sort((a, b) => a - b);
+            const count = recent.length;
+            let bestN = 1;
+            let adj = 0;
+
+            if (count <= 3) { bestN = 1; adj = -2.0; }
+            else if (count === 4) { bestN = 1; adj = -1.0; }
+            else if (count === 5) { bestN = 1; adj = 0; }
+            else if (count === 6) { bestN = 2; adj = -1.0; }
+            else if (count <= 8) { bestN = 2; adj = 0; }
+            else if (count <= 11) { bestN = 3; adj = 0; }
+            else if (count <= 14) { bestN = 4; adj = 0; }
+            else if (count <= 16) { bestN = 5; adj = 0; }
+            else if (count <= 18) { bestN = 6; adj = 0; }
+            else if (count === 19) { bestN = 7; adj = 0; }
+            else { bestN = 8; adj = 0; }
+
+            const slice = recent.slice(0, bestN);
+            const avg = slice.reduce((sum, val) => sum + val, 0) / slice.length;
+            return Math.max(0, Math.round((avg + adj) * 10) / 10);
+        }
+
+        /* =========================================================
+           4. TAB NAVIGATION & RENDERING
+           ========================================================= */
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('text-pureWhite/80');
+            });
+
+            const target = document.getElementById(`tab-${tabName}`);
+            const navBtn = document.getElementById(`nav-${tabName}`);
+            if (target) target.classList.remove('hidden');
+            if (navBtn) {
+                navBtn.classList.add('tab-active');
+                navBtn.classList.remove('text-pureWhite/80');
+            }
+
+            if (tabName === 'dashboard') renderDashboard();
+            if (tabName === 'log-round') populateLogForm();
+            if (tabName === 'history') renderHistoryTab();
+            if (tabName === 'courses') renderCoursesTab();
+            if (tabName === 'roster') renderLgaRosterTab();
+            if (tabName === 'lingo') renderLingoTab();
+        }
+
+        function renderHeaderProfile() {
+            const whs = getActiveWhsIndex();
+            const initials = profile.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+            document.getElementById('header-avatar').textContent = initials || 'LG';
+            document.getElementById('header-player-name').textContent = profile.name;
+            document.getElementById('header-player-meta').textContent = `${profile.role} • GA ${whs.toFixed(1)}`;
+        }
+
+        function renderDashboard() {
+            renderHeaderProfile();
+            const whs = getActiveWhsIndex();
+            const playerRounds = rounds.filter(r => r.playerName === profile.name);
+
+            document.getElementById('dash-player-title').textContent = profile.name;
+            document.getElementById('dash-player-subtitle').textContent = `${profile.role} • Best 8 of Last 20 Differentials`;
+            document.getElementById('dash-whs-index').textContent = whs.toFixed(1);
+            document.getElementById('dash-rounds-count').textContent = playerRounds.length;
+
+            if (playerRounds.length > 0) {
+                const bestDiff = Math.min(...playerRounds.map(r => r.differential));
+                const avgGross = (playerRounds.reduce((s, r) => s + r.gross, 0) / playerRounds.length).toFixed(1);
+                document.getElementById('dash-best-diff').textContent = bestDiff.toFixed(1);
+                document.getElementById('dash-avg-gross').textContent = avgGross;
+            } else {
+                document.getElementById('dash-best-diff').textContent = '—';
+                document.getElementById('dash-avg-gross').textContent = '—';
+            }
+
+            // Populate quick course dropdown
+            const calcSelect = document.getElementById('calc-course-select');
+            const currentVal = calcSelect.value;
+            calcSelect.innerHTML = courses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            if (currentVal && courses.some(c => c.id === currentVal)) calcSelect.value = currentVal;
+            updateQuickDailyCalc();
+
+            // Render Legendary Log list
+            const listEl = document.getElementById('rounds-list-container');
+            if (rounds.length === 0) {
+                listEl.innerHTML = `
+                    <div class="p-8 text-center space-y-2">
+                        <div class="text-lgaGold text-2xl"><i class="fa-solid fa-golf-ball-tee"></i></div>
+                        <p class="text-sm font-bold text-lgaNavy">No rounds logged yet in the Legendary Log</p>
+                        <p class="text-xs text-lgaNavy/60">Post a score to calculate your WHS Differential and update your LGA Index.</p>
+                    </div>`;
+                return;
+            }
+
+            listEl.innerHTML = rounds.map(r => `
+                <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-ivoryMist/60 transition">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-extrabold text-lgaNavy">${r.playerName}</span>
+                            <span class="text-[10px] bg-lgaNavy text-lgaGold px-2 py-0.5 rounded-full font-bold">${r.date}</span>
+                        </div>
+                        <div class="text-xs font-semibold text-lgaNavy/80 mt-0.5">${r.courseName}</div>
+                        ${r.notes ? `<div class="text-[11px] italic text-lgaNavy/60 mt-0.5">"${r.notes}"</div>` : ''}
+                    </div>
+                    <div class="flex items-center gap-3 self-end sm:self-center">
+                        <div class="text-right">
+                            <div class="text-xs font-extrabold text-lgaNavy">Gross ${r.gross} ${r.stableford !== '' && r.stableford !== null ? `• ${r.stableford} pts` : ''}</div>
+                            <div class="text-[11px] font-bold text-lgaGold">Diff: ${r.differential.toFixed(1)}</div>
+                        </div>
+                        <button onclick="deleteRound('${r.id}')" class="${isAdminUnlocked ? '' : 'hidden'} w-8 h-8 rounded-xl bg-red-50 hover:bg-red-600 text-red-600 hover:text-pureWhite border border-red-200 flex items-center justify-center transition" title="Delete Round (Admin Only)">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateQuickDailyCalc() {
+            const select = document.getElementById('calc-course-select');
+            const course = courses.find(c => c.id === select.value) || courses[0];
+            if (!course) return;
+            const whs = getActiveWhsIndex();
+            const daily = calculateDailyHandicap(whs, course.slope, course.rating, course.par);
+            document.getElementById('calc-course-specs').textContent = `Par ${course.par} • Slope ${course.slope} • Scratch ${course.rating}`;
+            document.getElementById('calc-daily-result').textContent = daily;
+        }
+
+        function populateLogForm() {
+            const playerSelect = document.getElementById('log-player-select');
+            playerSelect.innerHTML = OFFICIAL_LGA_ROSTER.map(m =>
+                `<option value="${m.name}" ${m.name === profile.name ? 'selected' : ''}>${m.name}</option>`
+            ).join('');
+
+            const courseSelect = document.getElementById('log-course-select');
+            courseSelect.innerHTML = courses.map(c =>
+                `<option value="${c.id}">${c.name} (Par ${c.par}, Slope ${c.slope})</option>`
+            ).join('');
+
+            const dateInput = document.getElementById('log-date');
+            if (!dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+            updateLogPreview();
+        }
+
+        function updateLogPreview() {
+            const course = courses.find(c => c.id === document.getElementById('log-course-select').value) || courses[0];
+            const gross = parseFloat(document.getElementById('log-gross').value);
+            const pcc = parseFloat(document.getElementById('log-pcc').value) || 0;
+            if (!course || isNaN(gross)) {
+                document.getElementById('log-diff-preview').textContent = '—';
+                document.getElementById('log-formula-caption').textContent = 'Enter gross strokes to preview differential';
+                return;
+            }
+            const diff = calculateDifferential(gross, course.rating, course.slope, pcc);
+            document.getElementById('log-diff-preview').textContent = diff.toFixed(1);
+            document.getElementById('log-formula-caption').textContent = `(113 / ${course.slope}) × (${gross} − ${course.rating} − ${pcc})`;
+        }
+
+        function handleLogRoundSubmit(e) {
+            e.preventDefault();
+            const playerName = document.getElementById('log-player-select').value;
+            const date = document.getElementById('log-date').value;
+            const course = courses.find(c => c.id === document.getElementById('log-course-select').value);
+            const gross = parseInt(document.getElementById('log-gross').value, 10);
+            const stablefordVal = document.getElementById('log-stableford').value;
+            const stableford = stablefordVal !== '' ? parseInt(stablefordVal, 10) : '';
+            const pcc = parseInt(document.getElementById('log-pcc').value, 10) || 0;
+            const notes = document.getElementById('log-notes').value.trim();
+
+            if (!course || isNaN(gross)) return;
+            const differential = calculateDifferential(gross, course.rating, course.slope, pcc);
+
+            rounds.unshift({
+                id: 'rnd-' + Date.now(),
+                playerName,
+                date,
+                courseId: course.id,
+                courseName: course.name,
+                gross,
+                stableford,
+                pcc,
+                differential,
+                notes
+            });
 
             saveState();
-            renderHistoryTab();
-            closeHistoryEditModal();
-            showToast(`Updated ${yr} record for ${pName}!`);
+            e.target.reset();
+            showToast(`Round saved for ${playerName} (Diff ${differential.toFixed(1)})!`);
+            switchTab('dashboard');
+        }
+
+        function deleteRound(roundId) {
+            requireAdmin(() => {
+                rounds = rounds.filter(r => r.id !== roundId);
+                saveState();
+                renderDashboard();
+                showToast('Round removed from Legendary Log.');
+            });
+        }
+
+        /* =========================================================
+           5. HISTORICAL RECORDS (2015–2025 MATRIX & 2019 SHEET)
+           ========================================================= */
+        function renderHistoryTab() {
+            const thead = document.getElementById('history-matrix-thead');
+            const tbody = document.getElementById('history-matrix-tbody');
+
+            thead.innerHTML = `
+                <th class="p-3 font-crest uppercase tracking-wider sticky left-0 bg-lgaNavy z-10 border-r border-lgaGold/30">Player</th>
+                ${HISTORY_YEARS.map(yr => `<th class="p-3 font-crest text-center uppercase tracking-wider">${yr}</th>`).join('')}
+            `;
+
+            tbody.innerHTML = historyMatrix.map((row, pIdx) => {
+                const cells = HISTORY_YEARS.map(yr => {
+                    const val = row.scores[yr] || '—';
+                    const isWinner = val === '1' || val.startsWith('1 |') || val.startsWith('1= |');
+                    const isDnp = val === 'DNP' || val === 'Scratched';
+                    const isMissing = val === '—';
+
+                    let badgeClass = 'text-lgaNavy font-medium';
+                    if (isWinner) badgeClass = 'bg-lgaGold/30 text-lgaNavy font-extrabold border border-lgaGold px-2 py-0.5 rounded-lg';
+                    else if (isDnp) badgeClass = 'text-lgaNavy/45 italic';
+                    else if (isMissing) badgeClass = 'text-lgaNavy/30';
+
+                    const clickAttr = isAdminUnlocked ? `onclick="openHistoryEditModal(${pIdx}, '${yr}')"` : '';
+                    const hoverClass = isAdminUnlocked ? 'cursor-pointer hover:bg-lgaGold/20' : '';
+
+                    return `<td ${clickAttr} class="p-2.5 text-center ${hoverClass} transition"><span class="${badgeClass}">${val}</span></td>`;
+                }).join('');
+
+                return `
+                    <tr class="hover:bg-ivoryMist/70">
+                        <td class="p-3 font-bold text-lgaNavy sticky left-0 bg-pureWhite border-r border-lgaNavy/10">${row.player}</td>
+                        ${cells}
+                    </tr>
+                `;
+            }).join('');
+
+            // Render 2019 Full Field Scorecard
+            const tbody2019 = document.getElementById('history-2019-tbody');
+            tbody2019.innerHTML = CHAMPIONSHIP_2019_FIELD.map(entry => {
+                const isScratched = entry.total === 'Scratched';
+                const isChamp = entry.rank === 1;
+                return `
+                    <tr class="${isChamp ? 'bg-lgaGold/15 font-bold' : ''} hover:bg-ivoryMist/60">
+                        <td class="p-3 font-crest font-bold text-lgaNavy">${entry.rank}</td>
+                        <td class="p-3 font-bold text-lgaNavy">${entry.player}</td>
+                        ${isScratched
+                            ? `<td colspan="4" class="p-3 text-center italic font-semibold text-lgaNavy/50 bg-ivoryMist">Scratched</td>`
+                            : `
+                                <td class="p-3 text-center font-semibold text-lgaNavy/80">${entry.hcp}</td>
+                                <td class="p-3 text-center font-semibold text-lgaNavy">${entry.rd1}</td>
+                                <td class="p-3 text-center font-semibold text-lgaNavy">${entry.rd2}</td>
+                                <td class="p-3 text-right font-extrabold text-lgaNavy">${entry.total} pts</td>
+                            `
+                        }
+                    </tr>
+                `;
+            }).join('');
+
+            updateAdminUI();
+        }
+
+        function openHistoryEditModal(playerIdx = 0, year = '2019') {
+            requireAdmin(() => {
+                const playerSel = document.getElementById('hist-edit-player');
+                const yearSel = document.getElementById('hist-edit-year');
+                playerSel.innerHTML = historyMatrix.map((r, idx) => `<option value="${idx}">${r.player}</option>`).join('');
+                yearSel.innerHTML = HISTORY_YEARS.map(yr => `<option value="${yr}">${yr}</option>`).join('');
+
+                playerSel.value = String(playerIdx);
+                yearSel.value = year;
+                loadSelectedHistoryCellToModal();
+                document.getElementById('history-edit-modal').classList.remove('hidden');
+            });
+        }
+
+        function loadSelectedHistoryCellToModal() {
+            const pIdx = parseInt(document.getElementById('hist-edit-player').value, 10);
+            const yr = document.getElementById('hist-edit-year').value;
+            const current = (historyMatrix[pIdx] && historyMatrix[pIdx].scores[yr]) || '';
+
+            const rankInput = document.getElementById('hist-edit-rank');
+            const scoreInput = document.getElementById('hist-edit-score');
+            const unitSel = document.getElementById('hist-edit-unit');
+
+            if (!current || current === '—') {
+                rankInput.value = '';
+                scoreInput.value = '';
+                unitSel.value = 'pts';
+            } else if (current.includes('|')) {
+                const parts = current.split('|').map(s => s.trim());
+                rankInput.value = parts[0];
+                const scoreMatch = parts[1].match(/^(\d+)\s*(pts|stk)?$/i);
+                scoreInput.value = scoreMatch ? scoreMatch[1] : '';
+                unitSel.value = scoreMatch && scoreMatch[2] ? scoreMatch[2].toLowerCase() : 'pts';
+            } else {
+                rankInput.value = current;
+                scoreInput.value = '';
+                unitSel.value = 'pts';
+            }
+        }
+
+        function closeHistoryEditModal() {
+            document.getElementById('history-edit-modal').classList.add('hidden');
+        }
+
+        function saveHistoryCell() {
+            requireAdmin(() => {
+                const pIdx = parseInt(document.getElementById('hist-edit-player').value, 10);
+                const yr = document.getElementById('hist-edit-year').value;
+                const rank = document.getElementById('hist-edit-rank').value.trim();
+                const score = document.getElementById('hist-edit-score').value.trim();
+                const unit = document.getElementById('hist-edit-unit').value;
+
+                if (!rank && !score) {
+                    delete historyMatrix[pIdx].scores[yr];
+                } else if (rank && score) {
+                    historyMatrix[pIdx].scores[yr] = `${rank} | ${score} ${unit}`;
+                } else {
+                    historyMatrix[pIdx].scores[yr] = rank || `${score} ${unit}`;
+                }
+
+                saveState();
+                renderHistoryTab();
+                closeHistoryEditModal();
+                showToast(`Updated ${historyMatrix[pIdx].player} (${yr}).`);
+            });
         }
 
         function sync2019SheetIntoMatrix() {
-            DEFAULT_HISTORY_2019_DETAILS.forEach(item => {
-                const rec = historicalRecords.find(r => r.player === item.matrixPlayer);
-                if (!rec) return;
-                if (item.status === 'Scratched') {
-                    rec.results['2019'] = { rank: 'Scratched', score: null, unit: '' };
-                } else {
-                    rec.results['2019'] = { rank: String(item.rank), score: item.total, unit: 'pts' };
-                }
+            requireAdmin(() => {
+                CHAMPIONSHIP_2019_FIELD.forEach(entry => {
+                    const row = historyMatrix.find(r => r.player === entry.matrixName);
+                    if (row) {
+                        row.scores['2019'] = entry.total === 'Scratched'
+                            ? 'Scratched'
+                            : `${entry.rank} | ${entry.total} pts`;
+                    }
+                });
+                saveState();
+                renderHistoryTab();
+                showToast('2019 Championship results synced into 2019 column.');
             });
-            saveState();
-            renderHistoryTab();
-            showToast('2019 Championship results synced into the 2019 matrix column!');
         }
 
-        function promptResetHistoryData() {
-            showConfirmModal(
-                'Reset Historical Archive?',
-                'This will restore the default 2015–2025 LGA historical matrix and 2019 scores.',
-                () => {
-                    historicalRecords = JSON.parse(JSON.stringify(DEFAULT_HISTORICAL_RECORDS));
-                    saveState();
-                    renderHistoryTab();
-                    showToast('LGA Historical Archive restored.');
-                }
-            );
+        function resetHistoryData() {
+            requireAdmin(() => {
+                historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
+                saveState();
+                renderHistoryTab();
+                showToast('Historical matrix restored to original master archive.');
+            });
         }
-<!-- ... existing code ... -->
+
+        /* =========================================================
+           6. COURSES, ROSTER, LINGO & PROFILE MODALS
+           ========================================================= */
+        function renderCoursesTab() {
+            const q = (document.getElementById('course-search').value || '').toLowerCase();
+            const filtered = courses.filter(c =>
+                c.name.toLowerCase().includes(q) || c.loc.toLowerCase().includes(q)
+            );
+            const whs = getActiveWhsIndex();
+
+            document.getElementById('courses-grid').innerHTML = filtered.map(c => {
+                const daily = calculateDailyHandicap(whs, c.slope, c.rating, c.par);
+                const isCustom = !DEFAULT_COURSES.some(dc => dc.id === c.id);
+                return `
+                    <div class="bg-pureWhite rounded-2xl border border-lgaNavy/20 p-4 shadow-sm flex flex-col justify-between hover:border-lgaGold transition">
+                        <div>
+                            <div class="flex items-start justify-between gap-2">
+                                <h3 class="font-bold text-sm text-lgaNavy">${c.name}</h3>
+                                ${isCustom && isAdminUnlocked ? `<button onclick="deleteCourse('${c.id}')" class="text-red-500 hover:text-red-700 text-xs" title="Delete Custom Course"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            </div>
+                            <p class="text-[11px] text-lgaNavy/60 mt-0.5"><i class="fa-solid fa-location-dot text-lgaGold mr-1"></i>${c.loc}</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-lgaNavy/10 flex items-center justify-between text-xs">
+                            <span class="text-lgaNavy/75 font-semibold">Par ${c.par} • Scratch ${c.rating} • Slope ${c.slope}</span>
+                            <span class="bg-lgaNavy text-lgaGold font-extrabold px-2.5 py-1 rounded-lg">Daily ${daily}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openAddCourseModal() {
+            document.getElementById('add-course-modal').classList.remove('hidden');
+        }
+
+        function closeAddCourseModal() {
+            document.getElementById('add-course-modal').classList.add('hidden');
+        }
+
+        function handleAddCourseSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-course-name').value.trim();
+            const loc = document.getElementById('new-course-loc').value.trim();
+            const par = parseInt(document.getElementById('new-course-par').value, 10);
+            const rating = parseFloat(document.getElementById('new-course-rating').value);
+            const slope = parseInt(document.getElementById('new-course-slope').value, 10);
+
+            courses.unshift({
+                id: 'custom-' + Date.now(),
+                name,
+                loc,
+                par,
+                rating,
+                slope
+            });
+            saveState();
+            e.target.reset();
+            closeAddCourseModal();
+            renderCoursesTab();
+            showToast(`${name} added to directory!`);
+        }
+
+        function deleteCourse(courseId) {
+            requireAdmin(() => {
+                courses = courses.filter(c => c.id !== courseId);
+                saveState();
+                renderCoursesTab();
+                showToast('Custom course removed.');
+            });
+        }
+
+        function renderLgaRosterTab() {
+            const q = (document.getElementById('roster-search').value || '').toLowerCase();
+            const filtered = OFFICIAL_LGA_ROSTER.filter(m =>
+                m.name.toLowerCase().includes(q) || m.role.toLowerCase().includes(q)
+            );
+
+            document.getElementById('roster-grid').innerHTML = filtered.map(m => {
+                const isActive = m.name === profile.name;
+                const hcp = isActive ? getActiveWhsIndex() : m.baseHcp;
+                return `
+                    <div class="bg-pureWhite rounded-2xl border-2 ${isActive ? 'border-lgaGold' : 'border-lgaNavy/15'} p-4 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="text-[10px] font-crest uppercase tracking-wider text-lgaGold font-bold">${m.role}</div>
+                                <h3 class="font-bold text-base text-lgaNavy">${m.name}</h3>
+                                <p class="text-[11px] text-lgaNavy/65 mt-0.5">${m.titles}</p>
+                            </div>
+                            <div class="text-right bg-ivoryMist px-3 py-1.5 rounded-xl border border-lgaNavy/15">
+                                <div class="text-[9px] uppercase font-bold text-lgaNavy/60">GA Hcp</div>
+                                <div class="font-crest text-base font-extrabold text-lgaNavy">${Number(hcp).toFixed(1)}</div>
+                            </div>
+                        </div>
+                        <button onclick="selectMemberAsActive('${m.id}')" class="mt-4 w-full py-2 rounded-xl ${isActive ? 'bg-lgaGold text-lgaNavy' : 'bg-lgaNavy text-lgaGold'} text-xs font-bold uppercase tracking-wider transition">
+                            ${isActive ? 'Active Golfer' : 'Set as Active Golfer'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectMemberAsActive(memberId) {
+            const member = OFFICIAL_LGA_ROSTER.find(m => m.id === memberId);
+            if (!member) return;
+            profile = {
+                memberId: member.id,
+                name: member.name,
+                role: member.role,
+                baseHcp: member.baseHcp
+            };
+            saveState();
+            renderHeaderProfile();
+            renderLgaRosterTab();
+            showToast(`Switched active golfer to ${member.name}.`);
+        }
+
+        function renderLingoTab() {
+            document.getElementById('lingo-grid').innerHTML = LGA_LINGO.map(item => `
+                <div class="bg-pureWhite rounded-2xl border border-lgaNavy/20 p-5 shadow-sm">
+                    <h3 class="font-crest text-sm font-bold text-lgaNavy uppercase tracking-wide">${item.term}</h3>
+                    <p class="text-xs text-lgaNavy/75 mt-1.5 leading-relaxed">${item.def}</p>
+                </div>
+            `).join('');
+        }
+
+        function openProfileModal() {
+            const sel = document.getElementById('profile-member-select');
+            sel.innerHTML = OFFICIAL_LGA_ROSTER.map(m =>
+                `<option value="${m.id}" ${m.name === profile.name ? 'selected' : ''}>${m.name} (${m.role})</option>`
+            ).join('');
+            document.getElementById('profile-name-input').value = profile.name;
+            document.getElementById('profile-hcp-input').value = profile.baseHcp;
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+
+        function handleSwitchMember(memberId) {
+            const member = OFFICIAL_LGA_ROSTER.find(m => m.id === memberId);
+            if (!member) return;
+            document.getElementById('profile-name-input').value = member.name;
+            document.getElementById('profile-hcp-input').value = member.baseHcp;
+        }
+
+        function saveProfileSettings() {
+            const memberId = document.getElementById('profile-member-select').value;
+            const member = OFFICIAL_LGA_ROSTER.find(m => m.id === memberId);
+            const name = document.getElementById('profile-name-input').value.trim() || profile.name;
+            const baseHcp = parseFloat(document.getElementById('profile-hcp-input').value);
+
+            profile = {
+                memberId,
+                name,
+                role: member ? member.role : profile.role,
+                baseHcp: isNaN(baseHcp) ? profile.baseHcp : baseHcp
+            };
+            saveState();
+            closeProfileModal();
+            renderDashboard();
+            showToast('Golfer profile updated.');
+        }
+
+        /* =========================================================
+           7. INITIALIZATION
+           ========================================================= */
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            renderDashboard();
+            renderHistoryTab();
+            renderCoursesTab();
+            renderLgaRosterTab();
+            renderLingoTab();
+            updateAdminUI();
+        });
+    </script>
+</body>
+</html>
