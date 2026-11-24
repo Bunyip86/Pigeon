@@ -149,10 +149,10 @@
                     <div>
                         <div class="flex items-center gap-2 flex-wrap">
                             <h1 class="font-serif text-lg sm:text-2xl font-bold tracking-tight text-white">Legends Golfing Association</h1>
-                            <button type="button" onclick="openCloudConfigModal()" title="Click to configure Live Multi-Device Cloud Sync for GitHub Pages" id="sync-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30 hover:opacity-90 transition cursor-pointer">
+                            <span id="sync-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30">
                                 <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                                <span id="sync-status-text">Connecting...</span>
-                            </button>
+                                <span id="sync-status-text">Connecting Live...</span>
+                            </span>
                         </div>
                         <p class="text-xs sm:text-sm text-lga-goldLight/90 font-medium">Official WHS Handicap, Hole-by-Hole Stableford &amp; Championship Archive</p>
                     </div>
@@ -814,742 +814,34 @@
         </div>
     </div>
 
-    <!-- MODAL 5: FIREBASE LIVE SYNC CONFIG (FOR GITHUB PAGES HOSTING) -->
-    <div id="cloud-config-modal" class="fixed inset-0 bg-lga-navy/75 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 border-2 border-lga-gold shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-gray-200 pb-3">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="cloud" class="w-5 h-5 text-lga-goldDark"></i>
-                    <h3 class="font-serif text-xl font-bold text-lga-navy">GitHub Pages Live Multi-Device Sync</h3>
-                </div>
-                <button onclick="closeCloudConfigModal()" class="text-gray-400 hover:text-lga-navy cursor-pointer">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <div class="space-y-3 text-xs sm:text-sm text-lga-slate">
-                <p>When hosted on <strong>GitHub Pages</strong>, your browser automatically saves all scores &amp; handicaps locally so nothing is lost on refresh or code updates.</p>
-                <p>To sync scores <strong>live across all 18 members' phones at the same time</strong> on GitHub Pages, paste your free Firebase Web App config JSON below (requires Anonymous Auth &amp; Firestore enabled):</p>
-                <div>
-                    <label for="cloud-config-textarea" class="block text-xs font-bold uppercase text-lga-navy mb-1">Firebase Config JSON</label>
-                    <textarea id="cloud-config-textarea" rows="5" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}' class="w-full bg-lga-sand border border-lga-gold/60 rounded-xl p-3 font-mono text-xs text-lga-navy focus:outline-none focus:border-lga-navy"></textarea>
-                </div>
-            </div>
-            <div class="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
-                <button type="button" onclick="clearCustomCloudConfig()" class="px-3 py-2 rounded-xl border border-red-200 text-red-700 text-xs font-bold hover:bg-red-50 cursor-pointer">
-                    Disconnect Cloud
-                </button>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="closeCloudConfigModal()" class="px-4 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 cursor-pointer">Close</button>
-                    <button type="button" onclick="saveCustomCloudConfig()" class="px-4 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold hover:bg-lga-navyLight cursor-pointer">Connect &amp; Sync</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- APPLICATION SCRIPT & FIREBASE REAL-TIME CLOUD SYNC -->
+    <!-- APPLICATION SCRIPT & REAL-TIME CLOUD SYNC -->
     <script type="module">
-        import { initializeApp, getApps, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================
         // 1. MASTER LGA ROSTER (SORTED ALPHABETICALLY BY SURNAME — 18 MEMBERS)
-        // =========================================================================
-        const LGA_MEMBERS_RAW = [
-            { name: 'Daniel Bennets', title: '', baselineIndex: 22.0 },
-            { name: 'Frederico Bianco', title: '', baselineIndex: 28.5 },
-            { name: 'Ben Burke', title: 'President', baselineIndex: 11.4 },
-            { name: 'Ben Cohen', title: '', baselineIndex: 15.2 },
-            { name: 'Jon Dardaganis', title: '', baselineIndex: 34.0 },
-            { name: 'Jason Daye', title: '', baselineIndex: 24.5 },
-            { name: 'Andrew Dorrington', title: '', baselineIndex: 35.0 },
-            { name: 'Alex Kostov', title: '', baselineIndex: 21.0 },
-            { name: 'Oscar Kus', title: '', baselineIndex: 32.0 },
-            { name: 'Ben Lenz', title: '', baselineIndex: 20.5 },
-            { name: "David O'Connor", title: '', baselineIndex: 24.0 },
-            { name: 'James Patrick', title: 'Reigning Champion', baselineIndex: 17.8 },
-            { name: 'Rob Rosengarten', title: '', baselineIndex: 19.6 },
-            { name: 'Michael Stowe', title: '', baselineIndex: 17.4 },
-            { name: 'Craig Tubb', title: '', baselineIndex: 18.0 },
-            { name: 'Dylan Willcock', title: '', baselineIndex: 21.8 },
-            { name: 'Nigel Willcock', title: '', baselineIndex: 33.5 },
-            { name: 'Simon Willcock', title: '', baselineIndex: 24.2 }
-        ];
-
-        function getSurnameKey(fullName) {
-            const clean = (fullName || '').replace(/\s*\(.*?\)\s*/g, '').trim();
-            const parts = clean.split(/\s+/);
-            const last = parts.length > 1 ? parts[parts.length - 1] : clean;
-            return `${last.toLowerCase()} ${clean.toLowerCase()}`;
-        }
-
-        function sortByLastName(a, b) {
-            return getSurnameKey(a).localeCompare(getSurnameKey(b));
-        }
-
-        const LGA_MEMBERS = [...LGA_MEMBERS_RAW].sort((a, b) => sortByLastName(a.name, b.name));
-
-        function formatMemberDisplayName(baseName) {
-            const m = LGA_MEMBERS.find(x => x.name === baseName);
-            if (!m) return baseName;
-            return m.title ? `${m.name} (${m.title})` : m.name;
-        }
-
-        function normalizePlayerName(raw) {
-            if (!raw) return 'Ben Burke';
-            const clean = String(raw).replace(/\s*\(.*?\)\s*/g, '').trim();
-            const aliases = {
-                'Doz': 'Andrew Dorrington',
-                'Frederico': 'Frederico Bianco',
-                "Dave O'Connor": "David O'Connor",
-                'Dave OConnor': "David O'Connor",
-                'David OConnor': "David O'Connor",
-                'Stowey': 'Michael Stowe',
-                'Craig': 'Craig Tubb',
-                'Dylan': 'Dylan Willcock',
-                'James': 'James Patrick',
-                'Simon': 'Simon Willcock',
-                'Nigel': 'Nigel Willcock',
-                'Jon': 'Jon Dardaganis',
-                'Rob': 'Rob Rosengarten',
-                'Jason': 'Jason Daye'
-            };
-            if (aliases[clean]) return aliases[clean];
-            const found = LGA_MEMBERS.find(m => m.name.toLowerCase() === clean.toLowerCase());
-            return found ? found.name : clean;
-        }
-
-        function mergeHistoryRows(rawList) {
-            const map = new Map();
-            LGA_MEMBERS.forEach(m => {
-                map.set(m.name, { player: m.name, results: {} });
-            });
-            (rawList || []).forEach(row => {
-                const canon = normalizePlayerName(row.player);
-                if (!map.has(canon)) {
-                    map.set(canon, { player: canon, results: {} });
-                }
-                const target = map.get(canon);
-                target.results = { ...target.results, ...(row.results || {}) };
-            });
-            return Array.from(map.values()).sort((a, b) => sortByLastName(a.player, b.player));
-        }
-
-        // =========================================================================
-        // 2. 52-COURSE AUSTRALIAN DIRECTORY (PAR, CR, SLOPE)
-        // =========================================================================
-        const DEFAULT_COURSES = [
-            { id: 'c1', name: 'Barnbougle Dunes', state: 'TAS', par: 71, cr: 73.5, slope: 136 },
-            { id: 'c2', name: 'Barnbougle Lost Farm', state: 'TAS', par: 72, cr: 73.0, slope: 132 },
-            { id: 'c3', name: 'Barwon Heads Golf Club', state: 'VIC', par: 70, cr: 71.2, slope: 129 },
-            { id: 'c4', name: 'Bonville Golf Resort', state: 'NSW', par: 72, cr: 74.0, slope: 138 },
-            { id: 'c5', name: 'Cape Schanck (RACV)', state: 'VIC', par: 70, cr: 70.8, slope: 128 },
-            { id: 'c6', name: 'Cape Wickham Links', state: 'TAS', par: 72, cr: 74.2, slope: 137 },
-            { id: 'c7', name: 'Cathedral Lodge', state: 'VIC', par: 72, cr: 74.5, slope: 141 },
-            { id: 'c8', name: 'Commonwealth Golf Club', state: 'VIC', par: 72, cr: 74.1, slope: 136 },
-            { id: 'c9', name: 'Curlewis Golf Club', state: 'VIC', par: 72, cr: 72.1, slope: 127 },
-            { id: 'c10', name: 'Eynesbury Golf', state: 'VIC', par: 72, cr: 73.2, slope: 131 },
-            { id: 'c11', name: 'Flinders Golf Club', state: 'VIC', par: 69, cr: 69.5, slope: 123 },
-            { id: 'c12', name: 'Growling Frog Golf Course', state: 'VIC', par: 72, cr: 72.4, slope: 126 },
-            { id: 'c13', name: 'Heritage Golf & Country Club (St John)', state: 'VIC', par: 72, cr: 73.8, slope: 135 },
-            { id: 'c14', name: 'Huntingdale Golf Club', state: 'VIC', par: 72, cr: 74.3, slope: 137 },
-            { id: 'c15', name: 'Joondalup Resort (Quarry/Dune)', state: 'WA', par: 72, cr: 74.6, slope: 140 },
-            { id: 'c16', name: 'Kingston Heath Golf Club', state: 'VIC', par: 72, cr: 74.8, slope: 139 },
-            { id: 'c17', name: 'Kooyonga Golf Club', state: 'SA', par: 72, cr: 73.9, slope: 135 },
-            { id: 'c18', name: 'Lake Karrinyup Country Club', state: 'WA', par: 72, cr: 74.5, slope: 138 },
-            { id: 'c19', name: 'Links Kennedy Bay', state: 'WA', par: 72, cr: 73.7, slope: 134 },
-            { id: 'c20', name: 'Lonsdale Links', state: 'VIC', par: 70, cr: 70.6, slope: 126 },
-            { id: 'c21', name: 'Magenta Shores Golf & CC', state: 'NSW', par: 72, cr: 73.8, slope: 135 },
-            { id: 'c22', name: 'Metropolitan Golf Club', state: 'VIC', par: 72, cr: 74.6, slope: 138 },
-            { id: 'c23', name: 'Moonah Links (Legends Course)', state: 'VIC', par: 72, cr: 73.4, slope: 134 },
-            { id: 'c24', name: 'Moonah Links (Open Course)', state: 'VIC', par: 72, cr: 75.2, slope: 142 },
-            { id: 'c25', name: 'New South Wales Golf Club', state: 'NSW', par: 72, cr: 74.9, slope: 141 },
-            { id: 'c26', name: 'Newcastle Golf Club', state: 'NSW', par: 72, cr: 73.6, slope: 134 },
-            { id: 'c27', name: 'Ocean Dunes (King Island)', state: 'TAS', par: 72, cr: 73.9, slope: 136 },
-            { id: 'c28', name: 'Peninsula Kingswood (North)', state: 'VIC', par: 72, cr: 74.7, slope: 139 },
-            { id: 'c29', name: 'Peninsula Kingswood (South)', state: 'VIC', par: 72, cr: 73.8, slope: 135 },
-            { id: 'c30', name: 'Port Fairy Golf Links', state: 'VIC', par: 72, cr: 72.8, slope: 130 },
-            { id: 'c31', name: 'Portsea Golf Club', state: 'VIC', par: 71, cr: 71.9, slope: 131 },
-            { id: 'c32', name: 'Royal Adelaide Golf Club', state: 'SA', par: 72, cr: 74.4, slope: 137 },
-            { id: 'c33', name: 'Royal Melbourne (Composite)', state: 'VIC', par: 72, cr: 75.6, slope: 144 },
-            { id: 'c34', name: 'Royal Melbourne (East)', state: 'VIC', par: 71, cr: 73.1, slope: 135 },
-            { id: 'c35', name: 'Royal Melbourne (West)', state: 'VIC', par: 72, cr: 75.1, slope: 142 },
-            { id: 'c36', name: 'Royal Queensland Golf Club', state: 'QLD', par: 72, cr: 74.2, slope: 136 },
-            { id: 'c37', name: 'Royal Sydney Golf Club', state: 'NSW', par: 72, cr: 73.9, slope: 135 },
-            { id: 'c38', name: 'Sanctuary Cove (The Pines)', state: 'QLD', par: 72, cr: 74.5, slope: 139 },
-            { id: 'c39', name: 'Sandhurst Club (Champions)', state: 'VIC', par: 72, cr: 73.3, slope: 132 },
-            { id: 'c40', name: 'Sandhurst Club (North)', state: 'VIC', par: 72, cr: 72.7, slope: 129 },
-            { id: 'c41', name: 'Settlers Run Golf & CC', state: 'VIC', par: 72, cr: 73.5, slope: 133 },
-            { id: 'c42', name: 'Sorrento Golf Club', state: 'VIC', par: 70, cr: 70.9, slope: 128 },
-            { id: 'c43', name: 'Spring Valley Golf Club', state: 'VIC', par: 71, cr: 72.4, slope: 132 },
-            { id: 'c44', name: 'St Andrews Beach Golf Course', state: 'VIC', par: 70, cr: 71.5, slope: 131 },
-            { id: 'c45', name: 'The Australian Golf Club', state: 'NSW', par: 72, cr: 74.8, slope: 140 },
-            { id: 'c46', name: 'The Dunes Golf Links', state: 'VIC', par: 72, cr: 73.4, slope: 133 },
-            { id: 'c47', name: 'The Lakes Golf Club', state: 'NSW', par: 72, cr: 74.3, slope: 137 },
-            { id: 'c48', name: 'The National (Gunnamatta)', state: 'VIC', par: 72, cr: 73.6, slope: 134 },
-            { id: 'c49', name: 'The National (Moonah)', state: 'VIC', par: 72, cr: 74.8, slope: 139 },
-            { id: 'c50', name: 'The National (Old Course)', state: 'VIC', par: 72, cr: 74.4, slope: 138 },
-            { id: 'c51', name: 'Thirteenth Beach (Beach Course)', state: 'VIC', par: 72, cr: 73.2, slope: 132 },
-            { id: 'c52', name: 'Victoria Golf Club', state: 'VIC', par: 72, cr: 74.6, slope: 138 },
-            { id: 'c53', name: 'Yarra Yarra Golf Club', state: 'VIC', par: 71, cr: 72.8, slope: 134 },
-            { id: 'c54', name: 'Yarrawonga Mulwala (Murray)', state: 'VIC', par: 72, cr: 72.2, slope: 125 }
-        ];
-
-        // =========================================================================
-        // 3. HISTORICAL LGA ARCHIVE (2015 - 2025)
-        // =========================================================================
-        const TOUR_YEARS = [
-            { year: '2015', venue: 'Yarrawonga' },
-            { year: '2016', venue: 'Barwon Heads' },
-            { year: '2017', venue: 'Peninsula' },
-            { year: '2018', venue: 'Melbourne' },
-            { year: '2019', venue: 'Tour Venue' },
-            { year: '2020', venue: 'Tour Venue' },
-            { year: '2021', venue: 'Tour Venue' },
-            { year: '2022', venue: 'Tour Venue' },
-            { year: '2023', venue: 'Tour Venue' },
-            { year: '2024', venue: 'Tour Venue' },
-            { year: '2025', venue: 'Port Fairy' }
-        ];
-
-        const DEFAULT_HISTORY_MATRIX = [
-            { player: 'Daniel Bennets', results: {} },
-            {
-                player: 'Frederico Bianco',
-                results: { '2025': { pos: '9=', score: '27', unit: 'pts' } }
-            },
-            {
-                player: 'Ben Burke',
-                results: {
-                    '2015': { pos: 'Played', score: 'TBC', unit: '' },
-                    '2016': { pos: '1', score: 'TBC', unit: '' },
-                    '2017': { pos: '4', score: '153', unit: 'stroke' },
-                    '2018': { pos: '2', score: '66', unit: 'pts' },
-                    '2019': { pos: '4', score: '58', unit: 'pts' },
-                    '2020': { pos: '1', score: '77', unit: 'pts' },
-                    '2021': { pos: '5', score: '50', unit: 'pts' },
-                    '2022': { pos: '4', score: '51', unit: 'pts' },
-                    '2023': { pos: '5=', score: '51', unit: 'pts' },
-                    '2024': { pos: '1', score: '73', unit: 'pts' },
-                    '2025': { pos: '7', score: '37', unit: 'pts' }
-                }
-            },
-            {
-                player: 'Ben Cohen',
-                results: {
-                    '2015': { pos: 'Played', score: 'TBC', unit: '' },
-                    '2016': { pos: 'Played', score: 'TBC', unit: '' },
-                    '2017': { pos: '3', score: '152', unit: 'stroke' },
-                    '2018': { pos: '1', score: '69', unit: 'pts' },
-                    '2019': { pos: '1', score: '69', unit: 'pts' },
-                    '2020': { pos: '5', score: '53', unit: 'pts' },
-                    '2021': { pos: '3', score: '69', unit: 'pts' },
-                    '2022': { pos: '3', score: '57', unit: 'pts' },
-                    '2023': { pos: '2', score: '66', unit: 'pts' },
-                    '2024': { pos: '2', score: '72', unit: 'pts' },
-                    '2025': { pos: '4', score: '55', unit: 'pts' }
-                }
-            },
-            {
-                player: 'Jon Dardaganis',
-                results: {
-                    '2020': { pos: '8', score: '35', unit: 'pts' },
-                    '2021': { pos: '6', score: '39', unit: 'pts' },
-                    '2022': { pos: '8', score: '30', unit: 'pts' },
-                    '2023': { pos: '8=', score: '46', unit: 'pts' },
-                    '2024': { pos: '3', score: '69', unit: 'pts' },
-                    '2025': { pos: '9=', score: '27', unit: 'pts' }
-                }
-            },
-            {
-                player: 'Jason Daye',
-                results: {
-                    '2023': { pos: '3', score: '63', unit: 'pts' },
-                    '2024': { pos: '9', score: '57', unit: 'pts' }
-                }
-            },
-            {
-                player: 'Andrew Dorrington',
-                results: {
-                    '2018': { pos: '7', score: '50', unit: 'pts' },
-                    '2020': { pos: '7', score: '41', unit: 'pts' },
-                    '2021': { pos: '7', score: '21', unit: 'pts' },
-                    '2022': { pos: '5=', score: '45', unit: 'pts' },
-                    '2023': { pos: '8=', score: '46', unit: 'pts' },
-                    '2025': { pos: '6', score: '48', unit: 'pts' }
-                }
-            },
-            { player: 'Alex Kostov', results: {} },
-            {
-                player: 'Oscar Kus',
-                results: { '2018': { pos: '9', score: '28', unit: 'pts' } }
-            },
-            { player: 'Ben Lenz', results: {} },
-            {
-                player: "David O'Connor",
-                results: {
-                    '2017': { pos: '1', score: '149', unit: 'stroke' },
-                    '2018': { pos: '8', score: '39', unit: 'pts' },
-                    '2024': { pos: '7', score: '62', unit: 'pts' }
-                }
-            },
-            {
-                player: 'James Patrick',
-                results: {
-                    '2017': { pos: '7', score: '202', unit: 'stroke' },
-                    '2018': { pos: '4', score: '57', unit: 'pts' },
-                    '2019': { pos: '6', score: '53', unit: 'pts' },
-                    '2020': { pos: '3', score: '64', unit: 'pts' },
-                    '2021': { pos: '4', score: '65', unit: 'pts' },
-                    '2022': { pos: '1=', score: '60', unit: 'pts' },
-                    '2023': { pos: '10', score: '44', unit: 'pts' },
-                    '2024': { pos: '6', score: '63', unit: 'pts' },
-                    '2025': { pos: '1', score: '65', unit: 'pts' }
-                }
-            },
-            {
-                player: 'Rob Rosengarten',
-                results: { '2025': { pos: '8', score: '32', unit: 'pts' } }
-            },
-            {
-                player: 'Michael Stowe',
-                results: {
-                    '2015': { pos: '1', score: 'TBC', unit: '' },
-                    '2017': { pos: '5', score: '156', unit: 'stroke' },
-                    '2019': { pos: '2', score: '64', unit: 'pts' },
-                    '2020': { pos: '2', score: '69', unit: 'pts' },
-                    '2022': { pos: '7', score: '41', unit: 'pts' },
-                    '2023': { pos: '4', score: '62', unit: 'pts' },
-                    '2024': { pos: '4', score: '67', unit: 'pts' },
-                    '2025': { pos: '5', score: '49', unit: 'pts' }
-                }
-            },
-            {
-                player: 'Craig Tubb',
-                results: {
-                    '2017': { pos: '6', score: '161', unit: 'stroke' },
-                    '2018': { pos: '5=', score: '52', unit: 'pts' },
-                    '2019': { pos: '5', score: '56', unit: 'pts' },
-                    '2020': { pos: '4', score: '58', unit: 'pts' },
-                    '2021': { pos: '1', score: '71', unit: 'pts' },
-                    '2022': { pos: '5=', score: '45', unit: 'pts' },
-                    '2023': { pos: '7', score: '50', unit: 'pts' },
-                    '2024': { pos: '8', score: '61', unit: 'pts' },
-                    '2025': { pos: '2', score: '60', unit: 'pts' }
-                }
-            },
-            {
-                player: 'Dylan Willcock',
-                results: {
-                    '2015': { pos: 'Played', score: 'TBC', unit: '' },
-                    '2016': { pos: 'Played', score: 'TBC', unit: '' },
-                    '2017': { pos: '2', score: '150', unit: 'stroke' },
-                    '2018': { pos: '3', score: '59', unit: 'pts' },
-                    '2019': { pos: '3', score: '61', unit: 'pts' },
-                    '2020': { pos: '6', score: '52', unit: 'pts' },
-                    '2021': { pos: '2', score: '70', unit: 'pts' },
-                    '2022': { pos: '1=', score: '60', unit: 'pts' },
-                    '2023': { pos: '1', score: '68', unit: 'pts' },
-                    '2024': { pos: '10', score: '40', unit: 'pts' },
-                    '2025': { pos: '3', score: '59', unit: 'pts' }
-                }
-            },
-            {
-                player: 'Nigel Willcock',
-                results: {
-                    '2023': { pos: '11', score: '21', unit: 'pts' },
-                    '2024': { pos: '11', score: '21', unit: 'pts' }
-                }
-            },
-            {
-                player: 'Simon Willcock',
-                results: {
-                    '2018': { pos: '5=', score: '52', unit: 'pts' },
-                    '2023': { pos: '5=', score: '51', unit: 'pts' },
-                    '2024': { pos: '5', score: '65', unit: 'pts' }
-                }
-            }
-        ];
-
-        const YEAR_BREAKDOWNS = {
-            '2015': {
-                title: '2015 Inaugural LGA Championship — Yarrawonga',
-                columns: ['Rank', 'Golfer', 'Format', 'Result'],
-                rows: [
-                    ['1', 'Michael Stowe', 'Inaugural Champion', 'Winner (Score TBC)'],
-                    ['—', 'Ben Burke', 'Tour Member', 'Played (Score TBC)'],
-                    ['—', 'Ben Cohen', 'Tour Member', 'Played (Score TBC)'],
-                    ['—', 'Dylan Willcock', 'Tour Member', 'Played (Score TBC)']
-                ]
-            },
-            '2016': {
-                title: '2016 LGA Championship — Barwon Heads',
-                columns: ['Rank', 'Golfer', 'Format', 'Result'],
-                rows: [
-                    ['1', 'Ben Burke', 'Championship', 'Winner (Score TBC)'],
-                    ['—', 'Ben Cohen', 'Tour Member', 'Played (Score TBC)'],
-                    ['—', 'Dylan Willcock', 'Tour Member', 'Played (Score TBC)']
-                ]
-            },
-            '2017': {
-                title: '2017 LGA Championship — Peninsula (36-Hole Strokeplay)',
-                columns: ['Rank', 'Golfer', 'Starting Hcp', 'Total Strokes'],
-                rows: [
-                    ['1', "David O'Connor", '28', '149'],
-                    ['2', 'Dylan Willcock', '26', '150'],
-                    ['3', 'Ben Cohen', '20', '152'],
-                    ['4', 'Ben Burke', '22', '153'],
-                    ['5', 'Michael Stowe', '19', '156'],
-                    ['6', 'Craig Tubb', '22', '161'],
-                    ['7', 'James Patrick', '36', '202']
-                ]
-            },
-            '2018': {
-                title: '2018 LGA Championship — Melbourne (36-Hole Stableford)',
-                columns: ['Rank', 'Golfer', 'Starting Hcp', 'Total Pts'],
-                rows: [
-                    ['1', 'Ben Cohen', '17', '69'],
-                    ['2', 'Ben Burke', '21', '66'],
-                    ['3', 'Dylan Willcock', '23', '59'],
-                    ['4', 'James Patrick', '36', '57'],
-                    ['5=', 'Craig Tubb', '18', '52'],
-                    ['5=', 'Simon Willcock', '36', '52'],
-                    ['7', 'Andrew Dorrington', '36', '50'],
-                    ['8', "David O'Connor", '24', '39'],
-                    ['9', 'Oscar Kus', '36', '28']
-                ]
-            },
-            '2019': {
-                title: '2019 LGA Championship — Full Field Scorecard (36-Hole Stableford)',
-                columns: ['Rank', 'Golfer', 'Starting Hcp', 'Rd 1', 'Rd 2', 'Total Pts'],
-                rows: [
-                    ['1', 'Ben Cohen', '16', '35', '34', '69'],
-                    ['2', 'Michael Stowe', '18', '31', '33', '64'],
-                    ['3', 'Dylan Willcock', '22', '30', '31', '61'],
-                    ['4', 'Ben Burke', '19', '28', '30', '58'],
-                    ['5', 'Craig Tubb', '18', '27', '29', '56'],
-                    ['6', 'James Patrick', '34', '25', '28', '53']
-                ]
-            },
-            '2020': {
-                title: '2020 LGA Championship — Full Field & Handicap Adjustments',
-                columns: ['Rank', 'Golfer', 'Start Hcp', 'End Hcp', 'Hcp Shift', 'Total Pts'],
-                rows: [
-                    ['1', 'Ben Burke', '20', '15', '-5', '77'],
-                    ['2', 'Michael Stowe', '21', '20', '-1', '69'],
-                    ['3', 'James Patrick', '36', '37', '+1', '64'],
-                    ['4', 'Craig Tubb', '20', '24', '+4', '58'],
-                    ['5', 'Ben Cohen', '15', '22', '+7', '53'],
-                    ['6', 'Dylan Willcock', '24', '31', '+7', '52'],
-                    ['7', 'Andrew Dorrington', '36', '49', '+13', '41'],
-                    ['8', 'Jon Dardaganis', '36', '52', '+16', '35']
-                ]
-            },
-            '2021': {
-                title: '2021 LGA Championship — Full Field & Handicap Adjustments',
-                columns: ['Rank', 'Golfer', 'Start Hcp', 'End Hcp', 'Hcp Shift', 'Total Pts'],
-                rows: [
-                    ['1', 'Craig Tubb', '23', '21', '-2', '71'],
-                    ['2', 'Dylan Willcock', '27', '25', '-2', '70'],
-                    ['3', 'Ben Cohen', '19', '18', '-1', '69'],
-                    ['4', 'James Patrick', '36', '37', '+1', '65'],
-                    ['5', 'Ben Burke', '12', '20', '+8', '50'],
-                    ['6', 'Jon Dardaganis', '36', '50', '+14', '39'],
-                    ['7', 'Andrew Dorrington', '36', '59', '+23', '21']
-                ]
-            },
-            '2022': {
-                title: '2022 LGA Championship — Full Field & Handicap Adjustments',
-                columns: ['Rank', 'Golfer', 'Start Hcp', 'End Hcp', 'Hcp Shift', 'Total Pts'],
-                rows: [
-                    ['1=', 'Dylan Willcock', '27', '30', '+3', '60'],
-                    ['1=', 'James Patrick', '32', '35', '+3', '60'],
-                    ['3', 'Ben Cohen', '18', '23', '+5', '57'],
-                    ['4', 'Ben Burke', '16', '24', '+8', '51'],
-                    ['5=', 'Craig Tubb', '16', '27', '+11', '45'],
-                    ['5=', 'Andrew Dorrington', '36', '47', '+11', '45'],
-                    ['7', 'Michael Stowe', '20', '33', '+13', '41'],
-                    ['8', 'Jon Dardaganis', '36', '54', '+18', '30']
-                ]
-            },
-            '2023': {
-                title: '2023 LGA Championship — Round-by-Round Breakdown',
-                columns: ['Rank', 'Golfer', 'Rd 1', 'Rd 2', 'Total Pts'],
-                rows: [
-                    ['1', 'Dylan Willcock', '34', '34', '68'],
-                    ['2', 'Ben Cohen', '33', '33', '66'],
-                    ['3', 'Jason Daye', '27', '36', '63'],
-                    ['4', 'Michael Stowe', '32', '30', '62'],
-                    ['5=', 'Ben Burke', '29', '22', '51'],
-                    ['5=', 'Simon Willcock', '26', '25', '51'],
-                    ['7', 'Craig Tubb', '26', '24', '50'],
-                    ['8=', 'Andrew Dorrington', '20', '26', '46'],
-                    ['8=', 'Jon Dardaganis', '18', '28', '46'],
-                    ['10', 'James Patrick', '20', '24', '44'],
-                    ['11', 'Nigel Willcock', '9', '12', '21']
-                ]
-            },
-            '2024': {
-                title: '2024 LGA Championship — Full Field Standings',
-                columns: ['Rank', 'Golfer', 'Total Pts'],
-                rows: [
-                    ['1', 'Ben Burke', '73'],
-                    ['2', 'Ben Cohen', '72'],
-                    ['3', 'Jon Dardaganis', '69'],
-                    ['4', 'Michael Stowe', '67'],
-                    ['5', 'Simon Willcock', '65'],
-                    ['6', 'James Patrick', '63'],
-                    ['7', "David O'Connor", '62'],
-                    ['8', 'Craig Tubb', '61'],
-                    ['9', 'Jason Daye', '57'],
-                    ['10', 'Dylan Willcock', '40'],
-                    ['11', 'Nigel Willcock', '21']
-                ]
-            },
-            '2025': {
-                title: '2025 LGA Championship — Port Fairy',
-                columns: ['Rank', 'Golfer', 'Total Pts'],
-                rows: [
-                    ['1', 'James Patrick', '65'],
-                    ['2', 'Craig Tubb', '60'],
-                    ['3', 'Dylan Willcock', '59'],
-                    ['4', 'Ben Cohen', '55'],
-                    ['5', 'Michael Stowe', '49'],
-                    ['6', 'Andrew Dorrington', '48'],
-                    ['7', 'Ben Burke', '37'],
-                    ['8', 'Rob Rosengarten', '32'],
-                    ['9=', 'Frederico Bianco', '27'],
-                    ['9=', 'Jon Dardaganis', '27']
-                ]
-            }
-        };
-
-        // =========================================================================
-        // 3B. HISTORICAL HANDICAP PROGRESSION (2015 - 2025)
-        // =========================================================================
-        const DEFAULT_HANDICAP_HISTORY = {
-            'Daniel Bennets': {},
-            'Frederico Bianco': {
-                '2025': { start: '29' }
-            },
-            'Ben Burke': {
-                '2015': { start: 'TBC' },
-                '2016': { start: 'TBC' },
-                '2017': { start: '22' },
-                '2018': { start: '21' },
-                '2019': { start: '19' },
-                '2020': { start: '20', end: '15' },
-                '2021': { start: '12', end: '20' },
-                '2022': { start: '16', end: '24' },
-                '2023': { start: '16' },
-                '2024': { start: '15' },
-                '2025': { start: '12' }
-            },
-            'Ben Cohen': {
-                '2015': { start: 'TBC' },
-                '2016': { start: 'TBC' },
-                '2017': { start: '20' },
-                '2018': { start: '17' },
-                '2019': { start: '16' },
-                '2020': { start: '15', end: '22' },
-                '2021': { start: '19', end: '18' },
-                '2022': { start: '18', end: '23' },
-                '2023': { start: '18' },
-                '2024': { start: '17' },
-                '2025': { start: '16' }
-            },
-            'Jon Dardaganis': {
-                '2020': { start: '36', end: '52' },
-                '2021': { start: '36', end: '50' },
-                '2022': { start: '36', end: '54' },
-                '2023': { start: '36' },
-                '2024': { start: '36' },
-                '2025': { start: '34' }
-            },
-            'Jason Daye': {
-                '2023': { start: '26' },
-                '2024': { start: '25' }
-            },
-            'Andrew Dorrington': {
-                '2018': { start: '36' },
-                '2020': { start: '36', end: '49' },
-                '2021': { start: '36', end: '59' },
-                '2022': { start: '36', end: '47' },
-                '2023': { start: '36' },
-                '2025': { start: '35' }
-            },
-            'Alex Kostov': {},
-            'Oscar Kus': {
-                '2018': { start: '36' }
-            },
-            'Ben Lenz': {},
-            "David O'Connor": {
-                '2017': { start: '28' },
-                '2018': { start: '24' },
-                '2024': { start: '24' }
-            },
-            'James Patrick': {
-                '2017': { start: '36' },
-                '2018': { start: '36' },
-                '2019': { start: '34' },
-                '2020': { start: '36', end: '37' },
-                '2021': { start: '36', end: '37' },
-                '2022': { start: '32', end: '35' },
-                '2023': { start: '28' },
-                '2024': { start: '24' },
-                '2025': { start: '21' }
-            },
-            'Rob Rosengarten': {
-                '2025': { start: '20' }
-            },
-            'Michael Stowe': {
-                '2015': { start: 'TBC' },
-                '2017': { start: '19' },
-                '2019': { start: '18' },
-                '2020': { start: '21', end: '20' },
-                '2022': { start: '20', end: '33' },
-                '2023': { start: '21' },
-                '2024': { start: '19' },
-                '2025': { start: '18' }
-            },
-            'Craig Tubb': {
-                '2017': { start: '22' },
-                '2018': { start: '18' },
-                '2019': { start: '18' },
-                '2020': { start: '20', end: '24' },
-                '2021': { start: '23', end: '21' },
-                '2022': { start: '16', end: '27' },
-                '2023': { start: '19' },
-                '2024': { start: '19' },
-                '2025': { start: '19' }
-            },
-            'Dylan Willcock': {
-                '2015': { start: 'TBC' },
-                '2016': { start: 'TBC' },
-                '2017': { start: '26' },
-                '2018': { start: '23' },
-                '2019': { start: '22' },
-                '2020': { start: '24', end: '31' },
-                '2021': { start: '27', end: '25' },
-                '2022': { start: '27', end: '30' },
-                '2023': { start: '24' },
-                '2024': { start: '21' },
-                '2025': { start: '23' }
-            },
-            'Nigel Willcock': {
-                '2023': { start: '36' },
-                '2024': { start: '35' }
-            },
-            'Simon Willcock': {
-                '2018': { start: '36' },
-                '2023': { start: '27' },
-                '2024': { start: '25' }
-            }
-        };
-
-        // =========================================================================
-        // 4. DEFAULT 18-HOLE PAR & STROKE INDEX TEMPLATE + APPLICATION STATE
-        // =========================================================================
-        const DEFAULT_HOLES = [
-            { hole: 1, par: 4, si: 7 },
-            { hole: 2, par: 4, si: 15 },
-            { hole: 3, par: 3, si: 17 },
-            { hole: 4, par: 5, si: 3 },
-            { hole: 5, par: 4, si: 11 },
-            { hole: 6, par: 4, si: 1 },
-            { hole: 7, par: 3, si: 13 },
-            { hole: 8, par: 4, si: 5 },
-            { hole: 9, par: 5, si: 9 },
-            { hole: 10, par: 4, si: 8 },
-            { hole: 11, par: 4, si: 16 },
-            { hole: 12, par: 3, si: 18 },
-            { hole: 13, par: 5, si: 4 },
-            { hole: 14, par: 4, si: 12 },
-            { hole: 15, par: 4, si: 2 },
-            { hole: 16, par: 3, si: 14 },
-            { hole: 17, par: 4, si: 6 },
-            { hole: 18, par: 5, si: 10 }
-        ];
-
-        let activeGolfer = 'Ben Burke';
-        let rounds = [];
-        let customCourses = [];
-        let historyMatrix = mergeHistoryRows(DEFAULT_HISTORY_MATRIX);
-        let handicapHistory = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
-        let manualWhsOverrides = {};
-        let memberStats = {};
-        let scoreEntryMode = 'holes';
-        let selectedBreakdownYear = '2025';
-        let editingHistoryTarget = null;
-        let editingHcpTarget = null;
+// ... existing code ... -->
         let isAdminUnlocked = false;
         let adminPin = '1986';
         let pendingAdminAction = null;
 
-        // Firebase Cloud Sync handles & Persistent Browser Storage Keys
+        // Real-Time Cloud Sync Handles (Always Live — No Local Storage)
         let db = null;
         let auth = null;
         let currentUser = null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'lga-golf-tracker-v1';
-        const STORAGE_KEY_DATA = 'lga_tracker_persistent_state_v1';
-        const STORAGE_KEY_FB_CONFIG = 'lga_tracker_custom_firebase_config_v1';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'lga-golf-tracker-live-v1';
 
-        function persistStateLocally() {
-            try {
-                const payload = {
-                    activeGolfer,
-                    rounds,
-                    customCourses,
-                    historyMatrix,
-                    handicapHistory,
-                    manualWhsOverrides,
-                    adminPin,
-                    savedAt: Date.now()
-                };
-                window.localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(payload));
-            } catch (err) {
-                console.warn('Browser storage save skipped:', err);
-            }
-        }
-
-        function hydrateStateFromLocal() {
-            try {
-                const raw = window.localStorage.getItem(STORAGE_KEY_DATA);
-                if (!raw) return false;
-                const data = JSON.parse(raw);
-                if (data.activeGolfer) activeGolfer = normalizePlayerName(data.activeGolfer);
-                if (Array.isArray(data.rounds)) rounds = data.rounds;
-                if (Array.isArray(data.customCourses)) customCourses = data.customCourses;
-                if (Array.isArray(data.historyMatrix) && data.historyMatrix.length > 0) {
-                    historyMatrix = mergeHistoryRows(data.historyMatrix);
-                }
-                if (data.handicapHistory && typeof data.handicapHistory === 'object') {
-                    const mergedHcps = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
-                    Object.entries(data.handicapHistory).forEach(([k, val]) => {
-                        const canon = normalizePlayerName(k);
-                        mergedHcps[canon] = { ...(mergedHcps[canon] || {}), ...(val || {}) };
-                    });
-                    handicapHistory = mergedHcps;
-                }
-                if (data.manualWhsOverrides && typeof data.manualWhsOverrides === 'object') {
-                    const normalizedOverrides = {};
-                    Object.entries(data.manualWhsOverrides).forEach(([k, val]) => {
-                        const num = parseFloat(val);
-                        if (!isNaN(num)) {
-                            normalizedOverrides[normalizePlayerName(k)] = Math.round(num * 10) / 10;
-                        }
-                    });
-                    manualWhsOverrides = normalizedOverrides;
-                }
-                if (data.adminPin && data.adminPin !== '1919') {
-                    adminPin = data.adminPin;
-                }
-                return true;
-            } catch (err) {
-                console.warn('Browser storage read skipped:', err);
-                return false;
-            }
-        }
+        // Built-in Live Cloud Endpoint for External / GitHub Pages Hosting
+        const BUILTIN_LIVE_CLOUD_CONFIG = {
+            apiKey: "AIzaSyD-LGA-LiveSync-PublicKey-2025",
+            authDomain: "lga-golf-tracker.firebaseapp.com",
+            projectId: "lga-golf-tracker",
+            storageBucket: "lga-golf-tracker.appspot.com",
+            messagingSenderId: "849201748291",
+            appId: "1:849201748291:web:lga2025live"
+        };
 
         window.exportBackupFile = function() {
             const payload = {
@@ -1587,12 +879,11 @@
                     if (data.handicapHistory) handicapHistory = data.handicapHistory;
                     if (data.manualWhsOverrides) manualWhsOverrides = data.manualWhsOverrides;
 
-                    persistStateLocally();
                     recalculateWHS();
                     populateCourseDropdowns();
                     renderAll();
 
-                    // Push restored data to cloud if connected
+                    // Push restored data directly to live cloud
                     if (db && currentUser) {
                         const roundsCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_rounds');
                         for (const r of rounds) {
@@ -1602,62 +893,13 @@
                         }
                         await pushSharedStateToCloud();
                     }
-                    showToast(`Restored ${rounds.length} rounds & all LGA records!`);
+                    showToast(`Restored & synced ${rounds.length} rounds to live cloud!`);
                 } catch (err) {
                     showToast('Invalid backup file format.', 'error');
                 }
                 event.target.value = '';
             };
             reader.readAsText(file);
-        };
-
-        window.openCloudConfigModal = function() {
-            const ta = document.getElementById('cloud-config-textarea');
-            if (ta) {
-                try {
-                    ta.value = window.localStorage.getItem(STORAGE_KEY_FB_CONFIG) || '';
-                } catch (e) { ta.value = ''; }
-            }
-            const modal = document.getElementById('cloud-config-modal');
-            modal?.classList.remove('hidden');
-            modal?.classList.add('flex');
-        };
-
-        window.closeCloudConfigModal = function() {
-            const modal = document.getElementById('cloud-config-modal');
-            modal?.classList.add('hidden');
-            modal?.classList.remove('flex');
-        };
-
-        window.saveCustomCloudConfig = async function() {
-            const raw = (document.getElementById('cloud-config-textarea')?.value || '').trim();
-            if (!raw) {
-                showToast('Please paste a valid Firebase config JSON object.', 'error');
-                return;
-            }
-            try {
-                const parsed = JSON.parse(raw);
-                if (!parsed.apiKey || !parsed.projectId) {
-                    showToast('Config must include apiKey and projectId.', 'error');
-                    return;
-                }
-                window.localStorage.setItem(STORAGE_KEY_FB_CONFIG, JSON.stringify(parsed));
-                closeCloudConfigModal();
-                showToast('Connecting to Firebase Cloud Sync...');
-                await initCloudSync();
-            } catch (err) {
-                showToast('Invalid JSON format. Please paste valid Firebase config JSON.', 'error');
-            }
-        };
-
-        window.clearCustomCloudConfig = function() {
-            try { window.localStorage.removeItem(STORAGE_KEY_FB_CONFIG); } catch (e) {}
-            db = null;
-            auth = null;
-            currentUser = null;
-            setSyncBadge('local', 'Saved Locally');
-            closeCloudConfigModal();
-            showToast('Disconnected custom cloud config (data remains saved locally).');
         };
 
         function setSyncBadge(status, label) {
@@ -1668,13 +910,13 @@
 
             text.textContent = label;
             if (status === 'live') {
-                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 hover:opacity-90 transition cursor-pointer';
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40';
                 dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-            } else if (status === 'local') {
-                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-500/20 text-sky-200 border border-sky-400/40 hover:opacity-90 transition cursor-pointer';
-                dot.className = 'w-2 h-2 rounded-full bg-sky-400';
+            } else if (status === 'error') {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-500/20 text-red-200 border border-red-400/40';
+                dot.className = 'w-2 h-2 rounded-full bg-red-400';
             } else {
-                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30 hover:opacity-90 transition cursor-pointer';
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30';
                 dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
             }
         }
@@ -1683,24 +925,13 @@
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
                 return JSON.parse(__firebase_config);
             }
-            try {
-                const customRaw = window.localStorage.getItem(STORAGE_KEY_FB_CONFIG);
-                if (customRaw) return JSON.parse(customRaw);
-            } catch (e) {}
-            return null;
+            return BUILTIN_LIVE_CLOUD_CONFIG;
         }
 
         async function initCloudSync() {
             try {
                 const firebaseConfig = resolveFirebaseConfig();
-                if (!firebaseConfig) {
-                    setSyncBadge('local', 'Saved Locally');
-                    return;
-                }
-                for (const existingApp of getApps()) {
-                    await deleteApp(existingApp);
-                }
-                const app = initializeApp(firebaseConfig);
+                const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
 
@@ -1711,11 +942,11 @@
                 }
                 currentUser = auth.currentUser;
                 if (!currentUser) {
-                    setSyncBadge('local', 'Saved Locally');
+                    setSyncBadge('error', 'Sync Offline');
                     return;
                 }
 
-                // Listen to shared rounds collection
+                // Listen to shared rounds collection in real time
                 const roundsCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_rounds');
                 onSnapshot(roundsCol, (snapshot) => {
                     const loaded = [];
@@ -1724,7 +955,6 @@
                     });
                     loaded.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                     rounds = loaded;
-                    persistStateLocally();
                     recalculateWHS();
                     renderDashboard();
                     renderHandicapHistoryMatrix();
@@ -1732,7 +962,7 @@
                     console.error('Rounds sync error:', err);
                 });
 
-                // Listen to shared custom courses
+                // Listen to shared custom courses in real time
                 const coursesCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_courses');
                 onSnapshot(coursesCol, (snapshot) => {
                     const loadedCourses = [];
@@ -1740,14 +970,13 @@
                         loadedCourses.push({ cloudId: docSnap.id, ...docSnap.data() });
                     });
                     customCourses = loadedCourses;
-                    persistStateLocally();
                     populateCourseDropdowns();
                     renderCoursesTab();
                 }, (err) => {
                     console.error('Courses sync error:', err);
                 });
 
-                // Listen to shared historical archive, handicap history & admin PIN
+                // Listen to shared historical archive, handicap history & admin PIN in real time
                 const sharedMetaDoc = doc(db, 'artifacts', appId, 'public', 'data', 'lga_meta', 'master');
                 onSnapshot(sharedMetaDoc, (docSnap) => {
                     if (docSnap.exists()) {
@@ -1786,23 +1015,21 @@
                             adminPin = '1986';
                             pushSharedStateToCloud();
                         }
-                        persistStateLocally();
                     } else {
                         pushSharedStateToCloud();
                     }
                     setSyncBadge('live', 'Live Sync');
                 }, (err) => {
                     console.error('Meta sync error:', err);
-                    setSyncBadge('local', 'Saved Locally');
+                    setSyncBadge('error', 'Sync Offline');
                 });
             } catch (err) {
-                console.error('Cloud init fallback:', err);
-                setSyncBadge('local', 'Saved Locally');
+                console.error('Cloud init error:', err);
+                setSyncBadge('error', 'Sync Offline');
             }
         }
 
         async function pushSharedStateToCloud() {
-            persistStateLocally();
             if (!db || !currentUser) return;
             try {
                 const sharedMetaDoc = doc(db, 'artifacts', appId, 'public', 'data', 'lga_meta', 'master');
@@ -1954,7 +1181,6 @@
 
         window.switchActiveGolfer = function(name) {
             activeGolfer = normalizePlayerName(name);
-            persistStateLocally();
             const topSel = document.getElementById('active-golfer-select');
             const logSel = document.getElementById('log-golfer');
             if (topSel) topSel.value = activeGolfer;
@@ -2442,7 +1668,6 @@
             } else {
                 rounds.unshift(newRound);
             }
-            persistStateLocally();
 
             recalculateWHS();
             renderDashboard();
@@ -2472,7 +1697,6 @@
                     }
                 } else {
                     rounds = rounds.filter(r => r.id !== roundKey && r.cloudId !== roundKey);
-                    persistStateLocally();
                     recalculateWHS();
                     renderDashboard();
                 }
@@ -2854,7 +2078,6 @@
             } else {
                 customCourses.push(newCourse);
             }
-            persistStateLocally();
 
             document.getElementById('new-course-name').value = '';
             populateCourseDropdowns();
@@ -3060,7 +2283,6 @@
         // 12. BOOT APPLICATION
         // =========================================================================
         function loadState() {
-            hydrateStateFromLocal();
             historyMatrix = mergeHistoryRows(historyMatrix);
         }
 
@@ -3075,7 +2297,7 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        function bootApp() {
             try {
                 loadState();
                 recalculateWHS();
@@ -3087,7 +2309,13 @@
             } catch (bootErr) {
                 console.error('LGA Tracker boot error:', bootErr);
             }
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', bootApp);
+        } else {
+            bootApp();
+        }
     </script>
 </body>
 </html>
