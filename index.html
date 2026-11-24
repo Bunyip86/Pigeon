@@ -59,7 +59,7 @@
                 <button onclick="openProfileModal()" class="flex items-center gap-2 bg-pureWhite/10 hover:bg-pureWhite/20 border border-lgaGold/50 px-3 py-1.5 rounded-full text-left transition">
                     <div class="w-6 h-6 rounded-full bg-lgaGold text-lgaNavy font-crest font-bold text-xs flex items-center justify-center" id="header-avatar">BB</div>
                     <div class="hidden sm:block">
-                        <div class="text-xs font-bold text-pureWhite leading-none" id="header-player-name">Ben Burke</div>
+                        <div class="text-xs font-bold text-pureWhite leading-none" id="header-player-name">Ben Burke (President)</div>
                         <div class="text-[10px] text-lgaGold leading-tight" id="header-player-meta">GA 18.4</div>
                     </div>
                     <i class="fa-solid fa-chevron-down text-[10px] text-lgaGold ml-1"></i>
@@ -114,7 +114,7 @@
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <span class="text-[11px] font-crest uppercase tracking-widest text-lgaGold font-bold">Official WHS Handicap Index</span>
-                            <h2 class="font-crest text-2xl sm:text-3xl font-extrabold mt-1" id="dash-player-title">Ben Burke</h2>
+                            <h2 class="font-crest text-2xl sm:text-3xl font-extrabold mt-1" id="dash-player-title">Ben Burke (President)</h2>
                             <p class="text-xs text-pureWhite/70 mt-0.5" id="dash-player-subtitle">Best 8 of Last 20 Differentials</p>
                         </div>
                         <div class="text-right bg-pureWhite/10 border border-lgaGold/40 px-4 py-3 rounded-2xl">
@@ -573,26 +573,41 @@
         };
 
         const OFFICIAL_LGA_ROSTER = [
-            { id: 'alex-kostov', name: 'Alex Kostov', role: 'Tour Member', baseHcp: 24.0, titles: 'Tour Squad' },
-            { id: 'andrew-dorrington', name: 'Andrew Dorrington', role: 'Tour Veteran', baseHcp: 24.0, titles: 'Consistent Finalist' },
+            { id: 'daniel-bennets', name: 'Daniel Bennets', role: 'Tour Member', baseHcp: 24.0, titles: 'Tour Squad' },
+            { id: 'frederico-bianco', name: 'Frederico Bianco', role: 'Tour Member', baseHcp: 26.8, titles: '2025 Debutant' },
             { id: 'ben-burke', name: 'Ben Burke', role: 'President', baseHcp: 18.4, titles: '2016, 2020, 2024 Champion' },
             { id: 'ben-cohen', name: 'Ben Cohen', role: 'Founding Legend', baseHcp: 16.2, titles: '2018 & 2019 Champion' },
+            { id: 'jon-dardaganis', name: 'Jon Dardaganis', role: 'Tour Veteran', baseHcp: 23.4, titles: '2024 Podium Finisher' },
+            { id: 'jason-daye', name: 'Jason Daye', role: 'Tour Member', baseHcp: 18.9, titles: '2023 Podium Finisher' },
+            { id: 'andrew-dorrington', name: 'Andrew Dorrington', role: 'Tour Veteran', baseHcp: 24.0, titles: 'Consistent Finalist' },
+            { id: 'alex-kostov', name: 'Alex Kostov', role: 'Tour Member', baseHcp: 24.0, titles: 'Tour Squad' },
+            { id: 'oscar-kus', name: 'Oscar Kus', role: 'Alumni Member', baseHcp: 31.2, titles: '2018-19 Contender' },
             { id: 'ben-lenz', name: 'Ben Lenz', role: 'Tour Member', baseHcp: 24.0, titles: 'Tour Squad' },
-            { id: 'craig-tubb', name: 'Craig Tubb', role: 'Founding Legend', baseHcp: 17.8, titles: '2021 Champion' },
-            { id: 'daniel-bennets', name: 'Daniel Bennets', role: 'Tour Member', baseHcp: 24.0, titles: 'Tour Squad' },
             { id: 'dave-oconnor', name: "Dave O'Connor", role: 'Tour Member', baseHcp: 21.0, titles: '2024 Top-10' },
             { id: 'david-oconnor', name: "David O'Connor", role: 'Founding Legend', baseHcp: 22.0, titles: '2017 Stroke Champion' },
-            { id: 'dylan-willcock', name: 'Dylan Willcock', role: 'Founding Legend', baseHcp: 20.1, titles: '2022= & 2023 Champion' },
-            { id: 'frederico', name: 'Frederico', role: 'Tour Member', baseHcp: 26.8, titles: '2025 Debutant' },
             { id: 'james-patrick', name: 'James Patrick', role: 'Reigning Champion', baseHcp: 21.5, titles: '2022= & 2025 Champion' },
-            { id: 'jason-daye', name: 'Jason Daye', role: 'Tour Member', baseHcp: 18.9, titles: '2023 Podium Finisher' },
-            { id: 'jon-dardaganis', name: 'Jon Dardaganis', role: 'Tour Veteran', baseHcp: 23.4, titles: '2024 Podium Finisher' },
-            { id: 'michael-stowe', name: 'Michael Stowe', role: 'Inaugural Champion', baseHcp: 19.6, titles: '2015 Inaugural Champion' },
-            { id: 'nigel-willcock', name: 'Nigel Willcock', role: 'Tour Member', baseHcp: 28.4, titles: 'Senior Tour Member' },
-            { id: 'oscar-kus', name: 'Oscar Kus', role: 'Alumni Member', baseHcp: 31.2, titles: '2018-19 Contender' },
             { id: 'rob-rosengarten', name: 'Rob Rosengarten', role: 'Tour Member', baseHcp: 24.5, titles: 'Tour Contender' },
+            { id: 'michael-stowe', name: 'Michael Stowe', role: 'Inaugural Champion', baseHcp: 19.6, titles: '2015 Inaugural Champion' },
+            { id: 'craig-tubb', name: 'Craig Tubb', role: 'Founding Legend', baseHcp: 17.8, titles: '2021 Champion' },
+            { id: 'dylan-willcock', name: 'Dylan Willcock', role: 'Founding Legend', baseHcp: 20.1, titles: '2022= & 2023 Champion' },
+            { id: 'nigel-willcock', name: 'Nigel Willcock', role: 'Tour Member', baseHcp: 28.4, titles: 'Senior Tour Member' },
             { id: 'simon-willcock', name: 'Simon Willcock', role: 'Tour Veteran', baseHcp: 22.7, titles: 'Multi-Year Finalist' }
         ];
+
+        function getMemberDisplayName(baseName) {
+            if (baseName === 'Ben Burke') return 'Ben Burke (President)';
+            if (baseName === 'James Patrick') return 'James Patrick (Reigning Champion)';
+            return baseName;
+        }
+
+        function sortByLastName(aName, bName) {
+            const partsA = aName.trim().split(/\s+/);
+            const partsB = bName.trim().split(/\s+/);
+            const lastA = partsA[partsA.length - 1];
+            const lastB = partsB[partsB.length - 1];
+            const cmp = lastA.localeCompare(lastB);
+            return cmp !== 0 ? cmp : aName.localeCompare(bName);
+        }
 
         const DEFAULT_PROFILE = {
             memberId: 'ben-burke',
@@ -660,24 +675,24 @@
         const HISTORY_YEARS = ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'];
 
         const DEFAULT_HISTORY_MATRIX = [
-            { player: 'Alex Kostov', scores: {} },
-            { player: 'Andrew Dorrington', scores: { '2018': '7 | 50 pts', '2020': '7 | 41 pts', '2021': '7 | 21 pts', '2022': '5= | 45 pts', '2023': '8= | 46 pts', '2025': '6 | 48 pts' } },
+            { player: 'Daniel Bennets', scores: {} },
+            { player: 'Frederico Bianco', scores: { '2025': '9= | 27 pts' } },
             { player: 'Ben Burke', scores: { '2016': '1', '2017': '4 | 153 stk', '2018': '2 | 66 pts', '2020': '1 | 77 pts', '2021': '5 | 50 pts', '2022': '4 | 51 pts', '2023': '5= | 51 pts', '2024': '1 | 73 pts', '2025': '7 | 37 pts' } },
             { player: 'Ben Cohen', scores: { '2017': '3 | 152 stk', '2018': '1 | 69 pts', '2020': '5 | 53 pts', '2021': '3 | 69 pts', '2022': '3 | 57 pts', '2023': '2 | 66 pts', '2024': '2 | 72 pts', '2025': '4 | 55 pts' } },
+            { player: 'Jon Dardaganis', scores: { '2020': '8 | 35 pts', '2021': '6 | 39 pts', '2022': '8 | 30 pts', '2023': '8= | 46 pts', '2024': '3 | 69 pts', '2025': '9= | 27 pts' } },
+            { player: 'Jason Daye', scores: { '2023': '3 | 63 pts', '2024': '9 | 57 pts' } },
+            { player: 'Andrew Dorrington', scores: { '2018': '7 | 50 pts', '2020': '7 | 41 pts', '2021': '7 | 21 pts', '2022': '5= | 45 pts', '2023': '8= | 46 pts', '2025': '6 | 48 pts' } },
+            { player: 'Alex Kostov', scores: {} },
+            { player: 'Oscar Kus', scores: { '2018': '9 | 28 pts' } },
             { player: 'Ben Lenz', scores: {} },
-            { player: 'Craig Tubb', scores: { '2017': '6 | 161 stk', '2018': '5= | 52 pts', '2020': '4 | 58 pts', '2021': '1 | 71 pts', '2022': '5= | 45 pts', '2023': '7 | 50 pts', '2024': '8 | 61 pts', '2025': '2 | 60 pts' } },
-            { player: 'Daniel Bennets', scores: {} },
             { player: "Dave O'Connor", scores: { '2024': '7 | 62 pts' } },
             { player: "David O'Connor", scores: { '2017': '1 | 149 stk', '2018': '8 | 39 pts' } },
-            { player: 'Dylan Willcock', scores: { '2017': '2 | 150 stk', '2018': '3 | 59 pts', '2020': '6 | 52 pts', '2021': '2 | 70 pts', '2022': '1= | 60 pts', '2023': '1 | 68 pts', '2024': '10 | 40 pts', '2025': '3 | 59 pts' } },
-            { player: 'Frederico', scores: { '2025': '9= | 27 pts' } },
             { player: 'James Patrick', scores: { '2017': '7 | 202 stk', '2018': '4 | 57 pts', '2020': '3 | 64 pts', '2021': '4 | 65 pts', '2022': '1= | 60 pts', '2023': '10 | 44 pts', '2024': '6 | 63 pts', '2025': '1 | 65 pts' } },
-            { player: 'Jason Daye', scores: { '2023': '3 | 63 pts', '2024': '9 | 57 pts' } },
-            { player: 'Jon Dardaganis', scores: { '2020': '8 | 35 pts', '2021': '6 | 39 pts', '2022': '8 | 30 pts', '2023': '8= | 46 pts', '2024': '3 | 69 pts', '2025': '9= | 27 pts' } },
-            { player: 'Michael Stowe', scores: { '2015': '1', '2017': '5 | 156 stk', '2019': 'DNP', '2020': '2 | 69 pts', '2021': 'DNP', '2022': '7 | 41 pts', '2023': '4 | 62 pts', '2024': '4 | 67 pts', '2025': '5 | 49 pts' } },
-            { player: 'Nigel Willcock', scores: { '2023': '11 | 21 pts', '2024': '11 | 21 pts' } },
-            { player: 'Oscar Kus', scores: { '2018': '9 | 28 pts' } },
             { player: 'Rob Rosengarten', scores: { '2025': '8 | 32 pts' } },
+            { player: 'Michael Stowe', scores: { '2015': '1', '2017': '5 | 156 stk', '2019': 'DNP', '2020': '2 | 69 pts', '2021': 'DNP', '2022': '7 | 41 pts', '2023': '4 | 62 pts', '2024': '4 | 67 pts', '2025': '5 | 49 pts' } },
+            { player: 'Craig Tubb', scores: { '2017': '6 | 161 stk', '2018': '5= | 52 pts', '2020': '4 | 58 pts', '2021': '1 | 71 pts', '2022': '5= | 45 pts', '2023': '7 | 50 pts', '2024': '8 | 61 pts', '2025': '2 | 60 pts' } },
+            { player: 'Dylan Willcock', scores: { '2017': '2 | 150 stk', '2018': '3 | 59 pts', '2020': '6 | 52 pts', '2021': '2 | 70 pts', '2022': '1= | 60 pts', '2023': '1 | 68 pts', '2024': '10 | 40 pts', '2025': '3 | 59 pts' } },
+            { player: 'Nigel Willcock', scores: { '2023': '11 | 21 pts', '2024': '11 | 21 pts' } },
             { player: 'Simon Willcock', scores: { '2018': '5= | 52 pts', '2023': '5= | 51 pts', '2024': '5 | 65 pts' } }
         ];
 
@@ -847,7 +862,7 @@
                     { rank: 6, player: 'Andrew Dorrington', hcp: 38, total: '48 pts' },
                     { rank: 7, player: 'Ben Burke', hcp: 9, total: '37 pts' },
                     { rank: 8, player: 'Rob Rosengarten', hcp: 20, total: '32 pts' },
-                    { rank: '9=', player: 'Frederico', hcp: 30, total: '27 pts' },
+                    { rank: '9=', player: 'Frederico Bianco', hcp: 30, total: '27 pts' },
                     { rank: '9=', player: 'Jon Dardaganis', hcp: 37, total: '27 pts' }
                 ]
             }
@@ -886,7 +901,11 @@
 
             try {
                 const savedProfile = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROFILE));
-                profile = savedProfile && savedProfile.name ? savedProfile : { ...DEFAULT_PROFILE };
+                if (savedProfile && savedProfile.name) {
+                    profile = { ...savedProfile, name: normalizePlayerName(savedProfile.name) };
+                } else {
+                    profile = { ...DEFAULT_PROFILE };
+                }
             } catch { profile = { ...DEFAULT_PROFILE }; }
 
             try {
@@ -894,9 +913,13 @@
                 const rawHistory = Array.isArray(savedHistory) && savedHistory.length
                     ? savedHistory
                     : JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
-                historyMatrix = [...rawHistory].sort((a, b) => a.player.localeCompare(b.player));
+                const normalized = rawHistory.map(row => ({
+                    ...row,
+                    player: row.player === 'Frederico' ? 'Frederico Bianco' : row.player
+                }));
+                historyMatrix = normalized.sort((a, b) => sortByLastName(a.player, b.player));
             } catch {
-                historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX)).sort((a, b) => a.player.localeCompare(b.player));
+                historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX)).sort((a, b) => sortByLastName(a.player, b.player));
             }
         }
 
@@ -1083,7 +1106,7 @@
             const whs = getActiveWhsIndex();
             const initials = profile.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
             document.getElementById('header-avatar').textContent = initials || 'LG';
-            document.getElementById('header-player-name').textContent = profile.name;
+            document.getElementById('header-player-name').textContent = getMemberDisplayName(profile.name);
             document.getElementById('header-player-meta').textContent = `GA ${whs.toFixed(1)}`;
         }
 
@@ -1092,7 +1115,7 @@
             const whs = getActiveWhsIndex();
             const playerRounds = rounds.filter(r => r.playerName === profile.name);
 
-            document.getElementById('dash-player-title').textContent = profile.name;
+            document.getElementById('dash-player-title').textContent = getMemberDisplayName(profile.name);
             document.getElementById('dash-player-subtitle').textContent = 'Best 8 of Last 20 Differentials';
             document.getElementById('dash-whs-index').textContent = whs.toFixed(1);
             document.getElementById('dash-rounds-count').textContent = playerRounds.length;
@@ -1130,7 +1153,7 @@
                 <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-ivoryMist/60 transition">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-extrabold text-lgaNavy">${r.playerName}</span>
+                            <span class="text-xs font-extrabold text-lgaNavy">${formatMemberDisplayName(normalizePlayerName(r.playerName))}</span>
                             <span class="text-[10px] bg-lgaNavy text-lgaGold px-2 py-0.5 rounded-full font-bold">${r.date}</span>
                         </div>
                         <div class="text-xs font-semibold text-lgaNavy/80 mt-0.5">${r.courseName}</div>
@@ -1228,9 +1251,10 @@
         }
 
         function populateLogForm() {
+            const sortedRoster = [...OFFICIAL_LGA_ROSTER].sort((a, b) => sortByLastName(a.name, b.name));
             const playerSelect = document.getElementById('log-player-select');
-            playerSelect.innerHTML = OFFICIAL_LGA_ROSTER.map(m =>
-                `<option value="${m.name}" ${m.name === profile.name ? 'selected' : ''}>${m.name}</option>`
+            playerSelect.innerHTML = sortedRoster.map(m =>
+                `<option value="${m.name}" ${m.name === profile.name ? 'selected' : ''}>${getMemberDisplayName(m.name)}</option>`
             ).join('');
             playerSelect.onchange = () => syncLogDailyHandicap();
 
@@ -1527,7 +1551,7 @@
 
                 return `
                     <tr class="hover:bg-ivoryMist/70">
-                        <td class="p-3 font-bold text-lgaNavy sticky left-0 bg-pureWhite border-r border-lgaNavy/10">${row.player}</td>
+                        <td class="p-3 font-bold text-lgaNavy sticky left-0 bg-pureWhite border-r border-lgaNavy/10">${getMemberDisplayName(row.player)}</td>
                         ${cells}
                     </tr>
                 `;
@@ -1593,7 +1617,7 @@
                 return `
                     <tr class="${isChamp ? 'bg-lgaGold/15 font-bold' : ''} hover:bg-ivoryMist/60">
                         <td class="p-3 font-crest font-bold text-lgaNavy">${entry.rank}</td>
-                        <td class="p-3 font-bold text-lgaNavy">${entry.player}</td>
+                        <td class="p-3 font-bold text-lgaNavy">${getMemberDisplayName(entry.player)}</td>
                         ${hasHcp ? `<td class="p-3 text-center font-semibold text-lgaNavy/80">${entry.hcp ?? '—'}</td>` : ''}
                         ${hasRounds ? `<td class="p-3 text-center font-semibold text-lgaNavy">${entry.rd1 ?? '—'}</td><td class="p-3 text-center font-semibold text-lgaNavy">${entry.rd2 ?? '—'}</td>` : ''}
                         ${hasNewHcp ? `<td class="p-3 text-center font-semibold text-lgaNavy">${entry.newHcp ?? '—'}</td><td class="p-3 text-center font-semibold text-lgaNavy/75">${entry.hcpDelta ?? '—'}</td>` : ''}
@@ -1607,7 +1631,7 @@
                 const playerSel = document.getElementById('hist-edit-player');
                 const yearSel = document.getElementById('hist-edit-year');
                 playerSel.innerHTML = historyMatrix.map((row, idx) =>
-                    `<option value="${idx}" ${idx === playerIdx ? 'selected' : ''}>${row.player}</option>`
+                    `<option value="${idx}" ${idx === playerIdx ? 'selected' : ''}>${getMemberDisplayName(row.player)}</option>`
                 ).join('');
                 yearSel.innerHTML = HISTORY_YEARS.map(yr =>
                     `<option value="${yr}" ${yr === year ? 'selected' : ''}>${yr}</option>`
@@ -1764,8 +1788,8 @@
         function renderLgaRosterTab() {
             const q = (document.getElementById('roster-search').value || '').toLowerCase();
             const filtered = [...OFFICIAL_LGA_ROSTER]
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .filter(m => m.name.toLowerCase().includes(q));
+                .sort((a, b) => sortByLastName(a.name, b.name))
+                .filter(m => getMemberDisplayName(m.name).toLowerCase().includes(q));
 
             document.getElementById('roster-grid').innerHTML = filtered.map(m => {
                 const isActive = m.name === profile.name;
@@ -1774,7 +1798,7 @@
                     <div class="bg-pureWhite rounded-2xl border-2 ${isActive ? 'border-lgaGold' : 'border-lgaNavy/15'} p-4 shadow-sm flex flex-col justify-between">
                         <div class="flex items-start justify-between gap-2">
                             <div>
-                                <h3 class="font-bold text-base text-lgaNavy">${m.name}</h3>
+                                <h3 class="font-bold text-base text-lgaNavy">${getMemberDisplayName(m.name)}</h3>
                             </div>
                             <div class="text-right bg-ivoryMist px-3 py-1.5 rounded-xl border border-lgaNavy/15">
                                 <div class="text-[9px] uppercase font-bold text-lgaNavy/60">GA Hcp</div>
@@ -1813,9 +1837,10 @@
         }
 
         function openProfileModal() {
+            const sortedRoster = [...OFFICIAL_LGA_ROSTER].sort((a, b) => sortByLastName(a.name, b.name));
             const sel = document.getElementById('profile-member-select');
-            sel.innerHTML = OFFICIAL_LGA_ROSTER.map(m =>
-                `<option value="${m.id}" ${m.name === profile.name ? 'selected' : ''}>${m.name}</option>`
+            sel.innerHTML = sortedRoster.map(m =>
+                `<option value="${m.id}" ${m.name === profile.name ? 'selected' : ''}>${getMemberDisplayName(m.name)}</option>`
             ).join('');
             document.getElementById('profile-name-input').value = profile.name;
             document.getElementById('profile-hcp-input').value = profile.baseHcp;
