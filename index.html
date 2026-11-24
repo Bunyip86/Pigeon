@@ -200,27 +200,98 @@
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Golf Course &amp; Tee Box</label>
-                        <select id="log-course-select" onchange="updateLogPreview()" class="w-full p-3 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy"></select>
+                        <select id="log-course-select" onchange="handleLogCourseChange()" class="w-full p-3 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy"></select>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Entry Mode & Playing Daily Handicap Bar -->
+                    <div class="bg-ivoryMist rounded-2xl p-3.5 border border-lgaNavy/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <button type="button" id="mode-holes-btn" onclick="setLogEntryMode('holes')" class="px-3 py-1.5 rounded-xl bg-lgaNavy text-lgaGold border border-lgaGold text-xs font-bold uppercase tracking-wider transition">
+                                <i class="fa-solid fa-table-cells mr-1"></i>Hole-by-Hole (18)
+                            </button>
+                            <button type="button" id="mode-total-btn" onclick="setLogEntryMode('total')" class="px-3 py-1.5 rounded-xl bg-pureWhite text-lgaNavy border border-lgaNavy/20 text-xs font-bold uppercase tracking-wider transition">
+                                Quick Total
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="log-daily-hcp" class="text-[11px] font-bold uppercase text-lgaNavy/70">Daily Hcp:</label>
+                            <input id="log-daily-hcp" type="number" min="-10" max="54" value="18" oninput="recalcHoleByHoleCard()" class="w-16 p-1.5 rounded-lg border border-lgaNavy/25 bg-pureWhite text-center text-xs font-extrabold text-lgaNavy">
+                            <label for="log-pcc" class="text-[11px] font-bold uppercase text-lgaNavy/70 ml-1">PCC:</label>
+                            <select id="log-pcc" onchange="updateLogPreview()" class="p-1.5 rounded-lg border border-lgaNavy/25 bg-pureWhite text-xs font-semibold text-lgaNavy">
+                                <option value="0">0</option>
+                                <option value="-1">-1</option>
+                                <option value="1">+1</option>
+                                <option value="2">+2</option>
+                                <option value="3">+3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- HOLE-BY-HOLE SCORECARD SECTION -->
+                    <div id="hole-by-hole-container" class="space-y-4">
+                        <div class="flex items-center justify-between text-[11px] text-lgaNavy/70 px-1">
+                            <span>Adjust <strong class="text-lgaNavy">Par</strong> or <strong class="text-lgaNavy">SI</strong> if needed; Stableford points auto-calculate from your Daily Hcp.</span>
+                            <button type="button" onclick="fillParDefaultsForCard()" class="text-lgaNavy font-bold underline hover:text-lgaGold">Fill Par</button>
+                        </div>
+
+                        <!-- Front 9 Table -->
+                        <div class="overflow-x-auto rounded-xl border border-lgaNavy/20">
+                            <table class="w-full text-center border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-lgaNavy text-pureWhite font-crest text-[10px] uppercase">
+                                        <th class="p-2 text-left">Hole</th>
+                                        <th class="p-2">1</th><th class="p-2">2</th><th class="p-2">3</th><th class="p-2">4</th><th class="p-2">5</th><th class="p-2">6</th><th class="p-2">7</th><th class="p-2">8</th><th class="p-2">9</th>
+                                        <th class="p-2 bg-lgaGold text-lgaNavy font-extrabold">OUT</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="front9-tbody" class="divide-y divide-lgaNavy/10 bg-pureWhite"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Back 9 Table -->
+                        <div class="overflow-x-auto rounded-xl border border-lgaNavy/20">
+                            <table class="w-full text-center border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-lgaNavy text-pureWhite font-crest text-[10px] uppercase">
+                                        <th class="p-2 text-left">Hole</th>
+                                        <th class="p-2">10</th><th class="p-2">11</th><th class="p-2">12</th><th class="p-2">13</th><th class="p-2">14</th><th class="p-2">15</th><th class="p-2">16</th><th class="p-2">17</th><th class="p-2">18</th>
+                                        <th class="p-2 bg-lgaGold text-lgaNavy font-extrabold">IN</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="back9-tbody" class="divide-y divide-lgaNavy/10 bg-pureWhite"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- 18-Hole Summary Strip -->
+                        <div class="grid grid-cols-4 gap-2 bg-lgaNavy text-pureWhite p-3 rounded-xl border border-lgaGold text-center">
+                            <div>
+                                <div class="text-[9px] uppercase text-pureWhite/60 font-bold">Course Par</div>
+                                <div class="text-sm font-extrabold text-pureWhite" id="card-total-par">72</div>
+                            </div>
+                            <div>
+                                <div class="text-[9px] uppercase text-pureWhite/60 font-bold">Gross Strokes</div>
+                                <div class="text-sm font-extrabold text-lgaGold" id="card-total-gross">—</div>
+                            </div>
+                            <div>
+                                <div class="text-[9px] uppercase text-pureWhite/60 font-bold">Net Score</div>
+                                <div class="text-sm font-extrabold text-pureWhite" id="card-total-net">—</div>
+                            </div>
+                            <div>
+                                <div class="text-[9px] uppercase text-pureWhite/60 font-bold">Stableford Pts</div>
+                                <div class="text-sm font-extrabold text-lgaGold" id="card-total-pts">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QUICK TOTAL SCORE SECTION (OPTIONAL TOGGLE) -->
+                    <div id="quick-total-container" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Gross Strokes</label>
-                            <input id="log-gross" type="number" min="50" max="180" required placeholder="e.g. 89" oninput="updateLogPreview()" class="w-full p-3 rounded-xl border border-lgaNavy/25 text-sm font-bold text-lgaNavy">
+                            <input id="log-gross" type="number" min="50" max="180" placeholder="e.g. 89" oninput="updateLogPreview()" class="w-full p-3 rounded-xl border border-lgaNavy/25 text-sm font-bold text-lgaNavy">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">Stableford Pts</label>
                             <input id="log-stableford" type="number" min="0" max="65" placeholder="e.g. 36" class="w-full p-3 rounded-xl border border-lgaNavy/25 text-sm font-bold text-lgaNavy">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-lgaNavy/70 mb-1">PCC Adjustment</label>
-                            <select id="log-pcc" onchange="updateLogPreview()" class="w-full p-3 rounded-xl border border-lgaNavy/25 bg-ivoryMist text-sm font-semibold text-lgaNavy">
-                                <option value="0">0 (Standard)</option>
-                                <option value="-1">-1 (Easy Conditions)</option>
-                                <option value="1">+1 (Tough Wind/Rain)</option>
-                                <option value="2">+2 (Severe Weather)</option>
-                                <option value="3">+3 (Extreme)</option>
-                            </select>
                         </div>
                     </div>
 
@@ -275,33 +346,30 @@
                 </div>
             </div>
 
-            <!-- 2019 Detailed Championship Card (From 2019 Official Sheet) -->
+            <!-- Interactive Year-by-Year Detailed Championship Breakdown -->
             <div class="bg-pureWhite rounded-2xl border-2 border-lgaNavy shadow-sm overflow-hidden">
-                <div class="p-5 bg-lgaNavy text-pureWhite flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-lgaGold">
+                <div class="p-5 bg-lgaNavy text-pureWhite flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-lgaGold">
                     <div>
-                        <div class="text-[10px] font-crest uppercase tracking-widest text-lgaGold font-bold">Verified 2-Round Championship Breakdown</div>
-                        <h2 class="font-crest text-lg font-bold uppercase tracking-wide">2019 LGA Championship — Full Field Scorecard</h2>
+                        <div class="text-[10px] font-crest uppercase tracking-widest text-lgaGold font-bold" id="year-detail-subtitle">Verified Championship Breakdown</div>
+                        <h2 class="font-crest text-lg font-bold uppercase tracking-wide" id="year-detail-title">2025 LGA Championship — Port Fairy</h2>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                        <span class="text-xs bg-lgaGold text-lgaNavy font-bold px-3 py-1 rounded-full">Champion: Ben Cohen (69 pts)</span>
+                        <span class="text-xs bg-lgaGold text-lgaNavy font-bold px-3 py-1 rounded-full" id="year-detail-champ">Champion: James (65 pts)</span>
                         <button id="sync-2019-btn" onclick="requireAdmin(() => sync2019SheetIntoMatrix())" class="hidden text-xs bg-pureWhite hover:bg-lgaGold text-lgaNavy font-bold px-3 py-1 rounded-full border border-lgaGold transition">
-                            <i class="fa-solid fa-arrows-rotate mr-1"></i>Sync to 2019 Column
+                            <i class="fa-solid fa-arrows-rotate mr-1"></i>Sync 2019 to Matrix
                         </button>
                     </div>
                 </div>
+
+                <!-- Year Selector Pills -->
+                <div class="bg-ivoryMist px-4 py-2.5 border-b border-lgaNavy/15 flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="history-year-pills"></div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-ivoryMist border-b border-lgaNavy/15 text-lgaNavy/70 uppercase tracking-wider text-[10px]">
-                                <th class="p-3 font-crest">Rank</th>
-                                <th class="p-3 font-crest">Golfer</th>
-                                <th class="p-3 font-crest text-center">Handicap</th>
-                                <th class="p-3 font-crest text-center">Rd 1</th>
-                                <th class="p-3 font-crest text-center">Rd 2</th>
-                                <th class="p-3 font-crest text-right">Total Pts</th>
-                            </tr>
+                            <tr id="year-detail-thead" class="bg-ivoryMist/70 border-b border-lgaNavy/15 text-lgaNavy/70 uppercase tracking-wider text-[10px]"></tr>
                         </thead>
-                        <tbody id="history-2019-tbody" class="divide-y divide-lgaNavy/10"></tbody>
+                        <tbody id="year-detail-tbody" class="divide-y divide-lgaNavy/10"></tbody>
                     </table>
                 </div>
             </div>
@@ -625,6 +693,165 @@
             { rank: '—', player: 'Michael Stowe', matrixName: 'Stowey', hcp: 'Scratched', rd1: '—', rd2: '—', total: 'Scratched' }
         ];
 
+        const CHAMPIONSHIP_ARCHIVE_BY_YEAR = {
+            '2015': {
+                venue: 'Yarrawonga',
+                format: 'Unknown',
+                champion: 'Stowey',
+                rows: [
+                    { rank: 1, player: 'Stowey', total: 'Champion', format: 'Unknown' }
+                ]
+            },
+            '2016': {
+                venue: 'Barwon Heads',
+                format: 'Unknown',
+                champion: 'Ben Burke (Pres)',
+                rows: [
+                    { rank: 1, player: 'Ben Burke (Pres)', total: 'Champion', format: 'Unknown' }
+                ]
+            },
+            '2017': {
+                venue: 'Peninsula',
+                format: 'Stroke',
+                champion: "David O'Connor (149 stk)",
+                rows: [
+                    { rank: 1, player: "David O'Connor", hcp: 28, total: '149 stk' },
+                    { rank: 2, player: 'Dylan Willcock', hcp: 26, total: '150 stk' },
+                    { rank: 3, player: 'Ben Cohen', hcp: 20, total: '152 stk' },
+                    { rank: 4, player: 'Ben Burke (Pres)', hcp: 22, total: '153 stk' },
+                    { rank: 5, player: 'Stowey', hcp: 19, total: '156 stk' },
+                    { rank: 6, player: 'Craig (Tubb)', hcp: 22, total: '161 stk' },
+                    { rank: 7, player: 'James Patrick', hcp: 36, total: '202 stk' }
+                ]
+            },
+            '2018': {
+                venue: 'Melbourne',
+                format: 'Stableford',
+                champion: 'Ben Cohen (69 pts)',
+                rows: [
+                    { rank: 1, player: 'Ben Cohen', hcp: 17, total: '69 pts' },
+                    { rank: 2, player: 'Ben Burke (Pres)', hcp: 21, total: '66 pts' },
+                    { rank: 3, player: 'Dylan', hcp: 23, total: '59 pts' },
+                    { rank: 4, player: 'James', hcp: 36, total: '57 pts' },
+                    { rank: '5=', player: 'Craig (Tubb)', hcp: 18, total: '52 pts' },
+                    { rank: '5=', player: 'Simon', hcp: 36, total: '52 pts' },
+                    { rank: 7, player: 'Andrew Dorrington', hcp: 36, total: '50 pts' },
+                    { rank: 8, player: "David O'Connor", hcp: 24, total: '39 pts' },
+                    { rank: 9, player: 'Oscar Kus', hcp: 36, total: '28 pts' }
+                ]
+            },
+            '2019': {
+                venue: '2-Round Championship Sheet',
+                format: 'Stableford',
+                champion: 'Ben Cohen (69 pts)',
+                rows: CHAMPIONSHIP_2019_FIELD.map(r => ({
+                    rank: r.rank,
+                    player: r.player,
+                    hcp: r.hcp,
+                    rd1: r.rd1,
+                    rd2: r.rd2,
+                    total: r.total === 'Scratched' ? 'Scratched' : `${r.total} pts`
+                }))
+            },
+            '2020': {
+                venue: 'LGA Tour',
+                format: 'Stableford',
+                champion: 'Ben Burke (Pres) (77 pts)',
+                rows: [
+                    { rank: 1, player: 'Ben Burke (Pres)', hcp: 20, newHcp: 15, hcpDelta: '+10.04', total: '77 pts' },
+                    { rank: 2, player: 'Stowey', hcp: 21, newHcp: 20, hcpDelta: '+2.04', total: '69 pts' },
+                    { rank: 3, player: 'James', hcp: 36, newHcp: 37, hcpDelta: '-2.96', total: '64 pts' },
+                    { rank: 4, player: 'Craig (Tubb)', hcp: 20, newHcp: 24, hcpDelta: '-8.96', total: '58 pts' },
+                    { rank: 5, player: 'Ben Cohen', hcp: 15, newHcp: 22, hcpDelta: '-13.96', total: '53 pts' },
+                    { rank: 6, player: 'Dylan', hcp: 24, newHcp: 31, hcpDelta: '-14.96', total: '52 pts' },
+                    { rank: 7, player: 'Doz', hcp: 36, newHcp: 49, hcpDelta: '-25.96', total: '41 pts' },
+                    { rank: 8, player: 'Jon', hcp: 36, newHcp: 52, hcpDelta: '-31.96', total: '35 pts' }
+                ]
+            },
+            '2021': {
+                venue: 'LGA Tour',
+                format: 'Stableford',
+                champion: 'Craig (Tubb) (71 pts)',
+                rows: [
+                    { rank: 1, player: 'Craig (Tubb)', hcp: 23, newHcp: 21, hcpDelta: '+4.04', total: '71 pts' },
+                    { rank: 2, player: 'Dylan', hcp: 27, newHcp: 25, hcpDelta: '+3.04', total: '70 pts' },
+                    { rank: 3, player: 'Ben Cohen', hcp: 19, newHcp: 18, hcpDelta: '+2.04', total: '69 pts' },
+                    { rank: 4, player: 'James', hcp: 36, newHcp: 37, hcpDelta: '-1.96', total: '65 pts' },
+                    { rank: 5, player: 'Ben Burke (Pres)', hcp: 12, newHcp: 20, hcpDelta: '-16.96', total: '50 pts' },
+                    { rank: 6, player: 'Jon', hcp: 36, newHcp: 50, hcpDelta: '-27.96', total: '39 pts' },
+                    { rank: 7, player: 'Doz', hcp: 36, newHcp: 59, hcpDelta: '-45.96', total: '21 pts' }
+                ]
+            },
+            '2022': {
+                venue: 'LGA Tour',
+                format: 'Stableford',
+                champion: 'Dylan & James (60 pts)',
+                rows: [
+                    { rank: '1=', player: 'Dylan', hcp: 27, newHcp: 30, hcpDelta: '-6.96', total: '60 pts' },
+                    { rank: '1=', player: 'James', hcp: 32, newHcp: 35, hcpDelta: '-6.96', total: '60 pts' },
+                    { rank: 3, player: 'Ben Cohen', hcp: 18, newHcp: 23, hcpDelta: '-9.96', total: '57 pts' },
+                    { rank: 4, player: 'Ben Burke (Pres)', hcp: 16, newHcp: 24, hcpDelta: '-15.96', total: '51 pts' },
+                    { rank: '5=', player: 'Craig (Tubb)', hcp: 16, newHcp: 27, hcpDelta: '-21.96', total: '45 pts' },
+                    { rank: '5=', player: 'Doz', hcp: 36, newHcp: 47, hcpDelta: '-21.96', total: '45 pts' },
+                    { rank: 7, player: 'Stowey', hcp: 20, newHcp: 33, hcpDelta: '-25.96', total: '41 pts' },
+                    { rank: 8, player: 'Jon', hcp: 36, newHcp: 54, hcpDelta: '-36.96', total: '30 pts' }
+                ]
+            },
+            '2023': {
+                venue: 'LGA Tour',
+                format: 'Stableford',
+                champion: 'Dylan (68 pts)',
+                rows: [
+                    { rank: 1, player: 'Dylan', rd1: 34, rd2: 34, total: '68 pts' },
+                    { rank: 2, player: 'Ben Cohen', rd1: 33, rd2: 33, total: '66 pts' },
+                    { rank: 3, player: 'Jason', rd1: 27, rd2: 36, total: '63 pts' },
+                    { rank: 4, player: 'Stowey', rd1: 32, rd2: 30, total: '62 pts' },
+                    { rank: '5=', player: 'Ben Burke (Pres)', rd1: 29, rd2: 22, total: '51 pts' },
+                    { rank: '5=', player: 'Simon', rd1: 26, rd2: 25, total: '51 pts' },
+                    { rank: 7, player: 'Craig (Tubb)', rd1: 26, rd2: 24, total: '50 pts' },
+                    { rank: '8=', player: 'Doz', rd1: 20, rd2: 26, total: '46 pts' },
+                    { rank: '8=', player: 'Jon', rd1: 18, rd2: 28, total: '46 pts' },
+                    { rank: 10, player: 'James', rd1: 20, rd2: 24, total: '44 pts' },
+                    { rank: 11, player: 'Nigel', rd1: 9, rd2: 12, total: '21 pts' }
+                ]
+            },
+            '2024': {
+                venue: 'LGA Tour',
+                format: 'Stableford',
+                champion: 'Ben Burke (Pres) (73 pts)',
+                rows: [
+                    { rank: 1, player: 'Ben Burke (Pres)', rd1: 38, rd2: 35, total: '73 pts' },
+                    { rank: 2, player: 'Ben Cohen', rd1: 35, rd2: 37, total: '72 pts' },
+                    { rank: 3, player: 'Jon', rd1: 30, rd2: 39, total: '69 pts' },
+                    { rank: 4, player: 'Stowey', rd1: 30, rd2: 37, total: '67 pts' },
+                    { rank: 5, player: 'Simon', rd1: 25, rd2: 40, total: '65 pts' },
+                    { rank: 6, player: 'James', rd1: 31, rd2: 32, total: '63 pts' },
+                    { rank: 7, player: 'Dave', rd1: 30, rd2: 32, total: '62 pts' },
+                    { rank: 8, player: 'Craig (Tubb)', rd1: 35, rd2: 26, total: '61 pts' },
+                    { rank: 9, player: 'Jason', rd1: 25, rd2: 32, total: '57 pts' },
+                    { rank: 10, player: 'Dylan', rd1: 18, rd2: 22, total: '40 pts' },
+                    { rank: 11, player: 'Nigel', rd1: 16, rd2: 5, total: '21 pts' }
+                ]
+            },
+            '2025': {
+                venue: 'Port Fairy',
+                format: 'Stableford',
+                champion: 'James (65 pts)',
+                rows: [
+                    { rank: 1, player: 'James', hcp: 18, total: '65 pts' },
+                    { rank: 2, player: 'Craig (Tubb)', hcp: 18, total: '60 pts' },
+                    { rank: 3, player: 'Dylan', hcp: 22, total: '59 pts' },
+                    { rank: 4, player: 'Ben Cohen', hcp: 15, total: '55 pts' },
+                    { rank: 5, player: 'Stowey', hcp: 17, total: '49 pts' },
+                    { rank: 6, player: 'Doz', hcp: 38, total: '48 pts' },
+                    { rank: 7, player: 'Ben Burke (Pres)', hcp: 9, total: '37 pts' },
+                    { rank: 8, player: 'Rob', hcp: 20, total: '32 pts' },
+                    { rank: '9=', player: 'Frederico', hcp: 30, total: '27 pts' },
+                    { rank: '9=', player: 'Jon', hcp: 37, total: '27 pts' }
+                ]
+            }
+        };
+
         const LGA_LINGO = [
             { term: 'The Green Jacket / LGA Shield', def: 'The ultimate annual prize bestowed upon the LGA Champion following the 36-hole Stableford weekend.' },
             { term: 'Pigeon', def: 'A member who reliably donates side-bets, nearest-the-pins, and clubhouse rounds to the rest of the fourball.' },
@@ -641,6 +868,7 @@
         let rounds = [];
         let profile = { ...DEFAULT_PROFILE };
         let historyMatrix = [];
+        let selectedHistoryYear = '2025';
         let isAdminUnlocked = false;
         let pendingAdminAction = null;
 
@@ -929,11 +1157,80 @@
             document.getElementById('calc-daily-result').textContent = daily;
         }
 
+        /* =========================================================
+           4B. HOLE-BY-HOLE SCORECARD & STABLEFORD ENGINE
+           ========================================================= */
+        let logEntryMode = 'holes';
+        let currentHoleCard = [];
+
+        function buildDefaultHoleTemplate(coursePar = 72) {
+            const basePars = [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5];
+            const baseSIs  = [7, 13, 17, 3, 1, 11, 15, 5, 9, 8, 14, 18, 4, 2, 12, 16, 6, 10];
+            let diff = coursePar - 72;
+            const pars = [...basePars];
+            const adjustOrder = [3, 12, 8, 17, 0, 9];
+            let idx = 0;
+            while (diff !== 0 && idx < 18) {
+                const h = adjustOrder[idx % adjustOrder.length];
+                if (diff < 0 && pars[h] > 3) { pars[h]--; diff++; }
+                else if (diff > 0 && pars[h] < 5) { pars[h]++; diff--; }
+                idx++;
+            }
+            return pars.map((par, i) => ({
+                hole: i + 1,
+                par,
+                si: baseSIs[i],
+                strokes: ''
+            }));
+        }
+
+        function getStrokesReceivedOnHole(dailyHcp, strokeIndex) {
+            if (dailyHcp >= 0) {
+                const base = Math.floor(dailyHcp / 18);
+                const rem = dailyHcp % 18;
+                return base + (strokeIndex <= rem ? 1 : 0);
+            } else {
+                const plus = Math.abs(dailyHcp);
+                const base = Math.floor(plus / 18);
+                const rem = plus % 18;
+                return -(base + ((19 - strokeIndex) <= rem ? 1 : 0));
+            }
+        }
+
+        function calculateHoleStableford(strokes, par, shotsReceived) {
+            if (!strokes || isNaN(strokes) || strokes <= 0) return 0;
+            const netStrokes = strokes - shotsReceived;
+            return Math.max(0, 2 + (par - netStrokes));
+        }
+
+        function setLogEntryMode(mode) {
+            logEntryMode = mode;
+            const holesBox = document.getElementById('hole-by-hole-container');
+            const totalBox = document.getElementById('quick-total-container');
+            const holesBtn = document.getElementById('mode-holes-btn');
+            const totalBtn = document.getElementById('mode-total-btn');
+
+            if (mode === 'holes') {
+                holesBox.classList.remove('hidden');
+                totalBox.classList.add('hidden');
+                holesBtn.className = 'px-3 py-1.5 rounded-xl bg-lgaNavy text-lgaGold border border-lgaGold text-xs font-bold uppercase tracking-wider transition';
+                totalBtn.className = 'px-3 py-1.5 rounded-xl bg-pureWhite text-lgaNavy border border-lgaNavy/20 text-xs font-bold uppercase tracking-wider transition';
+                recalcHoleByHoleCard();
+            } else {
+                holesBox.classList.add('hidden');
+                totalBox.classList.remove('hidden');
+                totalBtn.className = 'px-3 py-1.5 rounded-xl bg-lgaNavy text-lgaGold border border-lgaGold text-xs font-bold uppercase tracking-wider transition';
+                holesBtn.className = 'px-3 py-1.5 rounded-xl bg-pureWhite text-lgaNavy border border-lgaNavy/20 text-xs font-bold uppercase tracking-wider transition';
+                updateLogPreview();
+            }
+        }
+
         function populateLogForm() {
             const playerSelect = document.getElementById('log-player-select');
             playerSelect.innerHTML = OFFICIAL_LGA_ROSTER.map(m =>
                 `<option value="${m.name}" ${m.name === profile.name ? 'selected' : ''}>${m.name}</option>`
             ).join('');
+            playerSelect.onchange = () => syncLogDailyHandicap();
 
             const courseSelect = document.getElementById('log-course-select');
             courseSelect.innerHTML = courses.map(c =>
@@ -942,21 +1239,177 @@
 
             const dateInput = document.getElementById('log-date');
             if (!dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+
+            const selectedCourse = courses.find(c => c.id === courseSelect.value) || courses[0];
+            currentHoleCard = buildDefaultHoleTemplate(selectedCourse ? selectedCourse.par : 72);
+            syncLogDailyHandicap();
+            renderHoleTables();
+        }
+
+        function handleLogCourseChange() {
+            const course = courses.find(c => c.id === document.getElementById('log-course-select').value) || courses[0];
+            currentHoleCard = buildDefaultHoleTemplate(course ? course.par : 72);
+            syncLogDailyHandicap();
+            renderHoleTables();
+        }
+
+        function syncLogDailyHandicap() {
+            const playerName = document.getElementById('log-player-select').value;
+            const course = courses.find(c => c.id === document.getElementById('log-course-select').value) || courses[0];
+            if (!course) return;
+            const member = OFFICIAL_LGA_ROSTER.find(m => m.name === playerName);
+            const gaIndex = (playerName === profile.name) ? getActiveWhsIndex() : (member ? member.baseHcp : 18.4);
+            const daily = calculateDailyHandicap(gaIndex, course.slope, course.rating, course.par);
+            document.getElementById('log-daily-hcp').value = daily;
+            recalcHoleByHoleCard();
+        }
+
+        function renderHoleTables() {
+            const buildRows = (slice, prefix) => {
+                const parCells = slice.map((h, i) => {
+                    const idx = prefix === 'front' ? i : i + 9;
+                    return `<td class="p-1"><input type="number" min="3" max="6" value="${h.par}" onchange="updateHoleMeta(${idx}, 'par', this.value)" class="w-9 p-1 text-center rounded border border-lgaNavy/15 bg-ivoryMist text-[11px] font-bold text-lgaNavy"></td>`;
+                }).join('');
+
+                const siCells = slice.map((h, i) => {
+                    const idx = prefix === 'front' ? i : i + 9;
+                    return `<td class="p-1"><input type="number" min="1" max="18" value="${h.si}" onchange="updateHoleMeta(${idx}, 'si', this.value)" class="w-9 p-1 text-center rounded border border-lgaNavy/15 bg-pureWhite text-[10px] text-lgaNavy/75"></td>`;
+                }).join('');
+
+                const strokeCells = slice.map((h, i) => {
+                    const idx = prefix === 'front' ? i : i + 9;
+                    return `<td class="p-1"><input id="hole-stroke-${idx}" type="number" min="1" max="15" value="${h.strokes}" placeholder="—" oninput="updateHoleStroke(${idx}, this.value)" class="w-9 p-1 text-center rounded border-2 border-lgaNavy/25 focus:border-lgaGold bg-pureWhite text-xs font-extrabold text-lgaNavy"></td>`;
+                }).join('');
+
+                const ptsCells = slice.map((h, i) => {
+                    const idx = prefix === 'front' ? i : i + 9;
+                    return `<td id="hole-pts-${idx}" class="p-1.5 font-extrabold text-lgaGold bg-lgaNavy/5 text-xs">0</td>`;
+                }).join('');
+
+                return `
+                    <tr>
+                        <td class="p-1.5 text-left font-bold text-lgaNavy/70 bg-ivoryMist">Par</td>
+                        ${parCells}
+                        <td id="${prefix}-par-sum" class="p-1.5 font-extrabold text-lgaNavy bg-ivoryMist">36</td>
+                    </tr>
+                    <tr>
+                        <td class="p-1.5 text-left font-semibold text-lgaNavy/60 bg-ivoryMist">SI</td>
+                        ${siCells}
+                        <td class="p-1.5 text-[10px] text-lgaNavy/50 bg-ivoryMist">—</td>
+                    </tr>
+                    <tr>
+                        <td class="p-1.5 text-left font-extrabold text-lgaNavy bg-ivoryMist">Score</td>
+                        ${strokeCells}
+                        <td id="${prefix}-gross-sum" class="p-1.5 font-extrabold text-lgaNavy bg-lgaGold/20">—</td>
+                    </tr>
+                    <tr>
+                        <td class="p-1.5 text-left font-bold text-lgaNavy bg-ivoryMist">Pts</td>
+                        ${ptsCells}
+                        <td id="${prefix}-pts-sum" class="p-1.5 font-extrabold text-lgaNavy bg-lgaGold/35">0</td>
+                    </tr>
+                `;
+            };
+
+            document.getElementById('front9-tbody').innerHTML = buildRows(currentHoleCard.slice(0, 9), 'front');
+            document.getElementById('back9-tbody').innerHTML = buildRows(currentHoleCard.slice(9, 18), 'back');
+            recalcHoleByHoleCard();
+        }
+
+        function updateHoleMeta(idx, field, val) {
+            const num = parseInt(val, 10);
+            if (isNaN(num)) return;
+            if (field === 'par') currentHoleCard[idx].par = Math.min(6, Math.max(3, num));
+            if (field === 'si') currentHoleCard[idx].si = Math.min(18, Math.max(1, num));
+            recalcHoleByHoleCard();
+        }
+
+        function updateHoleStroke(idx, val) {
+            const num = parseInt(val, 10);
+            currentHoleCard[idx].strokes = (!isNaN(num) && num > 0) ? num : '';
+            recalcHoleByHoleCard();
+        }
+
+        function fillParDefaultsForCard() {
+            currentHoleCard.forEach((h, idx) => {
+                h.strokes = h.par;
+                const inp = document.getElementById(`hole-stroke-${idx}`);
+                if (inp) inp.value = h.par;
+            });
+            recalcHoleByHoleCard();
+        }
+
+        function recalcHoleByHoleCard() {
+            const dailyHcp = parseInt(document.getElementById('log-daily-hcp').value, 10) || 0;
+            let frontPar = 0, backPar = 0;
+            let frontGross = 0, backGross = 0;
+            let frontPts = 0, backPts = 0;
+            let enteredCount = 0;
+
+            currentHoleCard.forEach((h, idx) => {
+                const shots = getStrokesReceivedOnHole(dailyHcp, h.si);
+                const s = parseInt(h.strokes, 10);
+                const pts = (!isNaN(s) && s > 0) ? calculateHoleStableford(s, h.par, shots) : 0;
+
+                const ptsCell = document.getElementById(`hole-pts-${idx}`);
+                if (ptsCell) {
+                    ptsCell.textContent = (!isNaN(s) && s > 0) ? pts : '—';
+                    ptsCell.className = `p-1.5 font-extrabold text-xs ${pts >= 3 ? 'text-emerald-700 bg-emerald-50' : pts === 2 ? 'text-lgaNavy bg-lgaNavy/5' : (!isNaN(s) && s > 0) ? 'text-amber-700 bg-amber-50/60' : 'text-lgaNavy/30 bg-lgaNavy/5'}`;
+                }
+
+                if (idx < 9) {
+                    frontPar += h.par;
+                    if (!isNaN(s) && s > 0) { frontGross += s; frontPts += pts; enteredCount++; }
+                } else {
+                    backPar += h.par;
+                    if (!isNaN(s) && s > 0) { backGross += s; backPts += pts; enteredCount++; }
+                }
+            });
+
+            const totalPar = frontPar + backPar;
+            const totalGross = frontGross + backGross;
+            const totalPts = frontPts + backPts;
+
+            document.getElementById('front-par-sum').textContent = frontPar;
+            document.getElementById('back-par-sum').textContent = backPar;
+            document.getElementById('front-gross-sum').textContent = frontGross > 0 ? frontGross : '—';
+            document.getElementById('back-gross-sum').textContent = backGross > 0 ? backGross : '—';
+            document.getElementById('front-pts-sum').textContent = frontPts;
+            document.getElementById('back-pts-sum').textContent = backPts;
+
+            document.getElementById('card-total-par').textContent = totalPar;
+            document.getElementById('card-total-gross').textContent = enteredCount > 0 ? `${totalGross} (${enteredCount}/18)` : '—';
+            document.getElementById('card-total-net').textContent = enteredCount === 18 ? (totalGross - dailyHcp) : '—';
+            document.getElementById('card-total-pts').textContent = `${totalPts} pts`;
+
             updateLogPreview();
         }
 
         function updateLogPreview() {
             const course = courses.find(c => c.id === document.getElementById('log-course-select').value) || courses[0];
-            const gross = parseFloat(document.getElementById('log-gross').value);
             const pcc = parseFloat(document.getElementById('log-pcc').value) || 0;
-            if (!course || isNaN(gross)) {
-                document.getElementById('log-diff-preview').textContent = '—';
-                document.getElementById('log-formula-caption').textContent = 'Enter gross strokes to preview differential';
-                return;
+
+            if (logEntryMode === 'holes') {
+                const entered = currentHoleCard.filter(h => h.strokes !== '' && !isNaN(parseInt(h.strokes, 10)));
+                const totalGross = entered.reduce((sum, h) => sum + parseInt(h.strokes, 10), 0);
+                if (!course || entered.length < 18) {
+                    document.getElementById('log-diff-preview').textContent = '—';
+                    document.getElementById('log-formula-caption').textContent = `Enter all 18 hole scores (${entered.length}/18 entered) to compute WHS Differential`;
+                    return;
+                }
+                const diff = calculateDifferential(totalGross, course.rating, course.slope, pcc);
+                document.getElementById('log-diff-preview').textContent = diff.toFixed(1);
+                document.getElementById('log-formula-caption').textContent = `(113 / ${course.slope}) × (${totalGross} − ${course.rating} − ${pcc})`;
+            } else {
+                const gross = parseFloat(document.getElementById('log-gross').value);
+                if (!course || isNaN(gross)) {
+                    document.getElementById('log-diff-preview').textContent = '—';
+                    document.getElementById('log-formula-caption').textContent = 'Enter gross strokes to preview differential';
+                    return;
+                }
+                const diff = calculateDifferential(gross, course.rating, course.slope, pcc);
+                document.getElementById('log-diff-preview').textContent = diff.toFixed(1);
+                document.getElementById('log-formula-caption').textContent = `(113 / ${course.slope}) × (${gross} − ${course.rating} − ${pcc})`;
             }
-            const diff = calculateDifferential(gross, course.rating, course.slope, pcc);
-            document.getElementById('log-diff-preview').textContent = diff.toFixed(1);
-            document.getElementById('log-formula-caption').textContent = `(113 / ${course.slope}) × (${gross} − ${course.rating} − ${pcc})`;
         }
 
         function handleLogRoundSubmit(e) {
@@ -964,13 +1417,42 @@
             const playerName = document.getElementById('log-player-select').value;
             const date = document.getElementById('log-date').value;
             const course = courses.find(c => c.id === document.getElementById('log-course-select').value);
-            const gross = parseInt(document.getElementById('log-gross').value, 10);
-            const stablefordVal = document.getElementById('log-stableford').value;
-            const stableford = stablefordVal !== '' ? parseInt(stablefordVal, 10) : '';
             const pcc = parseInt(document.getElementById('log-pcc').value, 10) || 0;
             const notes = document.getElementById('log-notes').value.trim();
 
-            if (!course || isNaN(gross)) return;
+            if (!course) return;
+
+            let gross = 0;
+            let stableford = '';
+            let holeDetails = null;
+
+            if (logEntryMode === 'holes') {
+                const incomplete = currentHoleCard.some(h => h.strokes === '' || isNaN(parseInt(h.strokes, 10)) || parseInt(h.strokes, 10) <= 0);
+                if (incomplete) {
+                    showToast('Please enter scores for all 18 holes before saving.');
+                    return;
+                }
+                const dailyHcp = parseInt(document.getElementById('log-daily-hcp').value, 10) || 0;
+                let ptsSum = 0;
+                holeDetails = currentHoleCard.map(h => {
+                    const s = parseInt(h.strokes, 10);
+                    const shots = getStrokesReceivedOnHole(dailyHcp, h.si);
+                    const pts = calculateHoleStableford(s, h.par, shots);
+                    gross += s;
+                    ptsSum += pts;
+                    return { hole: h.hole, par: h.par, si: h.si, strokes: s, pts };
+                });
+                stableford = ptsSum;
+            } else {
+                gross = parseInt(document.getElementById('log-gross').value, 10);
+                if (isNaN(gross) || gross <= 0) {
+                    showToast('Please enter valid gross strokes.');
+                    return;
+                }
+                const stablefordVal = document.getElementById('log-stableford').value;
+                stableford = stablefordVal !== '' ? parseInt(stablefordVal, 10) : '';
+            }
+
             const differential = calculateDifferential(gross, course.rating, course.slope, pcc);
 
             rounds.unshift({
@@ -983,12 +1465,14 @@
                 stableford,
                 pcc,
                 differential,
-                notes
+                notes,
+                holes: holeDetails
             });
 
             saveState();
             e.target.reset();
-            showToast(`Round saved for ${playerName} (Diff ${differential.toFixed(1)})!`);
+            currentHoleCard = buildDefaultHoleTemplate(course.par);
+            showToast(`Round saved for ${playerName}: ${gross} gross / ${stableford !== '' ? stableford + ' pts' : 'Diff ' + differential.toFixed(1)}!`);
             switchTab('dashboard');
         }
 
@@ -1010,7 +1494,15 @@
 
             thead.innerHTML = `
                 <th class="p-3 font-crest uppercase tracking-wider sticky left-0 bg-lgaNavy z-10 border-r border-lgaGold/30">Player</th>
-                ${HISTORY_YEARS.map(yr => `<th class="p-3 font-crest text-center uppercase tracking-wider">${yr}</th>`).join('')}
+                ${HISTORY_YEARS.map(yr => {
+                    const venue = CHAMPIONSHIP_ARCHIVE_BY_YEAR[yr]?.venue;
+                    const shortVenue = venue && venue !== 'LGA Tour' && venue !== '2-Round Championship Sheet' ? venue : '';
+                    return `
+                        <th onclick="selectHistoryDetailYear('${yr}')" class="p-2.5 font-crest text-center uppercase tracking-wider cursor-pointer hover:text-lgaGold transition" title="Click to inspect ${yr} breakdown">
+                            <div>${yr}</div>
+                            ${shortVenue ? `<div class="text-[9px] font-sans font-semibold text-lgaGold/85 normal-case tracking-normal">${shortVenue}</div>` : ''}
+                        </th>`;
+                }).join('')}
             `;
 
             tbody.innerHTML = historyMatrix.map((row, pIdx) => {
@@ -1039,151 +1531,72 @@
                 `;
             }).join('');
 
-            // Render 2019 Full Field Scorecard
-            const tbody2019 = document.getElementById('history-2019-tbody');
-            tbody2019.innerHTML = CHAMPIONSHIP_2019_FIELD.map(entry => {
+            renderSelectedYearBreakdown();
+            updateAdminUI();
+        }
+
+        function selectHistoryDetailYear(yr) {
+            selectedHistoryYear = yr;
+            renderSelectedYearBreakdown();
+        }
+
+        function renderSelectedYearBreakdown() {
+            const pillsEl = document.getElementById('history-year-pills');
+            if (pillsEl) {
+                pillsEl.innerHTML = HISTORY_YEARS.map(yr => {
+                    const active = yr === selectedHistoryYear;
+                    return `
+                        <button onclick="selectHistoryDetailYear('${yr}')" class="px-3 py-1 rounded-full text-xs font-bold transition shrink-0 ${active ? 'bg-lgaNavy text-lgaGold border border-lgaGold shadow-sm' : 'bg-pureWhite text-lgaNavy/75 border border-lgaNavy/15 hover:border-lgaNavy'}">
+                            ${yr}
+                        </button>`;
+                }).join('');
+            }
+
+            const data = CHAMPIONSHIP_ARCHIVE_BY_YEAR[selectedHistoryYear];
+            if (!data) return;
+
+            document.getElementById('year-detail-subtitle').textContent = `${data.format} Format • Venue: ${data.venue}`;
+            document.getElementById('year-detail-title').textContent = `${selectedHistoryYear} LGA Championship — ${data.venue}`;
+            document.getElementById('year-detail-champ').textContent = `Champion: ${data.champion}`;
+
+            const hasHcp = data.rows.some(r => r.hcp !== undefined);
+            const hasRounds = data.rows.some(r => r.rd1 !== undefined || r.rd2 !== undefined);
+            const hasNewHcp = data.rows.some(r => r.newHcp !== undefined);
+
+            const thead = document.getElementById('year-detail-thead');
+            thead.innerHTML = `
+                <th class="p-3 font-crest">Rank</th>
+                <th class="p-3 font-crest">Golfer</th>
+                ${hasHcp ? `<th class="p-3 font-crest text-center">Starting Hcp</th>` : ''}
+                ${hasRounds ? `<th class="p-3 font-crest text-center">Rd 1</th><th class="p-3 font-crest text-center">Rd 2</th>` : ''}
+                ${hasNewHcp ? `<th class="p-3 font-crest text-center">New Hcp</th><th class="p-3 font-crest text-center">Hcp +/-</th>` : ''}
+                <th class="p-3 font-crest text-right">Result</th>
+            `;
+
+            const tbody = document.getElementById('year-detail-tbody');
+            tbody.innerHTML = data.rows.map(entry => {
                 const isScratched = entry.total === 'Scratched';
-                const isChamp = entry.rank === 1;
+                const isChamp = entry.rank === 1 || entry.rank === '1=';
+                const colSpan = 1 + (hasHcp ? 1 : 0) + (hasRounds ? 2 : 0) + (hasNewHcp ? 2 : 0);
+
+                if (isScratched) {
+                    return `
+                        <tr class="hover:bg-ivoryMist/60">
+                            <td class="p-3 font-crest font-bold text-lgaNavy">${entry.rank}</td>
+                            <td class="p-3 font-bold text-lgaNavy">${entry.player}</td>
+                            <td colspan="${colSpan}" class="p-3 text-center italic font-semibold text-lgaNavy/50 bg-ivoryMist">Scratched</td>
+                        </tr>`;
+                }
+
                 return `
                     <tr class="${isChamp ? 'bg-lgaGold/15 font-bold' : ''} hover:bg-ivoryMist/60">
                         <td class="p-3 font-crest font-bold text-lgaNavy">${entry.rank}</td>
                         <td class="p-3 font-bold text-lgaNavy">${entry.player}</td>
-                        ${isScratched
-                            ? `<td colspan="4" class="p-3 text-center italic font-semibold text-lgaNavy/50 bg-ivoryMist">Scratched</td>`
-                            : `
-                                <td class="p-3 text-center font-semibold text-lgaNavy/80">${entry.hcp}</td>
-                                <td class="p-3 text-center font-semibold text-lgaNavy">${entry.rd1}</td>
-                                <td class="p-3 text-center font-semibold text-lgaNavy">${entry.rd2}</td>
-                                <td class="p-3 text-right font-extrabold text-lgaNavy">${entry.total} pts</td>
-                            `
-                        }
-                    </tr>
-                `;
-            }).join('');
-
-            updateAdminUI();
-        }
-
-        function openHistoryEditModal(playerIdx = 0, year = '2019') {
-            requireAdmin(() => {
-                const playerSel = document.getElementById('hist-edit-player');
-                const yearSel = document.getElementById('hist-edit-year');
-                playerSel.innerHTML = historyMatrix.map((r, idx) => `<option value="${idx}">${r.player}</option>`).join('');
-                yearSel.innerHTML = HISTORY_YEARS.map(yr => `<option value="${yr}">${yr}</option>`).join('');
-
-                playerSel.value = String(playerIdx);
-                yearSel.value = year;
-                loadSelectedHistoryCellToModal();
-                document.getElementById('history-edit-modal').classList.remove('hidden');
-            });
-        }
-
-        function loadSelectedHistoryCellToModal() {
-            const pIdx = parseInt(document.getElementById('hist-edit-player').value, 10);
-            const yr = document.getElementById('hist-edit-year').value;
-            const current = (historyMatrix[pIdx] && historyMatrix[pIdx].scores[yr]) || '';
-
-            const rankInput = document.getElementById('hist-edit-rank');
-            const scoreInput = document.getElementById('hist-edit-score');
-            const unitSel = document.getElementById('hist-edit-unit');
-
-            if (!current || current === '—') {
-                rankInput.value = '';
-                scoreInput.value = '';
-                unitSel.value = 'pts';
-            } else if (current.includes('|')) {
-                const parts = current.split('|').map(s => s.trim());
-                rankInput.value = parts[0];
-                const scoreMatch = parts[1].match(/^(\d+)\s*(pts|stk)?$/i);
-                scoreInput.value = scoreMatch ? scoreMatch[1] : '';
-                unitSel.value = scoreMatch && scoreMatch[2] ? scoreMatch[2].toLowerCase() : 'pts';
-            } else {
-                rankInput.value = current;
-                scoreInput.value = '';
-                unitSel.value = 'pts';
-            }
-        }
-
-        function closeHistoryEditModal() {
-            document.getElementById('history-edit-modal').classList.add('hidden');
-        }
-
-        function saveHistoryCell() {
-            requireAdmin(() => {
-                const pIdx = parseInt(document.getElementById('hist-edit-player').value, 10);
-                const yr = document.getElementById('hist-edit-year').value;
-                const rank = document.getElementById('hist-edit-rank').value.trim();
-                const score = document.getElementById('hist-edit-score').value.trim();
-                const unit = document.getElementById('hist-edit-unit').value;
-
-                if (!rank && !score) {
-                    delete historyMatrix[pIdx].scores[yr];
-                } else if (rank && score) {
-                    historyMatrix[pIdx].scores[yr] = `${rank} | ${score} ${unit}`;
-                } else {
-                    historyMatrix[pIdx].scores[yr] = rank || `${score} ${unit}`;
-                }
-
-                saveState();
-                renderHistoryTab();
-                closeHistoryEditModal();
-                showToast(`Updated ${historyMatrix[pIdx].player} (${yr}).`);
-            });
-        }
-
-        function sync2019SheetIntoMatrix() {
-            requireAdmin(() => {
-                CHAMPIONSHIP_2019_FIELD.forEach(entry => {
-                    const row = historyMatrix.find(r => r.player === entry.matrixName);
-                    if (row) {
-                        row.scores['2019'] = entry.total === 'Scratched'
-                            ? 'Scratched'
-                            : `${entry.rank} | ${entry.total} pts`;
-                    }
-                });
-                saveState();
-                renderHistoryTab();
-                showToast('2019 Championship results synced into 2019 column.');
-            });
-        }
-
-        function resetHistoryData() {
-            requireAdmin(() => {
-                historyMatrix = JSON.parse(JSON.stringify(DEFAULT_HISTORY_MATRIX));
-                saveState();
-                renderHistoryTab();
-                showToast('Historical matrix restored to original master archive.');
-            });
-        }
-
-        /* =========================================================
-           6. COURSES, ROSTER, LINGO & PROFILE MODALS
-           ========================================================= */
-        function renderCoursesTab() {
-            const q = (document.getElementById('course-search').value || '').toLowerCase();
-            const filtered = courses.filter(c =>
-                c.name.toLowerCase().includes(q) || c.loc.toLowerCase().includes(q)
-            );
-            const whs = getActiveWhsIndex();
-
-            document.getElementById('courses-grid').innerHTML = filtered.map(c => {
-                const daily = calculateDailyHandicap(whs, c.slope, c.rating, c.par);
-                const isCustom = !DEFAULT_COURSES.some(dc => dc.id === c.id);
-                return `
-                    <div class="bg-pureWhite rounded-2xl border border-lgaNavy/20 p-4 shadow-sm flex flex-col justify-between hover:border-lgaGold transition">
-                        <div>
-                            <div class="flex items-start justify-between gap-2">
-                                <h3 class="font-bold text-sm text-lgaNavy">${c.name}</h3>
-                                ${isCustom && isAdminUnlocked ? `<button onclick="deleteCourse('${c.id}')" class="text-red-500 hover:text-red-700 text-xs" title="Delete Custom Course"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
-                            <p class="text-[11px] text-lgaNavy/60 mt-0.5"><i class="fa-solid fa-location-dot text-lgaGold mr-1"></i>${c.loc}</p>
-                        </div>
-                        <div class="mt-4 pt-3 border-t border-lgaNavy/10 flex items-center justify-between text-xs">
-                            <span class="text-lgaNavy/75 font-semibold">Par ${c.par} • Scratch ${c.rating} • Slope ${c.slope}</span>
-                            <span class="bg-lgaNavy text-lgaGold font-extrabold px-2.5 py-1 rounded-lg">Daily ${daily}</span>
-                        </div>
-                    </div>
-                `;
+                        ${hasHcp ? `<td class="p-3 text-center font-semibold text-lgaNavy/80">${entry.hcp ?? '—'}</td>` : ''}
+                        ${hasRounds ? `<td class="p-3 text-center font-semibold text-lgaNavy">${entry.rd1 ?? '—'}</td><td class="p-3 text-center font-semibold text-lgaNavy">${entry.rd2 ?? '—'}</td>` : ''}
+                        ${hasNewHcp ? `<td class="p-3 text-center font-semibold text-lgaNavy">${entry.newHcp ?? '—'}</td><td class="p-3 text-center font-semibold text-lgaNavy/75">${entry.hcpDelta ?? '—'}</td>` : ''}
+                        <td class="p-3 text-right font-extrabold text-lgaNavy">${entry.total}</td>
+                    </tr>`;
             }).join('');
         }
 
