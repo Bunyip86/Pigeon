@@ -149,17 +149,17 @@
                     <div>
                         <div class="flex items-center gap-2 flex-wrap">
                             <h1 class="font-serif text-lg sm:text-2xl font-bold tracking-tight text-white">Legends Golfing Association</h1>
-                            <span id="sync-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30">
+                            <button type="button" onclick="openCloudConfigModal()" title="Click to configure Live Multi-Device Cloud Sync for GitHub Pages" id="sync-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30 hover:opacity-90 transition cursor-pointer">
                                 <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                                 <span id="sync-status-text">Connecting...</span>
-                            </span>
+                            </button>
                         </div>
                         <p class="text-xs sm:text-sm text-lga-goldLight/90 font-medium">Official WHS Handicap, Hole-by-Hole Stableford &amp; Championship Archive</p>
                     </div>
                 </div>
 
-                <!-- Active Member Switcher & Admin Lock -->
-                <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <!-- Active Member Switcher, Backup/Restore & Admin Lock -->
+                <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                     <div class="flex-1 sm:flex-initial bg-lga-navyLight border border-lga-gold/40 rounded-xl px-3 py-1.5 flex items-center gap-2">
                         <i data-lucide="user-check" class="w-4 h-4 text-lga-gold shrink-0"></i>
                         <div class="min-w-0 flex-1">
@@ -169,6 +169,17 @@
                             </select>
                         </div>
                     </div>
+
+                    <button type="button" onclick="exportBackupFile()" title="Download full LGA data backup (.json)" class="px-2.5 py-2.5 rounded-xl border border-lga-gold/40 bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span class="hidden sm:inline">Backup</span>
+                    </button>
+
+                    <label title="Restore LGA data from backup (.json)" class="px-2.5 py-2.5 rounded-xl border border-lga-gold/40 bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0">
+                        <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                        <span class="hidden sm:inline">Restore</span>
+                        <input type="file" accept=".json,application/json" onchange="importBackupFile(event)" class="hidden">
+                    </label>
 
                     <button id="admin-lock-btn" onclick="toggleAdminAuth()" class="px-3 py-2.5 rounded-xl border border-lga-gold/50 bg-lga-navyLight hover:bg-lga-gold hover:text-lga-navy text-lga-goldLight text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0">
                         <i id="admin-lock-icon" data-lucide="lock" class="w-3.5 h-3.5"></i>
@@ -803,9 +814,41 @@
         </div>
     </div>
 
+    <!-- MODAL 5: FIREBASE LIVE SYNC CONFIG (FOR GITHUB PAGES HOSTING) -->
+    <div id="cloud-config-modal" class="fixed inset-0 bg-lga-navy/75 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 border-2 border-lga-gold shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="cloud" class="w-5 h-5 text-lga-goldDark"></i>
+                    <h3 class="font-serif text-xl font-bold text-lga-navy">GitHub Pages Live Multi-Device Sync</h3>
+                </div>
+                <button onclick="closeCloudConfigModal()" class="text-gray-400 hover:text-lga-navy cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs sm:text-sm text-lga-slate">
+                <p>When hosted on <strong>GitHub Pages</strong>, your browser automatically saves all scores &amp; handicaps locally so nothing is lost on refresh or code updates.</p>
+                <p>To sync scores <strong>live across all 18 members' phones at the same time</strong> on GitHub Pages, paste your free Firebase Web App config JSON below (requires Anonymous Auth &amp; Firestore enabled):</p>
+                <div>
+                    <label for="cloud-config-textarea" class="block text-xs font-bold uppercase text-lga-navy mb-1">Firebase Config JSON</label>
+                    <textarea id="cloud-config-textarea" rows="5" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}' class="w-full bg-lga-sand border border-lga-gold/60 rounded-xl p-3 font-mono text-xs text-lga-navy focus:outline-none focus:border-lga-navy"></textarea>
+                </div>
+            </div>
+            <div class="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
+                <button type="button" onclick="clearCustomCloudConfig()" class="px-3 py-2 rounded-xl border border-red-200 text-red-700 text-xs font-bold hover:bg-red-50 cursor-pointer">
+                    Disconnect Cloud
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeCloudConfigModal()" class="px-4 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 cursor-pointer">Close</button>
+                    <button type="button" onclick="saveCustomCloudConfig()" class="px-4 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold hover:bg-lga-navyLight cursor-pointer">Connect &amp; Sync</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- APPLICATION SCRIPT & FIREBASE REAL-TIME CLOUD SYNC -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { initializeApp, getApps, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -1244,197 +1287,179 @@
                     ['8=', 'Jon Dardaganis', '18', '28', '46'],
                     ['10', 'James Patrick', '20', '24', '44'],
                     ['11', 'Nigel Willcock', '9', '12', '21']
-                ]
-            },
-            '2024': {
-                title: '2024 LGA Championship — Round-by-Round Breakdown',
-                columns: ['Rank', 'Golfer', 'Rd 1', 'Rd 2', 'Total Pts'],
-                rows: [
-                    ['1', 'Ben Burke', '38', '35', '73'],
-                    ['2', 'Ben Cohen', '35', '37', '72'],
-                    ['3', 'Jon Dardaganis', '30', '39', '69'],
-                    ['4', 'Michael Stowe', '30', '37', '67'],
-                    ['5', 'Simon Willcock', '25', '40', '65'],
-                    ['6', 'James Patrick', '31', '32', '63'],
-                    ['7', "David O'Connor", '30', '32', '62'],
-                    ['8', 'Craig Tubb', '35', '26', '61'],
-                    ['9', 'Jason Daye', '25', '32', '57'],
-                    ['10', 'Dylan Willcock', '18', '22', '40'],
-                    ['11', 'Nigel Willcock', '16', '5', '21']
-                ]
-            },
-            '2025': {
-                title: '2025 LGA Championship — Port Fairy (36-Hole Stableford)',
-                columns: ['Rank', 'Golfer', 'Starting Hcp', 'Total Pts'],
-                rows: [
-                    ['1', 'James Patrick', '18', '65'],
-                    ['2', 'Craig Tubb', '18', '60'],
-                    ['3', 'Dylan Willcock', '22', '59'],
-                    ['4', 'Ben Cohen', '15', '55'],
-                    ['5', 'Michael Stowe', '17', '49'],
-                    ['6', 'Andrew Dorrington', '38', '48'],
-                    ['7', 'Ben Burke', '9', '37'],
-                    ['8', 'Rob Rosengarten', '20', '32'],
-                    ['9=', 'Frederico Bianco', '30', '27'],
-                    ['9=', 'Jon Dardaganis', '37', '27']
-                ]
-            }
-        };
-
-        // Historical Playing Handicaps per Player per Year (2015–2025)
-        const DEFAULT_HANDICAP_HISTORY = {
-            'Daniel Bennets': {},
-            'Frederico Bianco': {
-                '2025': { start: '30' }
-            },
-            'Ben Burke': {
-                '2015': { start: 'TBC' },
-                '2016': { start: 'TBC' },
-                '2017': { start: '22' },
-                '2018': { start: '21' },
-                '2019': { start: '19' },
-                '2020': { start: '20', end: '15' },
-                '2021': { start: '12', end: '20' },
-                '2022': { start: '16', end: '24' },
-                '2023': { start: 'TBC' },
-                '2024': { start: 'TBC' },
-                '2025': { start: '9' }
-            },
-            'Ben Cohen': {
-                '2015': { start: 'TBC' },
-                '2016': { start: 'TBC' },
-                '2017': { start: '20' },
-                '2018': { start: '17' },
-                '2019': { start: '16' },
-                '2020': { start: '15', end: '22' },
-                '2021': { start: '19', end: '18' },
-                '2022': { start: '18', end: '23' },
-                '2023': { start: 'TBC' },
-                '2024': { start: 'TBC' },
-                '2025': { start: '15' }
-            },
-            'Jon Dardaganis': {
-                '2020': { start: '36', end: '52' },
-                '2021': { start: '36', end: '50' },
-                '2022': { start: '36', end: '54' },
-                '2023': { start: 'TBC' },
-                '2024': { start: 'TBC' },
-                '2025': { start: '37' }
-            },
-            'Jason Daye': {
-                '2023': { start: 'TBC' },
-                '2024': { start: 'TBC' }
-            },
-            'Andrew Dorrington': {
-                '2018': { start: '36' },
-                '2020': { start: '36', end: '49' },
-                '2021': { start: '36', end: '59' },
-                '2022': { start: '36', end: '47' },
-                '2023': { start: 'TBC' },
-                '2025': { start: '38' }
-            },
-            'Alex Kostov': {},
-            'Oscar Kus': {
-                '2018': { start: '36' }
-            },
-            'Ben Lenz': {},
-            "David O'Connor": {
-                '2017': { start: '28' },
-                '2018': { start: '24' },
-                '2024': { start: 'TBC' }
-            },
-            'James Patrick': {
-                '2017': { start: '36' },
-                '2018': { start: '36' },
-                '2019': { start: '34' },
-                '2020': { start: '36', end: '37' },
-                '2021': { start: '36', end: '37' },
-                '2022': { start: '32', end: '35' },
-                '2023': { start: 'TBC' },
-                '2024': { start: 'TBC' },
-                '2025': { start: '18' }
-            },
-            'Rob Rosengarten': {
-                '2025': { start: '20' }
-            },
-            'Michael Stowe': {
-                '2015': { start: 'TBC' },
-                '2017': { start: '19' },
-                '2019': { start: '18' },
-                '2020': { start: '21', end: '20' },
-                '2022': { start: '20', end: '33' },
-                '2023': { start: 'TBC' },
-                '2024': { start: 'TBC' },
-                '2025': { start: '17' }
-            },
-            'Craig Tubb': {
-                '2017': { start: '22' },
-                '2018': { start: '18' },
-                '2019': { start: '18' },
-                '2020': { start: '20', end: '24' },
-                '2021': { start: '23', end: '21' },
-                '2022': { start: '16', end: '27' },
-                '2023': { start: 'TBC' },
-                '2024': { start: 'TBC' },
-                '2025': { start: '18' }
-            },
-            'Dylan Willcock': {
-                '2015': { start: 'TBC' },
-                '2016': { start: 'TBC' },
-                '2017': { start: '26' },
-                '2018': { start: '23' },
-                '2019': { start: '22' },
-                '2020': { start: '24', end: '31' },
-                '2021': { start: '27', end: '25' },
-                '2022': { start: '27', end: '30' },
-                '2023': { start: 'TBC' },
-                '2024': { start: 'TBC' },
-                '2025': { start: '22' }
-            },
-            'Nigel Willcock': {
-                '2023': { start: 'TBC' },
-                '2024': { start: 'TBC' }
-            },
-            'Simon Willcock': {
-                '2018': { start: '36' },
-                '2023': { start: 'TBC' },
-                '2024': { start: 'TBC' }
-            }
-        };
-
-        // Default 18-hole Par & Stroke Index Template
-        const DEFAULT_HOLES = [
-            { hole: 1, par: 4, si: 7 },  { hole: 2, par: 4, si: 13 }, { hole: 3, par: 3, si: 17 },
-            { hole: 4, par: 5, si: 3 },  { hole: 5, par: 4, si: 9 },  { hole: 6, par: 4, si: 1 },
-            { hole: 7, par: 3, si: 15 }, { hole: 8, par: 4, si: 11 }, { hole: 9, par: 5, si: 5 },
-            { hole: 10, par: 4, si: 8 }, { hole: 11, par: 4, si: 14 },{ hole: 12, par: 3, si: 18 },
-            { hole: 13, par: 5, si: 4 }, { hole: 14, par: 4, si: 10 },{ hole: 15, par: 4, si: 2 },
-            { hole: 16, par: 3, si: 16 },{ hole: 17, par: 4, si: 12 },{ hole: 18, par: 5, si: 6 }
-        ];
-
-        // =========================================================================
-        // 4. APPLICATION IN-MEMORY STATE
-        // =========================================================================
-        let activeGolfer = 'Ben Burke';
-        let scoreEntryMode = 'holes'; // 'holes' | 'total'
-        let selectedBreakdownYear = '2025';
-        let rounds = [];
-        let customCourses = [];
-        let historyMatrix = mergeHistoryRows(DEFAULT_HISTORY_MATRIX);
-        let handicapHistory = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
-        let manualWhsOverrides = {}; // { [playerName]: number }
-        let memberStats = {};
-        let isAdminUnlocked = false;
-        let adminPin = '1986';
-        let pendingAdminAction = null;
-        let editingHistoryTarget = null;
-        let editingHcpTarget = null;
-
-        // Firebase Cloud Sync handles
+        // Firebase Cloud Sync handles & Persistent Browser Storage Keys
         let db = null;
         let auth = null;
         let currentUser = null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'lga-golf-tracker';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'lga-golf-tracker-v1';
+        const STORAGE_KEY_DATA = 'lga_tracker_persistent_state_v1';
+        const STORAGE_KEY_FB_CONFIG = 'lga_tracker_custom_firebase_config_v1';
+
+        function persistStateLocally() {
+            try {
+                const payload = {
+                    activeGolfer,
+                    rounds,
+                    customCourses,
+                    historyMatrix,
+                    handicapHistory,
+                    manualWhsOverrides,
+                    adminPin,
+                    savedAt: Date.now()
+                };
+                window.localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(payload));
+            } catch (err) {
+                console.warn('Browser storage save skipped:', err);
+            }
+        }
+
+        function hydrateStateFromLocal() {
+            try {
+                const raw = window.localStorage.getItem(STORAGE_KEY_DATA);
+                if (!raw) return false;
+                const data = JSON.parse(raw);
+                if (data.activeGolfer) activeGolfer = normalizePlayerName(data.activeGolfer);
+                if (Array.isArray(data.rounds)) rounds = data.rounds;
+                if (Array.isArray(data.customCourses)) customCourses = data.customCourses;
+                if (Array.isArray(data.historyMatrix) && data.historyMatrix.length > 0) {
+                    historyMatrix = mergeHistoryRows(data.historyMatrix);
+                }
+                if (data.handicapHistory && typeof data.handicapHistory === 'object') {
+                    const mergedHcps = JSON.parse(JSON.stringify(DEFAULT_HANDICAP_HISTORY));
+                    Object.entries(data.handicapHistory).forEach(([k, val]) => {
+                        const canon = normalizePlayerName(k);
+                        mergedHcps[canon] = { ...(mergedHcps[canon] || {}), ...(val || {}) };
+                    });
+                    handicapHistory = mergedHcps;
+                }
+                if (data.manualWhsOverrides && typeof data.manualWhsOverrides === 'object') {
+                    const normalizedOverrides = {};
+                    Object.entries(data.manualWhsOverrides).forEach(([k, val]) => {
+                        const num = parseFloat(val);
+                        if (!isNaN(num)) {
+                            normalizedOverrides[normalizePlayerName(k)] = Math.round(num * 10) / 10;
+                        }
+                    });
+                    manualWhsOverrides = normalizedOverrides;
+                }
+                if (data.adminPin && data.adminPin !== '1919') {
+                    adminPin = data.adminPin;
+                }
+                return true;
+            } catch (err) {
+                console.warn('Browser storage read skipped:', err);
+                return false;
+            }
+        }
+
+        window.exportBackupFile = function() {
+            const payload = {
+                app: 'LGA Score & Handicap Tracker',
+                exportedAt: new Date().toISOString(),
+                activeGolfer,
+                rounds,
+                customCourses,
+                historyMatrix,
+                handicapHistory,
+                manualWhsOverrides
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `LGA-Backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            showToast('Downloaded LGA backup file (.json).');
+        };
+
+        window.importBackupFile = function(event) {
+            const file = event.target?.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data.rounds)) rounds = data.rounds;
+                    if (Array.isArray(data.customCourses)) customCourses = data.customCourses;
+                    if (Array.isArray(data.historyMatrix)) historyMatrix = mergeHistoryRows(data.historyMatrix);
+                    if (data.handicapHistory) handicapHistory = data.handicapHistory;
+                    if (data.manualWhsOverrides) manualWhsOverrides = data.manualWhsOverrides;
+
+                    persistStateLocally();
+                    recalculateWHS();
+                    populateCourseDropdowns();
+                    renderAll();
+
+                    // Push restored data to cloud if connected
+                    if (db && currentUser) {
+                        const roundsCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_rounds');
+                        for (const r of rounds) {
+                            if (!r.cloudId) {
+                                await addDoc(roundsCol, r);
+                            }
+                        }
+                        await pushSharedStateToCloud();
+                    }
+                    showToast(`Restored ${rounds.length} rounds & all LGA records!`);
+                } catch (err) {
+                    showToast('Invalid backup file format.', 'error');
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        };
+
+        window.openCloudConfigModal = function() {
+            const ta = document.getElementById('cloud-config-textarea');
+            if (ta) {
+                try {
+                    ta.value = window.localStorage.getItem(STORAGE_KEY_FB_CONFIG) || '';
+                } catch (e) { ta.value = ''; }
+            }
+            const modal = document.getElementById('cloud-config-modal');
+            modal?.classList.remove('hidden');
+            modal?.classList.add('flex');
+        };
+
+        window.closeCloudConfigModal = function() {
+            const modal = document.getElementById('cloud-config-modal');
+            modal?.classList.add('hidden');
+            modal?.classList.remove('flex');
+        };
+
+        window.saveCustomCloudConfig = async function() {
+            const raw = (document.getElementById('cloud-config-textarea')?.value || '').trim();
+            if (!raw) {
+                showToast('Please paste a valid Firebase config JSON object.', 'error');
+                return;
+            }
+            try {
+                const parsed = JSON.parse(raw);
+                if (!parsed.apiKey || !parsed.projectId) {
+                    showToast('Config must include apiKey and projectId.', 'error');
+                    return;
+                }
+                window.localStorage.setItem(STORAGE_KEY_FB_CONFIG, JSON.stringify(parsed));
+                closeCloudConfigModal();
+                showToast('Connecting to Firebase Cloud Sync...');
+                await initCloudSync();
+            } catch (err) {
+                showToast('Invalid JSON format. Please paste valid Firebase config JSON.', 'error');
+            }
+        };
+
+        window.clearCustomCloudConfig = function() {
+            try { window.localStorage.removeItem(STORAGE_KEY_FB_CONFIG); } catch (e) {}
+            db = null;
+            auth = null;
+            currentUser = null;
+            setSyncBadge('local', 'Saved Locally');
+            closeCloudConfigModal();
+            showToast('Disconnected custom cloud config (data remains saved locally).');
+        };
 
         function setSyncBadge(status, label) {
             const badge = document.getElementById('sync-status-badge');
@@ -1444,24 +1469,38 @@
 
             text.textContent = label;
             if (status === 'live') {
-                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40';
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 hover:opacity-90 transition cursor-pointer';
                 dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
             } else if (status === 'local') {
-                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-500/20 text-sky-200 border border-sky-400/40';
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-500/20 text-sky-200 border border-sky-400/40 hover:opacity-90 transition cursor-pointer';
                 dot.className = 'w-2 h-2 rounded-full bg-sky-400';
             } else {
-                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30';
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/30 hover:opacity-90 transition cursor-pointer';
                 dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
             }
         }
 
+        function resolveFirebaseConfig() {
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                return JSON.parse(__firebase_config);
+            }
+            try {
+                const customRaw = window.localStorage.getItem(STORAGE_KEY_FB_CONFIG);
+                if (customRaw) return JSON.parse(customRaw);
+            } catch (e) {}
+            return null;
+        }
+
         async function initCloudSync() {
             try {
-                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-                    setSyncBadge('local', 'Local Session');
+                const firebaseConfig = resolveFirebaseConfig();
+                if (!firebaseConfig) {
+                    setSyncBadge('local', 'Saved Locally');
                     return;
                 }
-                const firebaseConfig = JSON.parse(__firebase_config);
+                for (const existingApp of getApps()) {
+                    await deleteApp(existingApp);
+                }
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
@@ -1473,7 +1512,7 @@
                 }
                 currentUser = auth.currentUser;
                 if (!currentUser) {
-                    setSyncBadge('local', 'Local Session');
+                    setSyncBadge('local', 'Saved Locally');
                     return;
                 }
 
@@ -1486,6 +1525,7 @@
                     });
                     loaded.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                     rounds = loaded;
+                    persistStateLocally();
                     recalculateWHS();
                     renderDashboard();
                     renderHandicapHistoryMatrix();
@@ -1501,6 +1541,7 @@
                         loadedCourses.push({ cloudId: docSnap.id, ...docSnap.data() });
                     });
                     customCourses = loadedCourses;
+                    persistStateLocally();
                     populateCourseDropdowns();
                     renderCoursesTab();
                 }, (err) => {
@@ -1546,21 +1587,23 @@
                             adminPin = '1986';
                             pushSharedStateToCloud();
                         }
+                        persistStateLocally();
                     } else {
                         pushSharedStateToCloud();
                     }
                     setSyncBadge('live', 'Live Sync');
                 }, (err) => {
                     console.error('Meta sync error:', err);
-                    setSyncBadge('local', 'Local Session');
+                    setSyncBadge('local', 'Saved Locally');
                 });
             } catch (err) {
                 console.error('Cloud init fallback:', err);
-                setSyncBadge('local', 'Local Session');
+                setSyncBadge('local', 'Saved Locally');
             }
         }
 
         async function pushSharedStateToCloud() {
+            persistStateLocally();
             if (!db || !currentUser) return;
             try {
                 const sharedMetaDoc = doc(db, 'artifacts', appId, 'public', 'data', 'lga_meta', 'master');
@@ -1712,6 +1755,7 @@
 
         window.switchActiveGolfer = function(name) {
             activeGolfer = normalizePlayerName(name);
+            persistStateLocally();
             const topSel = document.getElementById('active-golfer-select');
             const logSel = document.getElementById('log-golfer');
             if (topSel) topSel.value = activeGolfer;
@@ -2199,6 +2243,7 @@
             } else {
                 rounds.unshift(newRound);
             }
+            persistStateLocally();
 
             recalculateWHS();
             renderDashboard();
@@ -2228,6 +2273,7 @@
                     }
                 } else {
                     rounds = rounds.filter(r => r.id !== roundKey && r.cloudId !== roundKey);
+                    persistStateLocally();
                     recalculateWHS();
                     renderDashboard();
                 }
@@ -2609,6 +2655,7 @@
             } else {
                 customCourses.push(newCourse);
             }
+            persistStateLocally();
 
             document.getElementById('new-course-name').value = '';
             populateCourseDropdowns();
@@ -2814,6 +2861,7 @@
         // 12. BOOT APPLICATION
         // =========================================================================
         function loadState() {
+            hydrateStateFromLocal();
             historyMatrix = mergeHistoryRows(historyMatrix);
         }
 
