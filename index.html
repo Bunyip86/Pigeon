@@ -189,8 +189,8 @@
                     </div>
                     <div id="dash-daily-result" class="rounded-xl bg-lga-sand/70 border border-lga-gold/30 p-3.5 sm:p-4 text-center">
                         <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-slate">Playing Daily Handicap</div>
-                        <div id="dash-daily-value" class="font-serif text-3xl sm:text-4xl font-extrabold text-lga-navy mt-1">TBC</div>
-                        <div id="dash-daily-formula" class="text-[11px] sm:text-xs text-lga-slate mt-1">WHS Index × (Slope ÷ 113) + (Rating − Par)</div>
+                        <div id="dash-daily-value" class="font-serif text-3xl sm:text-4xl font-extrabold text-lga-navy mt-1">Off</div>
+                        <div id="dash-daily-formula" class="text-[11px] sm:text-xs text-lga-slate mt-1">Daily handicap excluded by default • Admin can include</div>
                     </div>
                 </div>
 
@@ -212,9 +212,17 @@
         <section id="tab-log-round" class="tab-panel hidden space-y-4 sm:space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <form id="log-round-form" onsubmit="handleLogRoundSubmit(event)" class="lg:col-span-2 bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
-                    <div>
-                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Hole-by-Hole Scorecard Entry</div>
-                        <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Log Round &amp; Live WHS Update</h2>
+                    <div class="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                            <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Hole-by-Hole Scorecard Entry</div>
+                            <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Log Round &amp; Live WHS Update</h2>
+                        </div>
+                        <div id="admin-daily-hcp-toggle-wrap" class="hidden">
+                            <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-lga-sand border border-lga-gold/40 text-xs font-bold text-lga-navy cursor-pointer">
+                                <input type="checkbox" id="admin-include-daily-hcp" onchange="onAdminDailyHcpToggle(this.checked)" class="rounded border-slate-400 text-lga-navy focus:ring-lga-gold">
+                                <span>Include Daily Hcp in Calcs (Admin)</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -316,7 +324,7 @@
                     </div>
 
                     <div class="rounded-xl bg-lga-sand/70 border border-lga-gold/30 p-3.5 sm:p-4 grid grid-cols-3 gap-2 text-center text-xs sm:text-sm">
-                        <div><span class="block text-[11px] text-lga-slate">Daily Hcp</span><strong id="calc-daily-hcp" class="font-mono text-lga-navy">TBC</strong></div>
+                        <div><span class="block text-[11px] text-lga-slate">Daily Hcp (Calcs)</span><strong id="calc-daily-hcp" class="font-mono text-lga-navy">Off</strong></div>
                         <div><span class="block text-[11px] text-lga-slate">Gross</span><strong id="calc-adj-gross" class="font-mono text-lga-navy">—</strong></div>
                         <div><span class="block text-[11px] text-lga-slate">Differential</span><strong id="calc-differential" class="font-mono text-lga-navy">—</strong></div>
                     </div>
@@ -655,7 +663,7 @@
 
     <script>
         // Storage, Handicap Cap & Admin Constants
-        const STORAGE_KEY = 'lga_tracker_state_v13';
+        const STORAGE_KEY = 'lga_tracker_state_v14';
         const ADMIN_PASSCODE = '1986';
         const MAX_HANDICAP = 36.0;
         const TOUR_YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
@@ -947,6 +955,7 @@
             return {
                 activeGolferId: 'ben-burke',
                 activeTab: 'dashboard',
+                includeDailyHandicapInCalcs: false,
                 golfers: structuredClone(DEFAULT_GOLFERS),
                 courses: structuredClone(DEFAULT_COURSES),
                 rounds: [],
@@ -1164,6 +1173,7 @@
         }
 
         function sanitizeState() {
+            state.includeDailyHandicapInCalcs = Boolean(state.includeDailyHandicapInCalcs);
             state.golfers = sortGolfersAlphabetically((Array.isArray(state.golfers) ? state.golfers : []).map(g => ({
                 ...g,
                 role: g.role === 'President Puppet' ? 'Member' : (g.role || 'Member')
@@ -1339,6 +1349,22 @@
             }
         }
 
+        function onAdminDailyHcpToggle(checked) {
+            if (!isAdminUnlocked) return;
+            state.includeDailyHandicapInCalcs = Boolean(checked);
+            persistState();
+            renderDashboard();
+            renderHoleScorecard();
+            updateLogRoundCalc();
+            renderCourses();
+            showToast(
+                state.includeDailyHandicapInCalcs
+                    ? 'Daily handicap included in calculations.'
+                    : 'Daily handicap excluded from calculations.',
+                'success'
+            );
+        }
+
         function updateAdminUi() {
             const lockBtn = document.getElementById('admin-lock-btn');
             const tourTabBtn = document.getElementById('tour-locations-tab-btn');
@@ -1347,6 +1373,8 @@
             const hcpSub = document.getElementById('hcp-history-subtitle');
             const newGolferWhsInput = document.getElementById('new-golfer-whs');
             const newGolferWhsLabel = document.getElementById('new-golfer-whs-label');
+            const dailyToggleWrap = document.getElementById('admin-daily-hcp-toggle-wrap');
+            const dailyToggleCheckbox = document.getElementById('admin-include-daily-hcp');
 
             if (lockBtn) {
                 lockBtn.textContent = isAdminUnlocked ? 'Admin Unlocked' : 'Admin Locked';
@@ -1360,6 +1388,12 @@
             }
             if (restoreBtn) {
                 restoreBtn.classList.toggle('hidden', !isAdminUnlocked);
+            }
+            if (dailyToggleWrap) {
+                dailyToggleWrap.classList.toggle('hidden', !isAdminUnlocked);
+            }
+            if (dailyToggleCheckbox) {
+                dailyToggleCheckbox.checked = Boolean(state.includeDailyHandicapInCalcs);
             }
             if (hcpBadge) {
                 hcpBadge.textContent = isAdminUnlocked ? 'Admin Unlocked — Tap Any Handicap to Edit' : 'Handicaps Locked (Admin Only)';
@@ -1452,7 +1486,7 @@
             }
         }
 
-        // WHS & Handicap Calculations (TBC when unplayed / unrecorded)
+        // WHS & Handicap Calculations (Daily Handicap excluded by default unless Admin enables)
         function getGolferById(id) {
             return state.golfers.find(g => g.id === id) || state.golfers[0];
         }
@@ -1537,7 +1571,8 @@
         }
 
         function calcCourseDailyHandicap(whsIndex, course) {
-            if (whsIndex === null || whsIndex === undefined || Number.isNaN(Number(whsIndex))) return null;
+            if (!state.includeDailyHandicapInCalcs) return 0;
+            if (whsIndex === null || whsIndex === undefined || Number.isNaN(Number(whsIndex))) return 0;
             const raw = Number(whsIndex) * (Number(course.slope) / 113) + (Number(course.rating) - Number(course.par));
             return Math.min(45, Math.max(0, Math.round(raw)));
         }
@@ -1616,6 +1651,12 @@
             const course = getCourseById(courseSelect?.value);
             if (!course) return;
 
+            if (!state.includeDailyHandicapInCalcs) {
+                document.getElementById('dash-daily-value').textContent = 'Off';
+                document.getElementById('dash-daily-formula').textContent = `Daily handicap excluded by default • ${formatCourseDisplayName(course)} Par ${course.par}`;
+                return;
+            }
+
             if (stats.isTbc) {
                 document.getElementById('dash-daily-value').textContent = 'TBC';
                 document.getElementById('dash-daily-formula').textContent = `${golfer.name} handicap TBC • ${formatCourseDisplayName(course)} Par ${course.par}`;
@@ -1631,7 +1672,7 @@
         function calcHoleStableford(grossVal, parVal, dailyHcp, siVal) {
             const gross = Number(grossVal);
             if (!gross || Number.isNaN(gross) || gross <= 0) return null;
-            const hcp = Math.max(0, Number(dailyHcp) || 0);
+            const hcp = state.includeDailyHandicapInCalcs ? Math.max(0, Number(dailyHcp) || 0) : 0;
             const baseShots = Math.floor(hcp / 18);
             const remShots = hcp % 18;
             const holeStrokesReceived = baseShots + (siVal <= remShots ? 1 : 0);
@@ -1725,7 +1766,7 @@
             }
 
             const stats = computeGolferWhs(golferId);
-            const dailyHcp = stats.isTbc ? 0 : calcCourseDailyHandicap(stats.whsIndex, course);
+            const dailyHcp = (!state.includeDailyHandicapInCalcs || stats.isTbc) ? 0 : calcCourseDailyHandicap(stats.whsIndex, course);
 
             const parFront = document.getElementById('par-row-front');
             const grossFront = document.getElementById('gross-row-front');
@@ -1830,15 +1871,13 @@
 
             if (!course) return;
 
-            if (stats.isTbc) {
+            if (!state.includeDailyHandicapInCalcs) {
+                document.getElementById('calc-daily-hcp').textContent = 'Off';
+            } else if (stats.isTbc) {
                 document.getElementById('calc-daily-hcp').textContent = 'TBC';
-                document.getElementById('calc-adj-gross').textContent = grossVal > 0 ? String(grossVal) : '—';
-                document.getElementById('calc-differential').textContent = 'TBC';
-                return;
+            } else {
+                document.getElementById('calc-daily-hcp').textContent = String(calcCourseDailyHandicap(stats.whsIndex, course));
             }
-
-            const daily = calcCourseDailyHandicap(stats.whsIndex, course);
-            document.getElementById('calc-daily-hcp').textContent = String(daily);
 
             if (!grossVal || Number.isNaN(grossVal) || grossVal <= 0) {
                 document.getElementById('calc-adj-gross').textContent = '—';
@@ -1846,8 +1885,12 @@
                 return;
             }
 
-            const diff = ((113 / Number(course.slope)) * (grossVal - Number(course.rating))).toFixed(1);
-            document.getElementById('calc-adj-gross').textContent = String(grossVal);
+            const dailyForDiff = (!state.includeDailyHandicapInCalcs || stats.isTbc)
+                ? 0
+                : calcCourseDailyHandicap(stats.whsIndex, course);
+            const effectiveGross = Math.max(0, grossVal - dailyForDiff);
+            const diff = ((113 / Number(course.slope)) * (effectiveGross - Number(course.rating))).toFixed(1);
+            document.getElementById('calc-adj-gross').textContent = String(effectiveGross);
             document.getElementById('calc-differential').textContent = diff;
         }
 
@@ -1865,7 +1908,9 @@
             }
 
             const stats = computeGolferWhs(golferId);
-            const daily = stats.isTbc ? 0 : calcCourseDailyHandicap(stats.whsIndex, course);
+            const daily = (!state.includeDailyHandicapInCalcs || stats.isTbc)
+                ? 0
+                : calcCourseDailyHandicap(stats.whsIndex, course);
             const holeScoresClean = holeGrossScores.map(v => (v === '' ? null : Number(v)));
             const computedHolePts = holeScoresClean.some(v => v !== null)
                 ? holeScoresClean.reduce((sum, gVal, idx) => sum + (gVal !== null ? calcHoleStableford(gVal, DEFAULT_HOLE_PARS[idx], daily, DEFAULT_HOLE_SI[idx]) : 0), 0)
@@ -1876,7 +1921,8 @@
                 ? Number(manualStbl)
                 : (computedHolePts !== null ? computedHolePts : Math.max(0, 36 + daily - (gross - course.par)));
 
-            const differential = Number(((113 / Number(course.slope)) * (gross - Number(course.rating))).toFixed(1));
+            const effectiveGross = Math.max(0, gross - daily);
+            const differential = Number(((113 / Number(course.slope)) * (effectiveGross - Number(course.rating))).toFixed(1));
 
             state.rounds.unshift({
                 id: `round-${Date.now()}`,
@@ -2347,13 +2393,15 @@
             );
 
             document.getElementById('courses-grid').innerHTML = filtered.map(c => {
-                const daily = stats.isTbc ? null : calcCourseDailyHandicap(stats.whsIndex, c);
+                const daily = !state.includeDailyHandicapInCalcs
+                    ? 'Off'
+                    : (stats.isTbc ? 'TBC' : String(calcCourseDailyHandicap(stats.whsIndex, c)));
                 return `
                     <div class="p-4 rounded-2xl border border-lga-gold/35 bg-white flex flex-col justify-between gap-3">
                         <div>
                             <div class="flex items-center justify-between gap-2">
                                 <span class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark truncate">${c.region || 'Tour Venue'} • ${c.tee}</span>
-                                <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-lga-navy text-lga-gold shrink-0">Daily ${daily !== null ? daily : 'TBC'}</span>
+                                <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-lga-navy text-lga-gold shrink-0">Daily ${daily}</span>
                             </div>
                             <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy mt-1">${formatCourseDisplayName(c)}</h4>
                         </div>
