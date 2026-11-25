@@ -883,7 +883,7 @@
                 'michael-stowe': { rank: '5', day1: '86', day2: '70', score: '156', format: 'Stroke', venue: 'Peninsula' },
                 'craig-tubb': { rank: '6', day1: '85', day2: '76', score: '161', format: 'Stroke', venue: 'Peninsula' },
                 'james-patrick': { rank: '7', day1: '101', day2: '101', score: '202', format: 'Stroke', venue: 'Peninsula' },
-                'marcus-harbour': { rank: '1', day1: '83', day2: '', score: '83', format: 'Stroke', venue: 'Peninsula' }
+                'marcus-harbour': { rank: '8', day1: '83', day2: '', score: '83', format: 'Stroke', venue: 'Peninsula' }
             },
             2018: {
                 'ben-cohen': { rank: '1', score: '69', format: 'Stableford', venue: 'Melbourne' },
@@ -1227,11 +1227,13 @@
             }
             if (state.championshipResults?.[2017] && !state.championshipResults[2017]['marcus-harbour']) {
                 state.championshipResults[2017]['marcus-harbour'] = {
-                    rank: '1',
+                    rank: '8',
                     score: '83',
                     format: 'Stroke',
                     venue: state.tourLocations?.[2017] || 'Peninsula'
                 };
+            } else if (state.championshipResults?.[2017]?.['marcus-harbour']) {
+                state.championshipResults[2017]['marcus-harbour'].rank = '8';
             }
             state.golfers = sortGolfersAlphabetically(state.golfers);
 
