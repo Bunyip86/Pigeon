@@ -2243,9 +2243,8 @@
                     endIdx++;
                 }
                 const place = idx + 1;
-                const isTie = endIdx > idx;
                 for (let j = idx; j <= endIdx; j++) {
-                    derivedRanks[strokeEntries[j].golferId] = isTie ? `${place}=` : String(place);
+                    derivedRanks[strokeEntries[j].golferId] = String(place);
                 }
                 idx = endIdx + 1;
             }
@@ -2253,10 +2252,14 @@
             return derivedRanks;
         }
 
+        function normalizeRankLabel(rawRank) {
+            return String(rawRank || '').replace(/=/g, '').trim();
+        }
+
         function getEffectiveEntryRank(entry, derivedStrokeRank = '') {
-            const explicitRank = String(entry?.rank || '').trim();
+            const explicitRank = normalizeRankLabel(entry?.rank);
             if (explicitRank) return explicitRank;
-            if (entry?.format === 'Stroke' && derivedStrokeRank) return derivedStrokeRank;
+            if (entry?.format === 'Stroke' && derivedStrokeRank) return normalizeRankLabel(derivedStrokeRank);
             return '';
         }
 
@@ -2285,9 +2288,9 @@
         function getChampCellBadgeClass(entry, derivedStrokeRank = '') {
             if (!entry) return 'text-slate-300';
             const r = getEffectiveEntryRank(entry, derivedStrokeRank);
-            if (r === '1' || r === '1=') return 'bg-amber-100 text-amber-950 border border-amber-300 font-extrabold';
-            if (r === '2' || r === '2=') return 'bg-slate-100 text-slate-900 border border-slate-300 font-bold';
-            if (r === '3' || r === '3=') return 'bg-orange-100 text-orange-950 border border-orange-300 font-bold';
+            if (r === '1') return 'bg-amber-100 text-amber-950 border border-amber-300 font-extrabold';
+            if (r === '2') return 'bg-slate-100 text-slate-900 border border-slate-300 font-bold';
+            if (r === '3') return 'bg-orange-100 text-orange-950 border border-orange-300 font-bold';
             return 'bg-lga-cream text-lga-navy border border-lga-gold/25 font-semibold';
         }
 
@@ -2365,8 +2368,8 @@
                     })
                     .filter(item => item.golfer)
                     .sort((a, b) => {
-                        const ra = parseInt(String(a.effectiveRank || '999').replace(/\D/g, ''), 10) || 999;
-                        const rb = parseInt(String(b.effectiveRank || '999').replace(/\D/g, ''), 10) || 999;
+                        const ra = parseInt(normalizeRankLabel(a.effectiveRank || '999').replace(/\D/g, ''), 10) || 999;
+                        const rb = parseInt(normalizeRankLabel(b.effectiveRank || '999').replace(/\D/g, ''), 10) || 999;
                         if (ra !== rb) return ra - rb;
                         return compareAlpha(a.golfer.name, b.golfer.name);
                     });
