@@ -883,7 +883,7 @@
                 'michael-stowe': { rank: '5', day1: '86', day2: '70', score: '156', format: 'Stroke', venue: 'Peninsula' },
                 'craig-tubb': { rank: '6', day1: '85', day2: '76', score: '161', format: 'Stroke', venue: 'Peninsula' },
                 'james-patrick': { rank: '7', day1: '101', day2: '101', score: '202', format: 'Stroke', venue: 'Peninsula' },
-                'marcus': { rank: '', day1: '83', day2: '', score: '83', format: 'Stroke', venue: 'Peninsula' }
+                'marcus-harbour': { rank: '', day1: '83', day2: '', score: '83', format: 'Stroke', venue: 'Peninsula' }
             },
             2018: {
                 'ben-cohen': { rank: '1', score: '69', format: 'Stableford', venue: 'Melbourne' },
@@ -1141,57 +1141,6 @@
             }
         }
 
-        // Consolidate Alex Rostov -> Alex Kostov and John Dardaganis -> Jon Dardaganis
-        function normalizePlayerNameAliases() {
-            const aliasMap = [
-                { canonicalId: 'alex-kostov', canonicalName: 'Alex Kostov', legacyIds: ['alex-rostov'], nameRegex: /^alex\s+rostov$/i },
-                { canonicalId: 'jon-dardaganis', canonicalName: 'Jon Dardaganis', legacyIds: ['john-dardaganis'], nameRegex: /^john\s+dardaganis$/i }
-            ];
-
-            for (const rule of aliasMap) {
-                const canonical = state.golfers.find(g => g.id === rule.canonicalId);
-                if (canonical) {
-                    canonical.name = rule.canonicalName;
-                }
-                state.golfers = state.golfers.filter(
-                    g => g.id === rule.canonicalId || (!rule.legacyIds.includes(g.id) && !rule.nameRegex.test(String(g.name || '').trim()))
-                );
-
-                const mergedYears = { ...(state.yearlyHandicaps?.[rule.canonicalId] || {}) };
-                for (const lid of rule.legacyIds) {
-                    if (state.yearlyHandicaps?.[lid]) {
-                        Object.assign(mergedYears, state.yearlyHandicaps[lid]);
-                        delete state.yearlyHandicaps[lid];
-                    }
-                }
-                if (state.yearlyHandicaps) {
-                    state.yearlyHandicaps[rule.canonicalId] = mergedYears;
-                }
-
-                if (state.championshipResults) {
-                    for (const yr of Object.keys(state.championshipResults)) {
-                        const yearMap = state.championshipResults[yr] || {};
-                        for (const lid of rule.legacyIds) {
-                            if (yearMap[lid]) {
-                                if (!yearMap[rule.canonicalId]) {
-                                    yearMap[rule.canonicalId] = yearMap[lid];
-                                }
-                                delete yearMap[lid];
-                            }
-                        }
-                    }
-                }
-
-                if (Array.isArray(state.rounds)) {
-                    state.rounds = state.rounds.map(r => (rule.legacyIds.includes(r.golferId) ? { ...r, golferId: rule.canonicalId } : r));
-                }
-
-                if (rule.legacyIds.includes(state.activeGolferId)) {
-                    state.activeGolferId = rule.canonicalId;
-                }
-            }
-        }
-
         // Cap handicaps at 36.0 and redistribute excess downward across other players
         function enforceMaxHandicapCapAndRedistribute() {
             let totalExcess = 0;
@@ -1259,6 +1208,7 @@
             mergeDuplicateDavidOConnor();
             mergeDuplicateAndrewDorrington();
             ensureStevenRaphaelIncluded();
+
             if (!state.golfers.some(g => g.id === 'marcus-harbour')) {
                 state.golfers.push({
                     id: 'marcus-harbour',
@@ -2185,45 +2135,6 @@
             persistState();
             renderAll();
             showToast('Round and scorecard saved & synced.', 'success');
-        }
-
-        function getScoredChampionshipRounds() {
-            const items = [];
-            const yearsAsc = [...TOUR_YEARS].sort((a, b) => a - b);
-
-            for (const year of yearsAsc) {
-                const yearMap = state.championshipResults?.[year] || {};
-                for (const [golferId, entry] of Object.entries(yearMap)) {
-                    if (!entry) continue;
-                    const rawScoreStr = String(entry.score || '').trim();
-                    const rankStr = String(entry.rank || '').trim();
-                    if (!rawScoreStr) continue;
-
-                    const isStroke = entry.format === 'Stroke';
-                    const numericScore = Number(rawScoreStr);
-                    const bonusPts = getGolferBonusPointsForYear(year, golferId);
-                    const adjustedScore = (!isStroke && !Number.isNaN(numericScore) && bonusPts > 0)
-                        ? numericScore + bonusPts
-                        : (!Number.isNaN(numericScore) ? numericScore : rawScoreStr);
-                    const venueLabel = state.tourLocations?.[year] || entry.venue || `${year} Pidgeon Cup`;
-                    const rankBadge = rankStr ? `#${rankStr}` : `${year} Cup`;
-
-                    items.push({
-                        id: `champ-${year}-${golferId}`,
-                        golferId,
-                        courseName: `${venueLabel} (${year} Pidgeon Cup)`,
-                        date: `${year}-12-31`,
-                        displayDate: `${year} Championship`,
-                        isStroke,
-                        scoreValue: adjustedScore,
-                        bonusPts,
-                        badgeText: rankBadge,
-                        notes: `${entry.format || 'Stableford'}${bonusPts > 0 ? ` • +${bonusPts} bonus` : ''}`
-                    });
-                }
-            }
-
-            return items.sort((a, b) => String(b.date).localeCompare(String(a.date)));
         }
 
         function renderRoundsFeed() {
