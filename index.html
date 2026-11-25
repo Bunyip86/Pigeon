@@ -228,7 +228,7 @@
                         </div>
                         <div>
                             <label for="log-date" class="block text-xs font-semibold text-lga-slate mb-1">Date</label>
-                            <input type="date" id="log-date" required class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
+                            <input type="date" id="log-date" onchange="renderHoleScorecard()" required class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                     </div>
 
@@ -243,6 +243,9 @@
                                 Fill Par
                             </button>
                         </div>
+
+                        <!-- Allocated Closest to Pin & Longest Drive Hole Flags Strip -->
+                        <div id="scorecard-hole-flags-banner" class="flex flex-wrap items-center gap-1.5 text-[11px]"></div>
 
                         <!-- Front 9 -->
                         <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
@@ -366,7 +369,7 @@
                 <div>
                     <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Player Breakdown &amp; Bonus Awards</div>
                     <h3 class="font-serif text-lg sm:text-xl font-bold text-lga-navy">Annual Championship Entries</h3>
-                    <p class="text-xs text-lga-slate mt-0.5">Unlock Admin mode to assign Closest to the Pin (2 holes) and Longest Drive for any year.</p>
+                    <p class="text-xs text-lga-slate mt-0.5">Unlock Admin mode to assign Closest to Pin (2 holes) and Longest Drive for any year.</p>
                 </div>
                 <div id="champ-year-breakdowns" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"></div>
             </div>
@@ -510,7 +513,7 @@
             <div class="grid grid-cols-2 gap-3 text-xs">
                 <div>
                     <label class="block font-semibold text-lga-slate mb-1">Rank / Place</label>
-                    <input type="text" id="champ-edit-rank" placeholder="e.g. 1, 2, 1=" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
+                    <input type="text" id="champ-edit-rank" placeholder="TBC" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
                 </div>
                 <div>
                     <label class="block font-semibold text-lga-slate mb-1">Total Score</label>
@@ -790,7 +793,7 @@
             2025: 'Port Fairy'
         };
 
-        // Per-Year Bonus Awards: Closest to the Pin (2 holes) & Longest Drive
+        // Per-Year Bonus Awards: Closest to Pin (2 holes) & Longest Drive
         function createDefaultYearlyBonusAwards() {
             const awards = {};
             for (const yr of TOUR_YEARS) {
@@ -1637,6 +1640,44 @@
             return Math.max(0, pts);
         }
 
+        function getAllocatedHoleFlagsForDate(dateStr) {
+            const year = dateStr && /^\d{4}/.test(dateStr) ? Number(dateStr.slice(0, 4)) : 2025;
+            const awards = state.yearlyBonusAwards?.[year] || {};
+            const parseHole = (val) => {
+                const n = parseInt(String(val || '').replace(/\D/g, ''), 10);
+                return (!Number.isNaN(n) && n >= 1 && n <= 18) ? n : null;
+            };
+            const ctp1Hole = parseHole(awards.ctp1Hole);
+            const ctp2Hole = parseHole(awards.ctp2Hole);
+            const ldHole = parseHole(awards.longestDriveHole);
+
+            const flagsByHole = {};
+            const addFlag = (holeNum, tag) => {
+                if (!holeNum) return;
+                if (!flagsByHole[holeNum]) flagsByHole[holeNum] = [];
+                flagsByHole[holeNum].push(tag);
+            };
+            addFlag(ctp1Hole, 'Closest to Pin #1');
+            addFlag(ctp2Hole, 'Closest to Pin #2');
+            addFlag(ldHole, 'Longest Drive');
+
+            const items = [];
+            if (ctp1Hole) {
+                const winner = awards.ctp1GolferId ? getGolferById(awards.ctp1GolferId)?.name : '';
+                items.push({ label: `Closest to Pin #1: Hole ${ctp1Hole}${winner ? ` (${winner})` : ''}`, cls: 'bg-sky-100 text-sky-900 border-sky-300' });
+            }
+            if (ctp2Hole) {
+                const winner = awards.ctp2GolferId ? getGolferById(awards.ctp2GolferId)?.name : '';
+                items.push({ label: `Closest to Pin #2: Hole ${ctp2Hole}${winner ? ` (${winner})` : ''}`, cls: 'bg-indigo-100 text-indigo-900 border-indigo-300' });
+            }
+            if (ldHole) {
+                const winner = awards.longestDriveGolferId ? getGolferById(awards.longestDriveGolferId)?.name : '';
+                items.push({ label: `Longest Drive: Hole ${ldHole}${winner ? ` (${winner})` : ''}`, cls: 'bg-amber-100 text-amber-950 border-amber-300' });
+            }
+
+            return { year, flagsByHole, items };
+        }
+
         function onLogCourseChange() {
             holeGrossScores = Array(18).fill('');
             const grossInput = document.getElementById('log-gross');
@@ -1669,6 +1710,20 @@
         function renderHoleScorecard() {
             const golferId = document.getElementById('log-golfer')?.value || state.activeGolferId;
             const course = getCourseById(document.getElementById('log-course')?.value);
+            const dateVal = document.getElementById('log-date')?.value || new Date().toISOString().slice(0, 10);
+            const { year, flagsByHole, items } = getAllocatedHoleFlagsForDate(dateVal);
+
+            const bannerEl = document.getElementById('scorecard-hole-flags-banner');
+            if (bannerEl) {
+                if (items.length === 0) {
+                    bannerEl.innerHTML = `<span class="text-lga-slate">No Closest to Pin or Longest Drive holes flagged for ${year}.</span>`;
+                } else {
+                    bannerEl.innerHTML = items.map(it =>
+                        `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-semibold border ${it.cls}">${it.label}</span>`
+                    ).join('');
+                }
+            }
+
             const stats = computeGolferWhs(golferId);
             const dailyHcp = stats.isTbc ? 0 : calcCourseDailyHandicap(stats.whsIndex, course);
 
@@ -1690,12 +1745,17 @@
             let frontPtsCells = '<td class="px-2 py-1.5 text-left font-bold">Pts</td>';
 
             for (let i = 0; i < 9; i++) {
+                const holeNum = i + 1;
                 const p = DEFAULT_HOLE_PARS[i];
                 const si = DEFAULT_HOLE_SI[i];
                 const g = holeGrossScores[i];
+                const hFlags = flagsByHole[holeNum] || [];
+                const flagRing = hFlags.length > 0 ? 'ring-2 ring-lga-gold bg-amber-50/90' : '';
+                const flagDot = hFlags.length > 0 ? `<div class="text-[9px] font-bold text-lga-goldDark leading-tight mt-0.5">${hFlags.map(f => f.replace('Closest to Pin ', 'CTP ').replace('Longest Drive', 'LD')).join('/')}</div>` : '';
+
                 frontParSum += p;
-                frontParCells += `<td class="px-1 py-1.5 font-mono">${p}</td>`;
-                frontGrossCells += `<td class="p-1"><input type="number" min="1" max="15" value="${g}" onchange="onHoleGrossInput(${i}, this.value)" class="w-10 sm:w-11 text-center rounded border border-slate-300 bg-lga-cream py-1 font-mono text-xs text-lga-navy focus:border-lga-gold focus:outline-none"></td>`;
+                frontParCells += `<td class="px-1 py-1.5 font-mono ${hFlags.length > 0 ? 'bg-amber-100/70 text-lga-navy font-bold' : ''}"><div>${p}</div>${flagDot}</td>`;
+                frontGrossCells += `<td class="p-1 ${hFlags.length > 0 ? 'bg-amber-50/60' : ''}"><input type="number" min="1" max="15" value="${g}" onchange="onHoleGrossInput(${i}, this.value)" class="w-10 sm:w-11 text-center rounded border border-slate-300 bg-lga-cream py-1 font-mono text-xs text-lga-navy focus:border-lga-gold focus:outline-none ${flagRing}"></td>`;
                 if (g !== '' && !Number.isNaN(Number(g))) {
                     hasFrontGross = true;
                     frontGrossSum += Number(g);
@@ -1721,12 +1781,17 @@
             let backPtsCells = '<td class="px-2 py-1.5 text-left font-bold">Pts</td>';
 
             for (let i = 9; i < 18; i++) {
+                const holeNum = i + 1;
                 const p = DEFAULT_HOLE_PARS[i];
                 const si = DEFAULT_HOLE_SI[i];
                 const g = holeGrossScores[i];
+                const hFlags = flagsByHole[holeNum] || [];
+                const flagRing = hFlags.length > 0 ? 'ring-2 ring-lga-gold bg-amber-50/90' : '';
+                const flagDot = hFlags.length > 0 ? `<div class="text-[9px] font-bold text-lga-goldDark leading-tight mt-0.5">${hFlags.map(f => f.replace('Closest to Pin ', 'CTP ').replace('Longest Drive', 'LD')).join('/')}</div>` : '';
+
                 backParSum += p;
-                backParCells += `<td class="px-1 py-1.5 font-mono">${p}</td>`;
-                backGrossCells += `<td class="p-1"><input type="number" min="1" max="15" value="${g}" onchange="onHoleGrossInput(${i}, this.value)" class="w-10 sm:w-11 text-center rounded border border-slate-300 bg-lga-cream py-1 font-mono text-xs text-lga-navy focus:border-lga-gold focus:outline-none"></td>`;
+                backParCells += `<td class="px-1 py-1.5 font-mono ${hFlags.length > 0 ? 'bg-amber-100/70 text-lga-navy font-bold' : ''}"><div>${p}</div>${flagDot}</td>`;
+                backGrossCells += `<td class="p-1 ${hFlags.length > 0 ? 'bg-amber-50/60' : ''}"><input type="number" min="1" max="15" value="${g}" onchange="onHoleGrossInput(${i}, this.value)" class="w-10 sm:w-11 text-center rounded border border-slate-300 bg-lga-cream py-1 font-mono text-xs text-lga-navy focus:border-lga-gold focus:outline-none ${flagRing}"></td>`;
                 if (g !== '' && !Number.isNaN(Number(g))) {
                     hasBackGross = true;
                     backGrossSum += Number(g);
@@ -1886,7 +1951,7 @@
             if (!entry) return '—';
             const rankStr = String(entry.rank || '').trim();
             const rawScoreStr = String(entry.score || '').trim();
-            if (!rankStr && !rawScoreStr) return 'Played';
+            if (!rankStr && !rawScoreStr) return 'TBC';
             const isStroke = entry.format === 'Stroke';
             const numericScore = Number(rawScoreStr);
             const hasNumericScore = rawScoreStr !== '' && !Number.isNaN(numericScore);
@@ -1980,11 +2045,11 @@
 
                 const locLabel = state.tourLocations?.[y] || yearMap[Object.keys(yearMap)[0]]?.venue || '';
 
-                const ctp1Name = awards.ctp1GolferId ? getGolferById(awards.ctp1GolferId)?.name : 'TBC';
+                const ctp1Name = awards.ctp1GolferId ? (getGolferById(awards.ctp1GolferId)?.name || '') : '';
                 const ctp1HoleLabel = awards.ctp1Hole ? ` (Hole ${awards.ctp1Hole})` : '';
-                const ctp2Name = awards.ctp2GolferId ? getGolferById(awards.ctp2GolferId)?.name : 'TBC';
+                const ctp2Name = awards.ctp2GolferId ? (getGolferById(awards.ctp2GolferId)?.name || '') : '';
                 const ctp2HoleLabel = awards.ctp2Hole ? ` (Hole ${awards.ctp2Hole})` : '';
-                const ldName = awards.longestDriveGolferId ? getGolferById(awards.longestDriveGolferId)?.name : 'TBC';
+                const ldName = awards.longestDriveGolferId ? (getGolferById(awards.longestDriveGolferId)?.name || '') : '';
                 const ldHoleLabel = awards.longestDriveHole ? ` (Hole ${awards.longestDriveHole})` : '';
 
                 const bonusSectionHtml = isAdminUnlocked
@@ -2015,15 +2080,15 @@
                     `
                     : `
                         <div class="mt-2.5 pt-2.5 border-t border-lga-gold/25 grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px]">
-                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80">
-                                <span class="text-lga-slate block">CTP #1${ctp1HoleLabel} (+1 pt)</span>
+                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80 min-h-[42px]">
+                                <span class="text-lga-slate block">Closest to Pin #1${ctp1HoleLabel} (+1 pt)</span>
                                 <strong class="text-lga-navy">${ctp1Name}</strong>
                             </div>
-                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80">
-                                <span class="text-lga-slate block">CTP #2${ctp2HoleLabel} (+1 pt)</span>
+                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80 min-h-[42px]">
+                                <span class="text-lga-slate block">Closest to Pin #2${ctp2HoleLabel} (+1 pt)</span>
                                 <strong class="text-lga-navy">${ctp2Name}</strong>
                             </div>
-                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80">
+                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80 min-h-[42px]">
                                 <span class="text-lga-slate block">Longest Drive${ldHoleLabel} (+1 pt)</span>
                                 <strong class="text-lga-navy">${ldName}</strong>
                             </div>
@@ -2065,7 +2130,7 @@
                 longestDriveHole: (document.getElementById(`award-ld-hole-${year}`)?.value || '').trim()
             };
             persistState();
-            renderChampionshipHistory();
+            renderAll();
             showToast(`${year} bonus awards saved.`, 'success');
         }
 
