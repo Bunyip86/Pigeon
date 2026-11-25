@@ -157,7 +157,7 @@
                 <div class="bg-white rounded-2xl border border-lga-gold/35 p-3.5 sm:p-5 shadow-sm">
                     <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Active WHS Index</div>
                     <div id="kpi-whs-index" class="mt-1 font-serif text-2xl sm:text-3xl font-bold text-lga-navy">TBC</div>
-                    <div id="kpi-whs-sub" class="mt-1 text-[11px] sm:text-xs text-lga-slate line-clamp-2">Max 36.0 • TBC if unplayed</div>
+                    <div id="kpi-whs-sub" class="mt-1 text-[11px] sm:text-xs text-lga-slate line-clamp-2">Max 36.0</div>
                 </div>
                 <div class="bg-white rounded-2xl border border-lga-gold/35 p-3.5 sm:p-5 shadow-sm">
                     <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">12-Month Low Index</div>
@@ -190,7 +190,7 @@
                     <div id="dash-daily-result" class="rounded-xl bg-lga-sand/70 border border-lga-gold/30 p-3.5 sm:p-4 text-center">
                         <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-slate">Playing Daily Handicap</div>
                         <div id="dash-daily-value" class="font-serif text-3xl sm:text-4xl font-extrabold text-lga-navy mt-1">Off</div>
-                        <div id="dash-daily-formula" class="text-[11px] sm:text-xs text-lga-slate mt-1">Daily handicap excluded by default • Admin can include</div>
+                        <div id="dash-daily-formula" class="text-[11px] sm:text-xs text-lga-slate mt-1">Daily handicap off by default • Admin option</div>
                     </div>
                 </div>
 
@@ -245,7 +245,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 <div class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">18-Hole Scorecard</div>
-                                <p class="text-[11px] sm:text-xs text-lga-slate">Enter gross strokes per hole (or use total Gross below) to auto-calculate Stableford.</p>
+                                <p class="text-[11px] sm:text-xs text-lga-slate">Enter gross strokes per hole or use total Gross below.</p>
                             </div>
                             <button type="button" onclick="fillParScorecard()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-lga-sand hover:bg-amber-200/70 text-lga-navy border border-lga-gold/40 cursor-pointer">
                                 Fill Par
@@ -333,15 +333,15 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         <div>
                             <label for="log-gross" class="block text-xs font-semibold text-lga-slate mb-1">Gross Score</label>
-                            <input type="number" id="log-gross" min="45" max="180" placeholder="Auto or e.g. 88" oninput="updateLogRoundCalc()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
+                            <input type="number" id="log-gross" min="45" max="180" placeholder="88" oninput="updateLogRoundCalc()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                         <div>
                             <label for="log-stableford" class="block text-xs font-semibold text-lga-slate mb-1">Stableford Points</label>
-                            <input type="number" id="log-stableford" min="0" max="144" placeholder="Auto or manual" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
+                            <input type="number" id="log-stableford" min="0" max="144" placeholder="36" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                         <div>
                             <label for="log-notes" class="block text-xs font-semibold text-lga-slate mb-1">Round Notes</label>
-                            <input type="text" id="log-notes" placeholder="e.g. Pidgeon Cup Day 1" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
+                            <input type="text" id="log-notes" placeholder="Pidgeon Cup Day 1" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                     </div>
 
@@ -377,7 +377,7 @@
                     <div>
                         <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Pidgeon Cup Archive</div>
                         <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Championship Results Matrix</h2>
-                        <p class="text-xs text-lga-slate mt-0.5">Shows place and score only (2015–2025 left to right). Unlock Admin mode to edit any cell.</p>
+                        <p class="text-xs text-lga-slate mt-0.5">2015–2025 left to right. Unlock Admin mode to edit any cell.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
                         <span class="px-2 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">1st</span>
@@ -412,7 +412,7 @@
                     <div>
                         <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Annual Handicap Progression</div>
                         <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Yearly Handicap Record</h2>
-                        <p id="hcp-history-subtitle" class="text-xs text-lga-slate mt-0.5">Shows each golfer's single recorded handicap per year (max 36.0) or <strong>TBC</strong> if unplayed.</p>
+                        <p id="hcp-history-subtitle" class="text-xs text-lga-slate mt-0.5">Single recorded handicap per year (max 36.0) or <strong>TBC</strong>.</p>
                     </div>
                     <span id="hcp-admin-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-lga-slate border border-slate-300 self-start sm:self-auto">
                         Handicaps Locked (Admin Only)
@@ -528,7 +528,7 @@
         <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-sm w-full p-5 sm:p-6 shadow-xl space-y-4">
             <h3 class="font-serif text-xl font-bold text-lga-navy">Unlock Admin Mode</h3>
             <p class="text-xs text-lga-slate">Enter the LGA admin passcode to edit results, handicaps, tour locations, or restore data.</p>
-            <input type="password" id="admin-passcode-input" placeholder="Enter passcode" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3.5 py-2.5 text-lga-navy">
+            <input type="password" id="admin-passcode-input" placeholder="Passcode" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3.5 py-2.5 text-lga-navy">
             <div class="flex justify-end gap-2">
                 <button type="button" onclick="closeAdminModal()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
                 <button type="button" onclick="submitAdminPasscode()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Unlock</button>
@@ -547,7 +547,7 @@
                 </div>
                 <div>
                     <label class="block font-semibold text-lga-slate mb-1">Total Score</label>
-                    <input type="text" id="champ-edit-score" placeholder="e.g. 73 or 149" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
+                    <input type="text" id="champ-edit-score" placeholder="73 or 149" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
                 </div>
                 <div>
                     <label class="block font-semibold text-lga-slate mb-1">Day 1</label>
@@ -576,10 +576,10 @@
     <div id="hcp-edit-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-end sm:items-center justify-center p-3 sm:p-4">
         <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-sm w-full p-5 sm:p-6 shadow-xl space-y-4">
             <h3 id="hcp-modal-title" class="font-serif text-xl font-bold text-lga-navy">Edit Handicap</h3>
-            <p class="text-xs text-lga-slate">Handicaps are capped at 36.0; any excess above 36.0 is redistributed evenly downward across other players.</p>
+            <p class="text-xs text-lga-slate">Capped at 36.0; excess above 36.0 redistributes downward across other players.</p>
             <div class="text-xs">
                 <label class="block font-semibold text-lga-slate mb-1">Handicap Value (0.0 – 36.0)</label>
-                <input type="number" step="0.1" min="0" max="54" id="hcp-edit-value" placeholder="Leave blank for TBC" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
+                <input type="number" step="0.1" min="0" max="54" id="hcp-edit-value" placeholder="Blank for TBC" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
             </div>
             <div class="flex justify-between gap-2 pt-2">
                 <button type="button" onclick="clearHandicapEntry()" class="px-3.5 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 cursor-pointer">Clear</button>
@@ -598,7 +598,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div class="sm:col-span-2">
                     <label class="block font-semibold text-lga-slate mb-1">Course Name</label>
-                    <input type="text" id="new-course-name" required placeholder="e.g. Kingston Heath Golf Club" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
+                    <input type="text" id="new-course-name" required placeholder="Kingston Heath Golf Club" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
                 </div>
                 <div>
                     <label class="block font-semibold text-lga-slate mb-1">State</label>
@@ -614,7 +614,7 @@
                 </div>
                 <div class="sm:col-span-2">
                     <label class="block font-semibold text-lga-slate mb-1">Region</label>
-                    <input type="text" id="new-course-region" placeholder="e.g. Melbourne Sandbelt, VIC" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
+                    <input type="text" id="new-course-region" placeholder="Melbourne Sandbelt, VIC" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
                 </div>
                 <div>
                     <label class="block font-semibold text-lga-slate mb-1">Tee</label>
@@ -675,7 +675,7 @@
     <div id="restore-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-end sm:items-center justify-center p-3 sm:p-4">
         <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-lg w-full p-5 sm:p-6 shadow-xl space-y-4">
             <h3 class="font-serif text-xl font-bold text-lga-navy">Restore State from JSON</h3>
-            <textarea id="restore-json-input" rows="7" placeholder="Paste exported LGA JSON backup here..." class="w-full rounded-xl border border-slate-300 bg-lga-cream p-3 font-mono text-xs text-lga-navy"></textarea>
+            <textarea id="restore-json-input" rows="7" placeholder="Paste exported JSON backup..." class="w-full rounded-xl border border-slate-300 bg-lga-cream p-3 font-mono text-xs text-lga-navy"></textarea>
             <div class="flex justify-end gap-2">
                 <button type="button" onclick="closeRestoreModal()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
                 <button type="button" onclick="applyRestoreJson()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Restore</button>
@@ -1441,8 +1441,8 @@
             }
             if (hcpSub) {
                 hcpSub.innerHTML = isAdminUnlocked
-                    ? 'Tap any yearly or current handicap to edit (max 36.0; excess redistributes downward) or leave blank for <strong>TBC</strong>.'
-                    : 'Shows each golfer\'s single recorded handicap per year (max 36.0) or <strong>TBC</strong> if unplayed. Unlock Admin mode to edit.';
+                    ? 'Tap any handicap to edit (max 36.0; excess redistributes downward) or leave blank for <strong>TBC</strong>.'
+                    : 'Single recorded handicap per year (max 36.0) or <strong>TBC</strong>.';
             }
             if (newGolferWhsInput) {
                 newGolferWhsInput.disabled = !isAdminUnlocked;
@@ -1587,7 +1587,7 @@
                         ? `Gross ${finalScore}`
                         : `${finalScore} pts${!isStroke && hasNumericScore && bonusPts > 0 ? ` (+${bonusPts} bonus)` : ''}`,
                     daySplit: (day1Str || day2Str) ? `D1 ${day1Str || '—'} / D2 ${day2Str || '—'}` : '',
-                    notes: rankStr ? `Championship Result • Place #${rankStr}` : 'Championship Result'
+                    notes: rankStr ? `Place #${rankStr}` : ''
                 });
             }
             return entries.reverse();
@@ -1672,8 +1672,8 @@
 
             document.getElementById('kpi-whs-index').textContent = stats.isTbc ? 'TBC' : stats.whsIndex.toFixed(1);
             document.getElementById('kpi-whs-sub').textContent = stats.isTbc
-                ? `${golfer.name} • Has not played (TBC)`
-                : `${golfer.name} • Max 36.0 cap`;
+                ? `${golfer.name} • TBC`
+                : `${golfer.name} • Max 36.0`;
 
             document.getElementById('kpi-low-index').textContent = stats.isTbc ? 'TBC' : stats.lowCap12m.toFixed(1);
             document.getElementById('kpi-rounds-count').textContent = String(stats.roundsCount);
@@ -1682,7 +1682,7 @@
             document.getElementById('kpi-rounds-sub').textContent = manualRoundsCount > 0
                 ? `Best ${stats.differentialsCounted} diff(s) • ${champRoundsCount} champ score(s)`
                 : champRoundsCount > 0
-                    ? `${champRoundsCount} championship score(s) recorded`
+                    ? `${champRoundsCount} championship score(s)`
                     : 'No rounds logged yet';
 
             const titles = countGolferWins(golfer.id);
@@ -1737,7 +1737,7 @@
 
             if (!state.includeDailyHandicapInCalcs) {
                 document.getElementById('dash-daily-value').textContent = 'Off';
-                document.getElementById('dash-daily-formula').textContent = `Daily handicap excluded by default • ${formatCourseDisplayName(course)} Par ${course.par}`;
+                document.getElementById('dash-daily-formula').textContent = `Daily handicap off by default • ${formatCourseDisplayName(course)} Par ${course.par}`;
                 return;
             }
 
@@ -2317,17 +2317,17 @@
                                 <div class="bg-white p-2 rounded-lg border border-slate-200 space-y-1">
                                     <label for="award-ctp1-golfer-${y}" class="block font-semibold text-lga-slate text-[11px]">Closest to Pin #1</label>
                                     <select id="award-ctp1-golfer-${y}" class="w-full rounded border border-slate-300 bg-lga-cream px-2 py-1 text-lga-navy text-xs">${golferOptionHtml(awards.ctp1GolferId)}</select>
-                                    <input type="text" id="award-ctp1-hole-${y}" value="${awards.ctp1Hole || ''}" placeholder="Hole e.g. 3" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
+                                    <input type="text" id="award-ctp1-hole-${y}" value="${awards.ctp1Hole || ''}" placeholder="Hole 3" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
                                 </div>
                                 <div class="bg-white p-2 rounded-lg border border-slate-200 space-y-1">
                                     <label for="award-ctp2-golfer-${y}" class="block font-semibold text-lga-slate text-[11px]">Closest to Pin #2</label>
                                     <select id="award-ctp2-golfer-${y}" class="w-full rounded border border-slate-300 bg-lga-cream px-2 py-1 text-lga-navy text-xs">${golferOptionHtml(awards.ctp2GolferId)}</select>
-                                    <input type="text" id="award-ctp2-hole-${y}" value="${awards.ctp2Hole || ''}" placeholder="Hole e.g. 15" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
+                                    <input type="text" id="award-ctp2-hole-${y}" value="${awards.ctp2Hole || ''}" placeholder="Hole 15" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
                                 </div>
                                 <div class="bg-white p-2 rounded-lg border border-slate-200 space-y-1">
                                     <label for="award-ld-golfer-${y}" class="block font-semibold text-lga-slate text-[11px]">Longest Drive</label>
                                     <select id="award-ld-golfer-${y}" class="w-full rounded border border-slate-300 bg-lga-cream px-2 py-1 text-lga-navy text-xs">${golferOptionHtml(awards.longestDriveGolferId)}</select>
-                                    <input type="text" id="award-ld-hole-${y}" value="${awards.longestDriveHole || ''}" placeholder="Hole e.g. 10" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
+                                    <input type="text" id="award-ld-hole-${y}" value="${awards.longestDriveHole || ''}" placeholder="Hole 10" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
                                 </div>
                             </div>
                         </div>
@@ -2729,7 +2729,7 @@
                     <div class="p-4 rounded-xl border border-lga-gold/30 bg-lga-cream/60 space-y-2">
                         <label for="tour-loc-${y}" class="block text-xs font-bold text-lga-navy">${y} Tour Location</label>
                         <div class="flex gap-2">
-                            <input type="text" id="tour-loc-${y}" value="${val}" placeholder="Leave blank if unknown" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-lga-navy">
+                            <input type="text" id="tour-loc-${y}" value="${val}" placeholder="Blank if unknown" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-lga-navy">
                             <button type="button" onclick="saveTourLocation(${y})" class="px-3.5 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold cursor-pointer">Save</button>
                         </div>
                     </div>
