@@ -1537,9 +1537,51 @@
             }).length;
         }
 
+        function getChampionshipScoredRoundsForGolfer(golferId) {
+            const yearsAsc = [...TOUR_YEARS].sort((a, b) => a - b);
+            const entries = [];
+            for (const yr of yearsAsc) {
+                const entry = state.championshipResults?.[yr]?.[golferId];
+                if (!entry) continue;
+                const rawScoreStr = String(entry.score || '').trim();
+                const day1Str = String(entry.day1 || '').trim();
+                const day2Str = String(entry.day2 || '').trim();
+                if (!rawScoreStr && !day1Str && !day2Str) continue;
+
+                const isStroke = entry.format === 'Stroke';
+                const bonusPts = getGolferBonusPointsForYear(yr, golferId);
+                const numericScore = Number(rawScoreStr);
+                const hasNumericScore = rawScoreStr !== '' && !Number.isNaN(numericScore);
+                const finalScore = (!isStroke && hasNumericScore && bonusPts > 0)
+                    ? String(numericScore + bonusPts)
+                    : rawScoreStr;
+                const rankStr = String(entry.rank || '').trim();
+                const venueLabel = (state.tourLocations?.[yr] || entry.venue || `${yr} Pidgeon Cup`).trim();
+
+                entries.push({
+                    id: `champ-${yr}-${golferId}`,
+                    golferId,
+                    year: yr,
+                    isChampionshipResult: true,
+                    courseName: venueLabel,
+                    date: `${yr} Pidgeon Cup`,
+                    rank: rankStr,
+                    format: entry.format || 'Stableford',
+                    scoreLabel: isStroke
+                        ? `Gross ${finalScore}`
+                        : `${finalScore} pts${!isStroke && hasNumericScore && bonusPts > 0 ? ` (+${bonusPts} bonus)` : ''}`,
+                    daySplit: (day1Str || day2Str) ? `D1 ${day1Str || '—'} / D2 ${day2Str || '—'}` : '',
+                    notes: rankStr ? `Championship Result • Place #${rankStr}` : 'Championship Result'
+                });
+            }
+            return entries.reverse();
+        }
+
         function computeGolferWhs(golferId) {
             const golfer = getGolferById(golferId);
             const golferRounds = (state.rounds || []).filter(r => r.golferId === golferId);
+            const champScoredRounds = getChampionshipScoredRoundsForGolfer(golferId);
+            const totalLoggedRoundsCount = golferRounds.length + champScoredRounds.length;
             const latestYr = getLatestRecordedYearHandicap(golferId);
 
             const hasBaseline = golfer?.baselineWhs !== null && golfer?.baselineWhs !== undefined && golfer?.baselineWhs !== '';
@@ -1552,7 +1594,7 @@
                         whsIndex: null,
                         isTbc: true,
                         lowCap12m: null,
-                        roundsCount: 0,
+                        roundsCount: totalLoggedRoundsCount,
                         differentialsCounted: 0
                     };
                 }
@@ -1564,7 +1606,7 @@
                     whsIndex: Number(cappedIndex.toFixed(1)),
                     isTbc: false,
                     lowCap12m: Number(lowCap.toFixed(1)),
-                    roundsCount: 0,
+                    roundsCount: totalLoggedRoundsCount,
                     differentialsCounted: 0
                 };
             }
@@ -1587,7 +1629,7 @@
                 whsIndex,
                 isTbc: false,
                 lowCap12m: Number(lowCap12m.toFixed(1)),
-                roundsCount: golferRounds.length,
+                roundsCount: totalLoggedRoundsCount,
                 differentialsCounted: selected.length
             };
         }
@@ -1619,9 +1661,13 @@
 
             document.getElementById('kpi-low-index').textContent = stats.isTbc ? 'TBC' : stats.lowCap12m.toFixed(1);
             document.getElementById('kpi-rounds-count').textContent = String(stats.roundsCount);
-            document.getElementById('kpi-rounds-sub').textContent = stats.roundsCount > 0
-                ? `Best ${stats.differentialsCounted} differential(s) counted`
-                : 'No rounds logged yet';
+            const manualRoundsCount = (state.rounds || []).filter(r => r.golferId === golfer.id).length;
+            const champRoundsCount = getChampionshipScoredRoundsForGolfer(golfer.id).length;
+            document.getElementById('kpi-rounds-sub').textContent = manualRoundsCount > 0
+                ? `Best ${stats.differentialsCounted} diff(s) • ${champRoundsCount} champ score(s)`
+                : champRoundsCount > 0
+                    ? `${champRoundsCount} championship score(s) recorded`
+                    : 'No rounds logged yet';
 
             const titles = countGolferWins(golfer.id);
             document.getElementById('kpi-titles-count').textContent = String(titles);
@@ -2075,10 +2121,61 @@
             showToast('Round and scorecard saved & synced.', 'success');
         }
 
+        function getScoredChampionshipRounds() {
+            const items = [];
+            const yearsAsc = [...TOUR_YEARS].sort((a, b) => a - b);
+
+            for (const year of yearsAsc) {
+                const yearMap = state.championshipResults?.[year] || {};
+                for (const [golferId, entry] of Object.entries(yearMap)) {
+                    if (!entry) continue;
+                    const rawScoreStr = String(entry.score || '').trim();
+                    const rankStr = String(entry.rank || '').trim();
+                    if (!rawScoreStr) continue;
+
+                    const isStroke = entry.format === 'Stroke';
+                    const numericScore = Number(rawScoreStr);
+                    const bonusPts = getGolferBonusPointsForYear(year, golferId);
+                    const adjustedScore = (!isStroke && !Number.isNaN(numericScore) && bonusPts > 0)
+                        ? numericScore + bonusPts
+                        : (!Number.isNaN(numericScore) ? numericScore : rawScoreStr);
+                    const venueLabel = state.tourLocations?.[year] || entry.venue || `${year} Pidgeon Cup`;
+                    const rankBadge = rankStr ? `#${rankStr}` : `${year} Cup`;
+
+                    items.push({
+                        id: `champ-${year}-${golferId}`,
+                        golferId,
+                        courseName: `${venueLabel} (${year} Pidgeon Cup)`,
+                        date: `${year}-12-31`,
+                        displayDate: `${year} Championship`,
+                        isStroke,
+                        scoreValue: adjustedScore,
+                        bonusPts,
+                        badgeText: rankBadge,
+                        notes: `${entry.format || 'Stableford'}${bonusPts > 0 ? ` • +${bonusPts} bonus` : ''}`
+                    });
+                }
+            }
+
+            return items.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+        }
+
         function renderRoundsFeed() {
             const filter = document.getElementById('rounds-filter-golfer')?.value || 'ALL';
             const listEl = document.getElementById('rounds-feed-list');
-            const items = (state.rounds || []).filter(r => filter === 'ALL' || r.golferId === state.activeGolferId);
+            const targetGolfers = filter === 'ALL'
+                ? state.golfers
+                : state.golfers.filter(g => g.id === state.activeGolferId);
+
+            const champItems = targetGolfers.flatMap(g => getChampionshipScoredRoundsForGolfer(g.id));
+            const manualItems = (state.rounds || [])
+                .filter(r => filter === 'ALL' || r.golferId === state.activeGolferId)
+                .map(r => ({ ...r, isChampionshipResult: false }));
+
+            const items = [
+                ...manualItems.sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))),
+                ...champItems.sort((a, b) => (b.year || 0) - (a.year || 0))
+            ];
 
             if (items.length === 0) {
                 listEl.innerHTML = `<div class="p-6 text-center text-xs text-lga-slate bg-lga-cream/60 rounded-xl border border-lga-gold/25">No rounds logged yet.</div>`;
@@ -2087,6 +2184,21 @@
 
             listEl.innerHTML = items.map(r => {
                 const golfer = getGolferById(r.golferId);
+                if (r.isChampionshipResult) {
+                    return `
+                        <div class="p-3.5 rounded-xl border border-lga-gold/40 bg-lga-sand/60 space-y-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="font-bold text-xs sm:text-sm text-lga-navy truncate">${golfer?.name || r.golferId}</span>
+                                <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-lga-gold text-lga-navy shrink-0">${r.year} Champ${r.rank ? ` #${r.rank}` : ''}</span>
+                            </div>
+                            <div class="text-xs text-lga-slate truncate">${r.courseName} • ${r.format}</div>
+                            <div class="flex items-center justify-between text-xs font-mono text-lga-navy pt-1">
+                                <span>${r.scoreLabel}${r.daySplit ? ` (${r.daySplit})` : ''}</span>
+                                <span class="text-lga-goldDark font-sans font-semibold truncate max-w-[150px]">Logged as Champ Round</span>
+                            </div>
+                        </div>
+                    `;
+                }
                 return `
                     <div class="p-3.5 rounded-xl border border-lga-gold/30 bg-lga-cream/60 space-y-1">
                         <div class="flex items-center justify-between gap-2">
