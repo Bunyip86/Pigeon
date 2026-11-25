@@ -304,7 +304,7 @@
                         </div>
                         <div>
                             <label for="log-stableford" class="block text-xs font-semibold text-lga-slate mb-1">Stableford Points</label>
-                            <input type="number" id="log-stableford" min="0" max="60" placeholder="Auto or manual" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
+                            <input type="number" id="log-stableford" min="0" max="108" placeholder="Auto or manual" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                         <div>
                             <label for="log-notes" class="block text-xs font-semibold text-lga-slate mb-1">Round Notes</label>
@@ -364,8 +364,9 @@
             <!-- Year-by-Year Breakdown -->
             <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4">
                 <div>
-                    <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Player Breakdown</div>
+                    <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Player Breakdown &amp; Bonus Awards</div>
                     <h3 class="font-serif text-lg sm:text-xl font-bold text-lga-navy">Annual Championship Entries</h3>
+                    <p class="text-xs text-lga-slate mt-0.5">Unlock Admin mode to assign Closest to the Pin (2 holes) and Longest Drive for any year.</p>
                 </div>
                 <div id="champ-year-breakdowns" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"></div>
             </div>
@@ -705,7 +706,6 @@
             { id: 'craig-tubb', name: 'Craig Tubb', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 18.0, lowCap12m: 18.0 },
             { id: 'daniel-bennets', name: 'Daniel Bennets', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: null, lowCap12m: null },
             { id: 'david-oconnor', name: "David O'Connor", role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 22.0, lowCap12m: 22.0 },
-            { id: 'doz', name: 'Doz', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 36.0, lowCap12m: 36.0 },
             { id: 'dylan-willcock', name: 'Dylan Willcock', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 22.0, lowCap12m: 22.0 },
             { id: 'federico-bianco', name: 'Federico Bianco', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 30.0, lowCap12m: 30.0 },
             { id: 'james-patrick', name: 'James Patrick', role: 'Reigning Champion', homeClub: 'Legends Touring Chapter', baselineWhs: 18.0, lowCap12m: 18.0 },
@@ -790,24 +790,23 @@
             2025: 'Port Fairy'
         };
 
-        // Single-value yearly handicaps per golfer
-        const DEFAULT_YEARLY_HANDICAPS = {
-            'alex-kostov': { 2019: 25, 2025: 25 },
-            'andrew-dorrington': { 2018: 36, 2019: 36 },
-            'ben-burke': { 2016: 21, 2017: 22, 2018: 21, 2019: 21, 2020: 20, 2021: 12, 2022: 16, 2025: 9 },
-            'ben-cohen': { 2018: 17, 2019: 13, 2020: 15, 2021: 19, 2022: 18, 2025: 15 },
-            'ben-lenz': {},
-            'craig-tubb': { 2017: 22, 2018: 18, 2019: 20, 2020: 20, 2021: 23, 2022: 16, 2025: 18 },
-            'daniel-bennets': {},
-            'david-oconnor': { 2017: 28, 2018: 24, 2019: 23 },
-            'doz': { 2025: 36 },
-            'dylan-willcock': { 2017: 26, 2018: 23, 2019: 25, 2020: 24, 2021: 27, 2022: 27, 2025: 22 },
-            'federico-bianco': { 2025: 30 },
-            'james-patrick': { 2017: 36, 2018: 36, 2019: 36, 2020: 36, 2021: 36, 2022: 32, 2025: 18 },
-            'jason-daye': { 2019: 23, 2025: 18 },
-            'jon-dardaganis': { 2019: 36, 2020: 36, 2021: 36, 2022: 36, 2025: 36 },
-            'michael-stowe': { 2015: 28, 2017: 19, 2020: 21, 2022: 20, 2025: 17 },
-            'nigel-willcock': {},
+        // Per-Year Bonus Awards: Closest to the Pin (2 holes) & Longest Drive
+        function createDefaultYearlyBonusAwards() {
+            const awards = {};
+            for (const yr of TOUR_YEARS) {
+                awards[yr] = {
+                    ctp1GolferId: '',
+                    ctp1Hole: '',
+                    ctp2GolferId: '',
+                    ctp2Hole: '',
+                    longestDriveGolferId: '',
+                    longestDriveHole: ''
+                };
+            }
+            return awards;
+        }
+
+        const DEFAULT_YEARLY_BONUS_AWARDS = createDefaultYearlyBonusAwards();
             'oscar-kus': { 2018: 36, 2019: 36 },
             'rob-rosengarten': { 2025: 20 },
             'simon-willcock': { 2018: 36, 2019: 36, 2025: 36 },
@@ -913,7 +912,7 @@
                 'jason-daye': { rank: '4', day1: '38', day2: '19', score: '57', format: 'Stableford', venue: 'Port Fairy' },
                 'ben-cohen': { rank: '5', day1: '26', day2: '29', score: '55', format: 'Stableford', venue: 'Port Fairy' },
                 'michael-stowe': { rank: '6', day1: '23', day2: '26', score: '49', format: 'Stableford', venue: 'Port Fairy' },
-                'doz': { rank: '7', day1: '28', day2: '20', score: '48', format: 'Stableford', venue: 'Port Fairy' },
+                'andrew-dorrington': { rank: '7', day1: '28', day2: '20', score: '48', format: 'Stableford', venue: 'Port Fairy' },
                 'simon-willcock': { rank: '8', day1: '22', day2: '19', score: '41', format: 'Stableford', venue: 'Port Fairy' },
                 'ben-burke': { rank: '9', day1: '20', day2: '17', score: '37', format: 'Stableford', venue: 'Port Fairy' },
                 'rob-rosengarten': { rank: '10', day1: '17', day2: '15', score: '32', format: 'Stableford', venue: 'Port Fairy' },
@@ -931,6 +930,7 @@
                 courses: structuredClone(DEFAULT_COURSES),
                 rounds: [],
                 tourLocations: structuredClone(DEFAULT_TOUR_LOCATIONS),
+                yearlyBonusAwards: structuredClone(DEFAULT_YEARLY_BONUS_AWARDS),
                 yearlyHandicaps: structuredClone(DEFAULT_YEARLY_HANDICAPS),
                 championshipResults: structuredClone(DEFAULT_CHAMPIONSHIP_RESULTS),
                 updatedAt: new Date().toISOString()
@@ -991,6 +991,61 @@
             }
 
             state.golfers = state.golfers.filter(g => g.id === canonicalId || (!legacyIds.includes(g.id) && !/^dave\s+o'?connor$/i.test(g.name || '')));
+            if (canonical && !state.golfers.some(g => g.id === canonicalId)) {
+                state.golfers.push(canonical);
+            }
+
+            const mergedYears = { ...(state.yearlyHandicaps?.[canonicalId] || {}) };
+            for (const lid of legacyIds) {
+                if (state.yearlyHandicaps?.[lid]) {
+                    Object.assign(mergedYears, state.yearlyHandicaps[lid]);
+                    delete state.yearlyHandicaps[lid];
+                }
+            }
+            if (state.yearlyHandicaps) {
+                state.yearlyHandicaps[canonicalId] = mergedYears;
+            }
+
+            if (state.championshipResults) {
+                for (const yr of Object.keys(state.championshipResults)) {
+                    const yearMap = state.championshipResults[yr] || {};
+                    for (const lid of legacyIds) {
+                        if (yearMap[lid]) {
+                            if (!yearMap[canonicalId]) {
+                                yearMap[canonicalId] = yearMap[lid];
+                            }
+                            delete yearMap[lid];
+                        }
+                    }
+                }
+            }
+
+            if (Array.isArray(state.rounds)) {
+                state.rounds = state.rounds.map(r => (legacyIds.includes(r.golferId) ? { ...r, golferId: canonicalId } : r));
+            }
+
+            if (legacyIds.includes(state.activeGolferId)) {
+                state.activeGolferId = canonicalId;
+            }
+        }
+
+        // Merge Doz into Andrew Dorrington across roster, handicaps, results, and rounds
+        function mergeDuplicateAndrewDorrington() {
+            const canonicalId = 'andrew-dorrington';
+            const legacyIds = ['doz', 'andrew-dorrington-doz'];
+
+            let canonical = state.golfers.find(g => g.id === canonicalId);
+            const legacyGolfers = state.golfers.filter(g => legacyIds.includes(g.id) || /^doz$/i.test(String(g.name || '').trim()));
+
+            if (!canonical && legacyGolfers.length > 0) {
+                canonical = { ...legacyGolfers[0], id: canonicalId, name: 'Andrew Dorrington' };
+            } else if (canonical) {
+                canonical.name = 'Andrew Dorrington';
+            }
+
+            state.golfers = state.golfers.filter(
+                g => g.id === canonicalId || (!legacyIds.includes(g.id) && !/^doz$/i.test(String(g.name || '').trim()))
+            );
             if (canonical && !state.golfers.some(g => g.id === canonicalId)) {
                 state.golfers.push(canonical);
             }
@@ -1093,6 +1148,7 @@
                 role: g.role === 'President Puppet' ? 'Member' : (g.role || 'Member')
             })));
             mergeDuplicateDavidOConnor();
+            mergeDuplicateAndrewDorrington();
             ensureStevenRaphaelIncluded();
             state.golfers = sortGolfersAlphabetically(state.golfers);
 
@@ -1108,6 +1164,13 @@
             if (!state.tourLocations[2019] || state.tourLocations[2019] === 'Queenscliff') {
                 state.tourLocations[2019] = 'Queenscliff & Portsea';
             }
+
+            const baseAwards = createDefaultYearlyBonusAwards();
+            state.yearlyBonusAwards = TOUR_YEARS.reduce((acc, yr) => {
+                acc[yr] = { ...baseAwards[yr], ...((state.yearlyBonusAwards && state.yearlyBonusAwards[yr]) || {}) };
+                return acc;
+            }, {});
+
             state.yearlyHandicaps = { ...DEFAULT_YEARLY_HANDICAPS, ...(state.yearlyHandicaps || {}) };
             state.championshipResults = { ...DEFAULT_CHAMPIONSHIP_RESULTS, ...(state.championshipResults || {}) };
 
@@ -1791,16 +1854,36 @@
         }
 
         // Championship Results Matrix (Rank & Score Only, 2015 -> 2025 Left to Right)
-        function formatChampCellSummary(entry) {
+        function getGolferBonusPointsForYear(year, golferId) {
+            const awards = state.yearlyBonusAwards?.[year] || {};
+            if (!golferId) return 0;
+            let pts = 0;
+            if (awards.ctp1GolferId === golferId) pts += 1;
+            if (awards.ctp2GolferId === golferId) pts += 1;
+            if (awards.longestDriveGolferId === golferId) pts += 1;
+            return pts;
+        }
+
+        function formatChampCellSummary(entry, bonusPts = 0) {
             if (!entry) return '—';
             const rankStr = String(entry.rank || '').trim();
-            const scoreStr = String(entry.score || '').trim();
-            if (!rankStr && !scoreStr) return 'Played';
-            if (rankStr && scoreStr) {
-                const suffix = entry.format === 'Stroke' ? '' : ' pts';
-                return `#${rankStr} (${scoreStr}${suffix})`;
+            const rawScoreStr = String(entry.score || '').trim();
+            if (!rankStr && !rawScoreStr) return 'Played';
+            const isStroke = entry.format === 'Stroke';
+            const numericScore = Number(rawScoreStr);
+            const hasNumericScore = rawScoreStr !== '' && !Number.isNaN(numericScore);
+            const adjustedScoreStr = (!isStroke && hasNumericScore && bonusPts > 0)
+                ? String(numericScore + bonusPts)
+                : rawScoreStr;
+            const bonusTag = (!isStroke && bonusPts > 0) ? ` (+${bonusPts})` : '';
+
+            if (rankStr && adjustedScoreStr) {
+                const suffix = isStroke ? '' : ' pts';
+                return `#${rankStr} (${adjustedScoreStr}${suffix}${bonusTag})`;
             }
-            return rankStr ? `#${rankStr}` : `${scoreStr} pts`;
+            return rankStr
+                ? `#${rankStr}${bonusTag}`
+                : `${adjustedScoreStr}${isStroke ? '' : ' pts'}${bonusTag}`;
         }
 
         function getChampCellBadgeClass(entry) {
@@ -1837,7 +1920,8 @@
             bodyEl.innerHTML = activeGolfers.map(g => {
                 const cells = yearsAsc.map(y => {
                     const entry = state.championshipResults?.[y]?.[g.id] || null;
-                    const summary = formatChampCellSummary(entry);
+                    const bonusPts = getGolferBonusPointsForYear(y, g.id);
+                    const summary = formatChampCellSummary(entry, bonusPts);
                     const badgeCls = getChampCellBadgeClass(entry);
                     const clickAttr = isAdminUnlocked ? `onclick="openChampCellModal(${y}, '${g.id}')"` : '';
                     return `
@@ -1856,10 +1940,18 @@
             }).join('');
 
             const breakdownsEl = document.getElementById('champ-year-breakdowns');
+            const sortedGolfersForSelect = sortGolfersAlphabetically(state.golfers);
+            const golferOptionHtml = (selectedId) =>
+                `<option value="">— Unassigned —</option>` +
+                sortedGolfersForSelect
+                    .map(g => `<option value="${g.id}" ${g.id === selectedId ? 'selected' : ''}>${g.name}</option>`)
+                    .join('');
+
             breakdownsEl.innerHTML = yearsAsc.map(y => {
                 const yearMap = state.championshipResults?.[y] || {};
+                const awards = state.yearlyBonusAwards?.[y] || {};
                 const entries = Object.entries(yearMap)
-                    .map(([gId, data]) => ({ golfer: getGolferById(gId), ...data }))
+                    .map(([gId, data]) => ({ golfer: getGolferById(gId), bonusPts: getGolferBonusPointsForYear(y, gId), ...data }))
                     .filter(item => item.golfer)
                     .sort((a, b) => {
                         const ra = parseInt(String(a.rank || '999').replace(/\D/g, ''), 10) || 999;
@@ -1869,6 +1961,56 @@
                     });
 
                 const locLabel = state.tourLocations?.[y] || yearMap[Object.keys(yearMap)[0]]?.venue || '';
+
+                const ctp1Name = awards.ctp1GolferId ? getGolferById(awards.ctp1GolferId)?.name : 'TBC';
+                const ctp1HoleLabel = awards.ctp1Hole ? ` (Hole ${awards.ctp1Hole})` : '';
+                const ctp2Name = awards.ctp2GolferId ? getGolferById(awards.ctp2GolferId)?.name : 'TBC';
+                const ctp2HoleLabel = awards.ctp2Hole ? ` (Hole ${awards.ctp2Hole})` : '';
+                const ldName = awards.longestDriveGolferId ? getGolferById(awards.longestDriveGolferId)?.name : 'TBC';
+                const ldHoleLabel = awards.longestDriveHole ? ` (Hole ${awards.longestDriveHole})` : '';
+
+                const bonusSectionHtml = isAdminUnlocked
+                    ? `
+                        <div class="mt-3 pt-3 border-t border-lga-gold/25 space-y-2.5 text-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">Admin Bonus Awards (+1 pt each)</span>
+                                <button type="button" onclick="saveYearlyBonusAwards(${y})" class="px-2.5 py-1 rounded-lg bg-lga-navy text-lga-gold font-bold text-[11px] cursor-pointer">Save Awards</button>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <div class="bg-white p-2 rounded-lg border border-slate-200 space-y-1">
+                                    <label for="award-ctp1-golfer-${y}" class="block font-semibold text-lga-slate text-[11px]">Closest to Pin #1</label>
+                                    <select id="award-ctp1-golfer-${y}" class="w-full rounded border border-slate-300 bg-lga-cream px-2 py-1 text-lga-navy text-xs">${golferOptionHtml(awards.ctp1GolferId)}</select>
+                                    <input type="text" id="award-ctp1-hole-${y}" value="${awards.ctp1Hole || ''}" placeholder="Hole e.g. 3" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
+                                </div>
+                                <div class="bg-white p-2 rounded-lg border border-slate-200 space-y-1">
+                                    <label for="award-ctp2-golfer-${y}" class="block font-semibold text-lga-slate text-[11px]">Closest to Pin #2</label>
+                                    <select id="award-ctp2-golfer-${y}" class="w-full rounded border border-slate-300 bg-lga-cream px-2 py-1 text-lga-navy text-xs">${golferOptionHtml(awards.ctp2GolferId)}</select>
+                                    <input type="text" id="award-ctp2-hole-${y}" value="${awards.ctp2Hole || ''}" placeholder="Hole e.g. 15" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
+                                </div>
+                                <div class="bg-white p-2 rounded-lg border border-slate-200 space-y-1">
+                                    <label for="award-ld-golfer-${y}" class="block font-semibold text-lga-slate text-[11px]">Longest Drive</label>
+                                    <select id="award-ld-golfer-${y}" class="w-full rounded border border-slate-300 bg-lga-cream px-2 py-1 text-lga-navy text-xs">${golferOptionHtml(awards.longestDriveGolferId)}</select>
+                                    <input type="text" id="award-ld-hole-${y}" value="${awards.longestDriveHole || ''}" placeholder="Hole e.g. 10" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
+                                </div>
+                            </div>
+                        </div>
+                    `
+                    : `
+                        <div class="mt-2.5 pt-2.5 border-t border-lga-gold/25 grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px]">
+                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80">
+                                <span class="text-lga-slate block">CTP #1${ctp1HoleLabel} (+1 pt)</span>
+                                <strong class="text-lga-navy">${ctp1Name}</strong>
+                            </div>
+                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80">
+                                <span class="text-lga-slate block">CTP #2${ctp2HoleLabel} (+1 pt)</span>
+                                <strong class="text-lga-navy">${ctp2Name}</strong>
+                            </div>
+                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80">
+                                <span class="text-lga-slate block">Longest Drive${ldHoleLabel} (+1 pt)</span>
+                                <strong class="text-lga-navy">${ldName}</strong>
+                            </div>
+                        </div>
+                    `;
 
                 return `
                     <div class="p-4 rounded-xl border border-lga-gold/30 bg-lga-cream/50 space-y-2.5">
@@ -1882,11 +2024,32 @@
                                 ${entries.map(item => `
                                     <div class="flex items-center justify-between text-xs bg-white px-3 py-2 rounded-lg border border-slate-200/80 gap-2">
                                         <span class="font-semibold text-lga-navy truncate">${item.golfer.name}</span>
-                                        <span class="font-mono font-bold text-lga-goldDark shrink-0">${formatChampCellSummary(item)}</span>
+                                        <span class="font-mono font-bold text-lga-goldDark shrink-0">${formatChampCellSummary(item, item.bonusPts || 0)}</span>
                                     </div>
                                 `).join('')}
                             </div>`
                         }
+                        ${bonusSectionHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function saveYearlyBonusAwards(year) {
+            if (!isAdminUnlocked) return;
+            if (!state.yearlyBonusAwards) state.yearlyBonusAwards = createDefaultYearlyBonusAwards();
+            state.yearlyBonusAwards[year] = {
+                ctp1GolferId: document.getElementById(`award-ctp1-golfer-${year}`)?.value || '',
+                ctp1Hole: (document.getElementById(`award-ctp1-hole-${year}`)?.value || '').trim(),
+                ctp2GolferId: document.getElementById(`award-ctp2-golfer-${year}`)?.value || '',
+                ctp2Hole: (document.getElementById(`award-ctp2-hole-${year}`)?.value || '').trim(),
+                longestDriveGolferId: document.getElementById(`award-ld-golfer-${year}`)?.value || '',
+                longestDriveHole: (document.getElementById(`award-ld-hole-${year}`)?.value || '').trim()
+            };
+            persistState();
+            renderChampionshipHistory();
+            showToast(`${year} bonus awards saved.`, 'success');
+        }
                     </div>
                 `;
             }).join('');
