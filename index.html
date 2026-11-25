@@ -744,6 +744,7 @@
             { id: 'james-patrick', name: 'James Patrick', role: 'Reigning Champion', homeClub: 'Legends Touring Chapter', baselineWhs: 18.0, lowCap12m: 18.0 },
             { id: 'jason-daye', name: 'Jason Daye', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 23.0, lowCap12m: 23.0 },
             { id: 'jon-dardaganis', name: 'Jon Dardaganis', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 36.0, lowCap12m: 36.0 },
+            { id: 'marcus-harbour', name: 'Marcus Harbour', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 27.0, lowCap12m: 27.0 },
             { id: 'michael-stowe', name: 'Michael Stowe', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 17.0, lowCap12m: 17.0 },
             { id: 'nigel-willcock', name: 'Nigel Willcock', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: null, lowCap12m: null },
             { id: 'oscar-kus', name: 'Oscar Kus', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 36.0, lowCap12m: 36.0 },
@@ -843,19 +844,19 @@
 
         // Single recorded handicap per year (capped at 36.0; unrecorded years render as TBC)
         const DEFAULT_YEARLY_HANDICAPS = {
-            'alex-kostov': {},
+            'alex-kostov': { 2019: 25 },
             'andrew-dorrington': { 2018: 36, 2019: 36, 2025: 36 },
-            'ben-burke': { 2016: 12, 2017: 11, 2018: 10, 2019: 10, 2020: 12, 2021: 12, 2022: 14, 2023: 11, 2024: 10, 2025: 9 },
-            'ben-cohen': { 2017: 16, 2018: 15, 2019: 15, 2020: 15, 2021: 17, 2022: 17, 2023: 16, 2024: 15, 2025: 15 },
+            'ben-burke': { 2016: 12, 2017: 11, 2018: 10, 2019: 21, 2020: 12, 2021: 12, 2022: 14, 2023: 11, 2024: 10, 2025: 9 },
+            'ben-cohen': { 2017: 16, 2018: 15, 2019: 13, 2020: 15, 2021: 17, 2022: 17, 2023: 16, 2024: 15, 2025: 15 },
             'ben-lenz': {},
-            'craig-tubb': { 2017: 20, 2018: 19, 2019: 19, 2020: 20, 2021: 21, 2022: 18, 2023: 19, 2024: 19, 2025: 18 },
+            'craig-tubb': { 2017: 20, 2018: 19, 2019: 20, 2020: 20, 2021: 21, 2022: 18, 2023: 19, 2024: 19, 2025: 18 },
             'daniel-bennets': { 2025: 36 },
-            'david-oconnor': { 2017: 18, 2018: 19, 2019: 19, 2024: 22 },
-            'dylan-willcock': { 2017: 25, 2018: 24, 2019: 24, 2020: 24, 2021: 25, 2022: 25, 2023: 23, 2024: 23, 2025: 22 },
+            'david-oconnor': { 2017: 18, 2018: 19, 2019: 23, 2024: 22 },
+            'dylan-willcock': { 2017: 25, 2018: 24, 2019: 25, 2020: 24, 2021: 25, 2022: 25, 2023: 23, 2024: 23, 2025: 22 },
             'federico-bianco': { 2025: 30 },
             'james-patrick': { 2017: 36, 2018: 36, 2019: 36, 2020: 36, 2021: 36, 2022: 30, 2023: 24, 2024: 20, 2025: 18 },
-            'jason-daye': { 2023: 26, 2024: 25, 2025: 18 },
             'jon-dardaganis': { 2020: 36, 2021: 36, 2022: 36, 2023: 36, 2024: 36, 2025: 36 },
+            'marcus-harbour': { 2017: 27 },
             'michael-stowe': { 2015: 18, 2017: 19, 2018: 18, 2019: 18, 2020: 20, 2022: 19, 2023: 18, 2024: 17, 2025: 17 },
             'nigel-willcock': { 2023: 36, 2024: 36 },
             'oscar-kus': { 2018: 36, 2019: 36 },
@@ -867,20 +868,22 @@
         // Historical Pidgeon Cup Results (2015-2025; James Patrick sole 2022 winner)
         const DEFAULT_CHAMPIONSHIP_RESULTS = {
             2015: {
-                'michael-stowe': { rank: '1', score: '149', format: 'Stroke', venue: 'Yarrawonga' },
-                'steven-raphael': { rank: '', score: '', format: 'Stroke', venue: 'Yarrawonga' }
+                'michael-stowe': { rank: '5', score: '156', format: 'Stroke', venue: 'Peninsula' },
+                'craig-tubb': { rank: '6', score: '161', format: 'Stroke', venue: 'Peninsula' },
+                'james-patrick': { rank: '7', score: '202', format: 'Stroke', venue: 'Peninsula' }
             },
             2016: {
                 'ben-burke': { rank: '1', score: '', format: 'Stroke', venue: 'Barwon Heads' }
             },
             2017: {
-                'david-oconnor': { rank: '1', score: '149', format: 'Stroke', venue: 'Peninsula' },
-                'dylan-willcock': { rank: '2', score: '150', format: 'Stroke', venue: 'Peninsula' },
-                'ben-cohen': { rank: '3', score: '152', format: 'Stroke', venue: 'Peninsula' },
-                'ben-burke': { rank: '4', score: '153', format: 'Stroke', venue: 'Peninsula' },
-                'michael-stowe': { rank: '5', score: '156', format: 'Stroke', venue: 'Peninsula' },
-                'craig-tubb': { rank: '6', score: '161', format: 'Stroke', venue: 'Peninsula' },
-                'james-patrick': { rank: '7', score: '202', format: 'Stroke', venue: 'Peninsula' }
+                'david-oconnor': { rank: '1', day1: '68', day2: '81', score: '149', format: 'Stroke', venue: 'Peninsula' },
+                'dylan-willcock': { rank: '2', day1: '74', day2: '76', score: '150', format: 'Stroke', venue: 'Peninsula' },
+                'ben-cohen': { rank: '3', day1: '75', day2: '77', score: '152', format: 'Stroke', venue: 'Peninsula' },
+                'ben-burke': { rank: '4', day1: '72', day2: '81', score: '153', format: 'Stroke', venue: 'Peninsula' },
+                'michael-stowe': { rank: '5', day1: '86', day2: '70', score: '156', format: 'Stroke', venue: 'Peninsula' },
+                'craig-tubb': { rank: '6', day1: '85', day2: '76', score: '161', format: 'Stroke', venue: 'Peninsula' },
+                'james-patrick': { rank: '7', day1: '101', day2: '101', score: '202', format: 'Stroke', venue: 'Peninsula' },
+                'marcus': { rank: '', day1: '83', day2: '', score: '83', format: 'Stroke', venue: 'Peninsula' }
             },
             2018: {
                 'ben-cohen': { rank: '1', score: '69', format: 'Stableford', venue: 'Melbourne' },
@@ -894,16 +897,18 @@
                 'oscar-kus': { rank: '9', score: '28', format: 'Stableford', venue: 'Melbourne' }
             },
             2019: {
-                'ben-cohen': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
-                'simon-willcock': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
-                'oscar-kus': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
-                'david-oconnor': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
-                'ben-burke': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
-                'michael-stowe': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
-                'craig-tubb': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
-                'james-patrick': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
-                'andrew-dorrington': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
-                'dylan-willcock': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' }
+                'jason-daye': { rank: '1', day1: '33', day2: '33', score: '66', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'dylan-willcock': { rank: '2', day1: '35', day2: '25', score: '60', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'ben-cohen': { rank: '3', day1: '34', day2: '25', score: '59', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'ben-burke': { rank: '4=', day1: '25', day2: '29', score: '54', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'craig-tubb': { rank: '4=', day1: '25', day2: '29', score: '54', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'james-patrick': { rank: '7', day1: '22', day2: '28', score: '50', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'alex-kostov': { rank: '8', day1: '33', day2: '15', score: '48', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'david-oconnor': { rank: '9', day1: '27', day2: '15', score: '42', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'simon-willcock': { rank: '10', day1: '23', day2: '14', score: '37', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'oscar-kus': { rank: '11', day1: '11', day2: '23', score: '34', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'andrew-dorrington': { rank: '12', day1: '16', day2: '16', score: '32', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'jon-dardaganis': { rank: '13', day1: '17', day2: '13', score: '30', format: 'Stableford', venue: 'Queenscliff & Portsea' }
             },
             2020: {
                 'ben-burke': { rank: '1', score: '77', format: 'Stableford', venue: '' },
@@ -1136,6 +1141,57 @@
             }
         }
 
+        // Consolidate Alex Rostov -> Alex Kostov and John Dardaganis -> Jon Dardaganis
+        function normalizePlayerNameAliases() {
+            const aliasMap = [
+                { canonicalId: 'alex-kostov', canonicalName: 'Alex Kostov', legacyIds: ['alex-rostov'], nameRegex: /^alex\s+rostov$/i },
+                { canonicalId: 'jon-dardaganis', canonicalName: 'Jon Dardaganis', legacyIds: ['john-dardaganis'], nameRegex: /^john\s+dardaganis$/i }
+            ];
+
+            for (const rule of aliasMap) {
+                const canonical = state.golfers.find(g => g.id === rule.canonicalId);
+                if (canonical) {
+                    canonical.name = rule.canonicalName;
+                }
+                state.golfers = state.golfers.filter(
+                    g => g.id === rule.canonicalId || (!rule.legacyIds.includes(g.id) && !rule.nameRegex.test(String(g.name || '').trim()))
+                );
+
+                const mergedYears = { ...(state.yearlyHandicaps?.[rule.canonicalId] || {}) };
+                for (const lid of rule.legacyIds) {
+                    if (state.yearlyHandicaps?.[lid]) {
+                        Object.assign(mergedYears, state.yearlyHandicaps[lid]);
+                        delete state.yearlyHandicaps[lid];
+                    }
+                }
+                if (state.yearlyHandicaps) {
+                    state.yearlyHandicaps[rule.canonicalId] = mergedYears;
+                }
+
+                if (state.championshipResults) {
+                    for (const yr of Object.keys(state.championshipResults)) {
+                        const yearMap = state.championshipResults[yr] || {};
+                        for (const lid of rule.legacyIds) {
+                            if (yearMap[lid]) {
+                                if (!yearMap[rule.canonicalId]) {
+                                    yearMap[rule.canonicalId] = yearMap[lid];
+                                }
+                                delete yearMap[lid];
+                            }
+                        }
+                    }
+                }
+
+                if (Array.isArray(state.rounds)) {
+                    state.rounds = state.rounds.map(r => (rule.legacyIds.includes(r.golferId) ? { ...r, golferId: rule.canonicalId } : r));
+                }
+
+                if (rule.legacyIds.includes(state.activeGolferId)) {
+                    state.activeGolferId = rule.canonicalId;
+                }
+            }
+        }
+
         // Cap handicaps at 36.0 and redistribute excess downward across other players
         function enforceMaxHandicapCapAndRedistribute() {
             let totalExcess = 0;
@@ -1203,6 +1259,30 @@
             mergeDuplicateDavidOConnor();
             mergeDuplicateAndrewDorrington();
             ensureStevenRaphaelIncluded();
+            if (!state.golfers.some(g => g.id === 'marcus-harbour')) {
+                state.golfers.push({
+                    id: 'marcus-harbour',
+                    name: 'Marcus Harbour',
+                    role: 'Member',
+                    homeClub: 'Legends Touring Chapter',
+                    baselineWhs: 27.0,
+                    lowCap12m: 27.0
+                });
+            }
+            if (!state.yearlyHandicaps?.['marcus-harbour']) {
+                state.yearlyHandicaps['marcus-harbour'] = { 2017: 27 };
+            }
+            if (state.championshipResults?.[2015]?.['marcus-harbour']) {
+                delete state.championshipResults[2015]['marcus-harbour'];
+            }
+            if (state.championshipResults?.[2017] && !state.championshipResults[2017]['marcus-harbour']) {
+                state.championshipResults[2017]['marcus-harbour'] = {
+                    rank: '',
+                    score: '83',
+                    format: 'Stroke',
+                    venue: state.tourLocations?.[2017] || 'Peninsula'
+                };
+            }
             state.golfers = sortGolfersAlphabetically(state.golfers);
 
             const rawCourses = Array.isArray(state.courses) && state.courses.length > 0 ? state.courses : structuredClone(DEFAULT_COURSES);
@@ -1235,20 +1315,6 @@
                             state.championshipResults[strokeYear][gId].format = 'Stroke';
                         }
                     }
-                }
-            }
-
-            // Use 2019 handicap records to mark who played in 2019 without showing results
-            state.championshipResults[2019] = {};
-            for (const g of state.golfers) {
-                const hcp19 = state.yearlyHandicaps?.[g.id]?.[2019];
-                if (hcp19 !== undefined && hcp19 !== null && hcp19 !== '') {
-                    state.championshipResults[2019][g.id] = {
-                        rank: '',
-                        score: '',
-                        format: 'Stableford',
-                        venue: state.tourLocations[2019] || 'Queenscliff & Portsea'
-                    };
                 }
             }
 
