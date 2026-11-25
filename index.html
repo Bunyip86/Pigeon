@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
     <script>
+        // Configure Tailwind theme tokens for the LGA clubhouse palette and typography
         tailwind.config = {
             theme: {
                 extend: {
@@ -693,10 +694,12 @@
         const DEFAULT_HOLE_SI = [7, 1, 15, 3, 9, 11, 17, 5, 13, 6, 16, 10, 2, 8, 18, 12, 4, 14];
         const APP_ID = typeof __app_id !== 'undefined' && __app_id ? __app_id : 'lga-pidgeon-cup-tracker';
 
+        // Case-insensitive alphabetical comparator
         function compareAlpha(a, b) {
             return String(a || '').localeCompare(String(b || ''), undefined, { sensitivity: 'base' });
         }
 
+        // Convert a golfer's display name into a surname-first sort key while stripping parenthetical titles
         function getSurnameSortKey(fullName) {
             const cleaned = String(fullName || '')
                 .replace(/\([^)]*\)/g, '')
@@ -709,12 +712,14 @@
             return `${surname}, ${givenNames}`.toLowerCase();
         }
 
+        // Return a sorted copy of golfers ordered by surname, given name
         function sortGolfersAlphabetically(list) {
             return [...(Array.isArray(list) ? list : [])].sort((a, b) =>
                 compareAlpha(getSurnameSortKey(a?.name), getSurnameSortKey(b?.name))
             );
         }
 
+        // Format a course name with its uppercase state code suffix if not already present
         function formatCourseDisplayName(course) {
             const baseName = String(course?.name || '').trim();
             const stateCode = String(course?.state || '').trim().toUpperCase();
@@ -723,6 +728,7 @@
             return `${baseName} (${stateCode})`;
         }
 
+        // Return a sorted copy of courses ordered by formatted display name
         function sortCoursesAlphabetically(list) {
             return [...(Array.isArray(list) ? list : [])].sort((a, b) =>
                 compareAlpha(formatCourseDisplayName(a), formatCourseDisplayName(b))
@@ -824,7 +830,7 @@
             2025: 'Port Fairy'
         };
 
-        // Per-Year Bonus Awards: Closest to Pin (2 holes) & Longest Drive
+        // Build default bonus award entries across all recorded tour years
         function createDefaultYearlyBonusAwards() {
             const awards = {};
             for (const yr of TOUR_YEARS) {
@@ -978,6 +984,7 @@
             }
         };
 
+        // Construct a fresh default application state object
         function createInitialState() {
             return {
                 activeGolferId: 'ben-burke',
@@ -1198,7 +1205,8 @@
                 };
             });
         }
-        // Method: sanitizeState
+
+        // Normalize and validate loaded state across roster, courses, handicaps, and results
         function sanitizeState() {
             state.includeDailyHandicapInCalcs = Boolean(state.includeDailyHandicapInCalcs);
             state.golfers = sortGolfersAlphabetically((Array.isArray(state.golfers) ? state.golfers : []).map(g => ({
@@ -1304,6 +1312,7 @@
             }
         }
 
+        // Update the header sync badge text and color state
         function setLiveSyncStatus(label, online = true) {
             const textEl = document.getElementById('live-sync-text');
             const dotEl = document.getElementById('live-sync-dot');
@@ -1319,6 +1328,7 @@
             }
         }
 
+        // Save state to local storage and push to cloud sync if connected
         function persistState() {
             state.updatedAt = new Date().toISOString();
             try {
@@ -1334,6 +1344,7 @@
             }
         }
 
+        // Hydrate state from local storage or fall back to initial defaults
         function loadState() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
@@ -1350,6 +1361,7 @@
             sanitizeState();
         }
 
+        // Display a temporary toast message in the bottom corner
         function showToast(message, type = 'info') {
             const box = document.getElementById('toast-box');
             if (!box) return;
@@ -1386,10 +1398,12 @@
             }
         }
 
+        // Hide the admin passcode modal
         function closeAdminModal() {
             document.getElementById('admin-modal').classList.add('hidden');
         }
 
+        // Validate passcode and unlock admin editing controls
         function submitAdminPasscode() {
             const val = document.getElementById('admin-passcode-input').value.trim();
             if (val === ADMIN_PASSCODE) {
@@ -1403,6 +1417,7 @@
             }
         }
 
+        // Toggle whether daily handicap is factored into calculations (Admin only)
         function onAdminDailyHcpToggle(checked) {
             if (!isAdminUnlocked) return;
             state.includeDailyHandicapInCalcs = Boolean(checked);
@@ -1419,6 +1434,7 @@
             );
         }
 
+        // Sync UI labels, badges, and gated controls with current admin lock state
         function updateAdminUi() {
             const lockBtn = document.getElementById('admin-lock-btn');
             const tourTabBtn = document.getElementById('tour-locations-tab-btn');
@@ -1472,7 +1488,7 @@
             }
         }
 
-        // Tab Navigation
+        // Switch active navigation tab and update active button styles
         function switchTab(tabName) {
             if (tabName === 'tour-locations' && !isAdminUnlocked) {
                 tabName = 'dashboard';
@@ -1496,7 +1512,7 @@
             });
         }
 
-        // Backup & Restore (Restore restricted to Admin)
+        // Export current application state as a timestamped JSON file
         function downloadBackup() {
             const payload = JSON.stringify(state, null, 2);
             const blob = new Blob([payload], { type: 'application/json' });
@@ -1509,6 +1525,7 @@
             showToast('Backup JSON downloaded.', 'success');
         }
 
+        // Open the JSON restore modal for unlocked admins
         function openRestoreModal() {
             if (!isAdminUnlocked) {
                 showToast('Only Admin can restore from JSON.', 'error');
@@ -1517,10 +1534,12 @@
             document.getElementById('restore-modal').classList.remove('hidden');
         }
 
+        // Close the JSON restore modal
         function closeRestoreModal() {
             document.getElementById('restore-modal').classList.add('hidden');
         }
 
+        // Parse pasted JSON and replace application state
         function applyRestoreJson() {
             if (!isAdminUnlocked) {
                 showToast('Only Admin can restore from JSON.', 'error');
@@ -1545,10 +1564,12 @@
             return state.golfers.find(g => g.id === id) || state.golfers[0];
         }
 
+        // Look up a course record by ID with fallback to the first course
         function getCourseById(id) {
             return state.courses.find(c => c.id === id) || state.courses[0];
         }
 
+        // Find the most recent year with a recorded handicap for a golfer
         function getLatestRecordedYearHandicap(golferId) {
             const yearMap = state.yearlyHandicaps?.[golferId] || {};
             const recordedYears = Object.keys(yearMap)
@@ -1562,6 +1583,7 @@
             return { year: latestYear, value: Math.min(MAX_HANDICAP, Number(yearMap[latestYear])) };
         }
 
+        // Count outright or shared 1st-place Pidgeon Cup finishes for a golfer
         function countGolferWins(golferId) {
             return Object.values(state.championshipResults || {}).filter(yearMap => {
                 const rank = String(yearMap?.[golferId]?.rank || '').trim();
@@ -1569,6 +1591,7 @@
             }).length;
         }
 
+        // Extract historical championship scores for a golfer as round-feed entries
         function getChampionshipScoredRoundsForGolfer(golferId) {
             const yearsAsc = [...TOUR_YEARS].sort((a, b) => a - b);
             const entries = [];
@@ -1609,6 +1632,7 @@
             return entries.reverse();
         }
 
+        // Compute active WHS index, 12-month low cap, and counted differential summary
         function computeGolferWhs(golferId) {
             const golfer = getGolferById(golferId);
             const golferRounds = (state.rounds || []).filter(r => r.golferId === golferId);
@@ -1666,6 +1690,7 @@
             };
         }
 
+        // Calculate playing course handicap from WHS index and course slope/rating/par
         function calcCourseDailyHandicap(whsIndex, course) {
             if (!state.includeDailyHandicapInCalcs) return 0;
             if (whsIndex === null || whsIndex === undefined || Number.isNaN(Number(whsIndex))) return 0;
@@ -1673,6 +1698,7 @@
             return Math.min(45, Math.max(0, Math.round(raw)));
         }
 
+        // Change the selected active golfer and re-render dependent views
         function onActiveGolferChange(golferId) {
             state.activeGolferId = golferId;
             const logGolfer = document.getElementById('log-golfer');
@@ -1744,6 +1770,7 @@
             }).join('');
         }
 
+        // Refresh the daily handicap calculator card on the dashboard
         function updateDashboardDailyPreview() {
             const golfer = getGolferById(state.activeGolferId);
             const stats = computeGolferWhs(golfer.id);
@@ -1781,6 +1808,7 @@
             return Math.max(0, pts);
         }
 
+        // Gather Closest to Pin and Longest Drive hole allocations for a round's date year
         function getAllocatedHoleFlagsForDate(dateStr) {
             const year = dateStr && /^\d{4}/.test(dateStr) ? Number(dateStr.slice(0, 4)) : 2025;
             const awards = state.yearlyBonusAwards?.[year] || {};
@@ -1819,6 +1847,7 @@
             return { year, flagsByHole, items };
         }
 
+        // Populate admin hole-allocation dropdowns for the selected round year
         function syncAdminHoleAllocationControls(year) {
             const panel = document.getElementById('admin-hole-allocation-panel');
             if (!panel) return;
@@ -1868,6 +1897,7 @@
             }
         }
 
+        // Persist admin changes to Closest to Pin or Longest Drive hole assignments
         function onAdminHoleAwardChange(kind, holeValue) {
             if (!isAdminUnlocked) return;
             const dateVal = document.getElementById('log-date')?.value || new Date().toISOString().slice(0, 10);
@@ -1917,6 +1947,7 @@
             showToast(`Updated ${year} hole allocation.`, 'success');
         }
 
+        // Reset hole-by-hole and total inputs when switching courses
         function onLogCourseChange() {
             holeGrossScores = Array(18).fill('');
             const grossInput = document.getElementById('log-gross');
@@ -1927,6 +1958,7 @@
             updateLogRoundCalc();
         }
 
+        // Populate each hole's gross score with par adjusted to the selected course par
         function fillParScorecard() {
             const course = getCourseById(document.getElementById('log-course')?.value);
             const par = Number(course?.par) || 72;
@@ -1939,6 +1971,7 @@
             updateLogRoundCalc();
         }
 
+        // Update an individual hole's gross score and recalculate totals
         function onHoleGrossInput(holeIdx, rawVal) {
             const cleaned = rawVal === '' ? '' : Math.max(1, Math.min(15, Number(rawVal) || ''));
             holeGrossScores[holeIdx] = cleaned;
@@ -1946,6 +1979,7 @@
             updateLogRoundCalc();
         }
 
+        // Render front-nine and back-nine scorecard rows, subtotals, and bonus hole markers
         function renderHoleScorecard() {
             const golferId = document.getElementById('log-golfer')?.value || state.activeGolferId;
             const course = getCourseById(document.getElementById('log-course')?.value);
@@ -2061,6 +2095,7 @@
             }
         }
 
+        // Recompute preview gross and handicap differential for the round entry form
         function updateLogRoundCalc() {
             renderHoleScorecard();
             const golferId = document.getElementById('log-golfer')?.value || state.activeGolferId;
@@ -2093,6 +2128,7 @@
             document.getElementById('calc-differential').textContent = diff;
         }
 
+        // Validate and save a new round entry, updating golfer WHS index and persisted state
         function handleLogRoundSubmit(event) {
             event.preventDefault();
             const golferId = document.getElementById('log-golfer').value;
@@ -2153,6 +2189,7 @@
             showToast('Round and scorecard saved & synced.', 'success');
         }
 
+        // Render logged rounds and historical championship scores in the sidebar feed
         function renderRoundsFeed() {
             const filter = document.getElementById('rounds-filter-golfer')?.value || 'ALL';
             const listEl = document.getElementById('rounds-feed-list');
@@ -2252,10 +2289,12 @@
             return derivedRanks;
         }
 
+        // Strip tie equals signs when normalizing a rank string
         function normalizeRankLabel(rawRank) {
             return String(rawRank || '').replace(/=/g, '').trim();
         }
 
+        // Resolve the rank string for a championship entry from explicit rank or stroke score order
         function getEffectiveEntryRank(entry, derivedStrokeRank = '') {
             const explicitRank = normalizeRankLabel(entry?.rank);
             if (explicitRank) return explicitRank;
@@ -2263,6 +2302,7 @@
             return '';
         }
 
+        // Format a compact rank and score string for matrix cells and annual breakdowns
         function formatChampCellSummary(entry, bonusPts = 0, derivedStrokeRank = '') {
             if (!entry) return '—';
             const rankStr = getEffectiveEntryRank(entry, derivedStrokeRank);
@@ -2285,6 +2325,7 @@
                 : `${adjustedScoreStr}${isStroke ? '' : ' pts'}${bonusTag}`;
         }
 
+        // Select badge styling based on podium rank or default entry state
         function getChampCellBadgeClass(entry, derivedStrokeRank = '') {
             if (!entry) return 'text-slate-300';
             const r = getEffectiveEntryRank(entry, derivedStrokeRank);
@@ -2294,6 +2335,7 @@
             return 'bg-lga-cream text-lga-navy border border-lga-gold/25 font-semibold';
         }
 
+        // Render the 2015-2025 championship matrix and per-year result cards
         function renderChampionshipHistory() {
             const yearsAsc = [...TOUR_YEARS].sort((a, b) => a - b);
             const headEl = document.getElementById('champ-matrix-head');
@@ -2449,6 +2491,7 @@
             }).join('');
         }
 
+        // Save bonus award winners and hole numbers for a championship year
         function saveYearlyBonusAwards(year) {
             if (!isAdminUnlocked) return;
             if (!state.yearlyBonusAwards) state.yearlyBonusAwards = createDefaultYearlyBonusAwards();
@@ -2465,6 +2508,7 @@
             showToast(`${year} bonus awards saved.`, 'success');
         }
 
+        // Open the modal to edit a golfer's championship result for a given year
         function openChampCellModal(year, golferId) {
             if (!isAdminUnlocked) return;
             editingChampCell = { year, golferId };
@@ -2479,11 +2523,13 @@
             document.getElementById('champ-cell-modal').classList.remove('hidden');
         }
 
+        // Close the championship result modal
         function closeChampCellModal() {
             editingChampCell = null;
             document.getElementById('champ-cell-modal').classList.add('hidden');
         }
 
+        // Save changes from the championship cell edit modal
         function saveChampCell() {
             if (!isAdminUnlocked || !editingChampCell) return;
             const { year, golferId } = editingChampCell;
@@ -2503,6 +2549,7 @@
             showToast('Championship result updated.', 'success');
         }
 
+        // Remove a golfer's entry for the selected championship year
         function clearChampCell() {
             if (!isAdminUnlocked || !editingChampCell) return;
             const { year, golferId } = editingChampCell;
@@ -2539,11 +2586,13 @@
             document.getElementById('hcp-edit-modal').classList.remove('hidden');
         }
 
+        // Close the handicap edit modal
         function closeHandicapEditModal() {
             editingHandicapCell = null;
             document.getElementById('hcp-edit-modal').classList.add('hidden');
         }
 
+        // Save handicap edit, enforcing the 36.0 cap and redistributing excess downward
         function saveHandicapEntry() {
             if (!isAdminUnlocked || !editingHandicapCell) return;
             const { golferId, yearOrBaseline } = editingHandicapCell;
@@ -2603,6 +2652,7 @@
             showToast(excess > 0 ? `Capped at 36.0; redistributed ${excess.toFixed(1)} pts.` : 'Handicap updated.', 'success');
         }
 
+        // Reset a selected handicap entry back to TBC
         function clearHandicapEntry() {
             if (!isAdminUnlocked || !editingHandicapCell) return;
             const { golferId, yearOrBaseline } = editingHandicapCell;
@@ -2621,6 +2671,7 @@
             showToast('Handicap set to TBC.');
         }
 
+        // Render the yearly handicap progression table across all tour years
         function renderHandicapHistory() {
             const yearsAsc = [...TOUR_YEARS].sort((a, b) => a - b);
             const headEl = document.getElementById('hcp-history-head');
@@ -2667,6 +2718,7 @@
             bodyEl.innerHTML = rowsHtml;
         }
 
+        // Render filtered course cards in the Course Directory tab
         function renderCourses() {
             const q = (document.getElementById('course-search-input')?.value || '').trim().toLowerCase();
             const stats = computeGolferWhs(state.activeGolferId);
@@ -2700,14 +2752,17 @@
             }).join('');
         }
 
+        // Open the modal to add a new golf course
         function openAddCourseModal() {
             document.getElementById('add-course-modal').classList.remove('hidden');
         }
 
+        // Close the add-course modal
         function closeAddCourseModal() {
             document.getElementById('add-course-modal').classList.add('hidden');
         }
 
+        // Add a new course from the modal form and re-render
         function saveNewCourse(event) {
             event.preventDefault();
             const rawName = document.getElementById('new-course-name').value.trim();
@@ -2734,6 +2789,7 @@
             showToast('Course added.', 'success');
         }
 
+        // Render golfer cards in the LGA Lineup tab
         function renderLineup() {
             document.getElementById('lineup-grid').innerHTML = sortGolfersAlphabetically(state.golfers).map(g => {
                 const stats = computeGolferWhs(g.id);
@@ -2762,15 +2818,18 @@
             }).join('');
         }
 
+        // Open the modal to add a new golfer to the roster
         function openAddGolferModal() {
             updateAdminUi();
             document.getElementById('add-golfer-modal').classList.remove('hidden');
         }
 
+        // Close the add-golfer modal
         function closeAddGolferModal() {
             document.getElementById('add-golfer-modal').classList.add('hidden');
         }
 
+        // Save a new golfer from the modal form and re-render
         function saveNewGolfer(event) {
             event.preventDefault();
             const name = document.getElementById('new-golfer-name').value.trim();
@@ -2797,6 +2856,7 @@
             showToast('Member added to lineup.', 'success');
         }
 
+        // Render editable location fields for each championship year when admin is unlocked
         function renderTourLocations() {
             if (!isAdminUnlocked) return;
             const grid = document.getElementById('tour-locations-grid');
@@ -2814,6 +2874,7 @@
             }).join('');
         }
 
+        // Save an edited tour location for a championship year
         function saveTourLocation(year) {
             if (!isAdminUnlocked) return;
             const input = document.getElementById(`tour-loc-${year}`);
@@ -2823,6 +2884,7 @@
             showToast(`${year} tour location updated.`, 'success');
         }
 
+        // Populate golfer and course dropdown menus while preserving current selections
         function populateSelects() {
             const activeSelect = document.getElementById('active-golfer-select');
             const logGolferSelect = document.getElementById('log-golfer');
@@ -2874,6 +2936,7 @@
             }
         }
 
+        // Re-render all visible panels and form previews
         function renderAll() {
             populateSelects();
             updateAdminUi();
@@ -2906,6 +2969,7 @@
             }
         });
 
+        // Initialize defaults, load saved state, and render initial view
         function bootApp() {
             const dateInput = document.getElementById('log-date');
             if (dateInput && !dateInput.value) {
@@ -2929,6 +2993,7 @@
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // Connect to Firestore when environment config is present and subscribe to live updates
         async function initLiveCloudSync() {
             if (typeof __firebase_config === 'undefined' || !__firebase_config) {
                 setLiveSyncStatus('Live Sync Active', true);
