@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Legends Golfing Association — WHS &amp; Pidgeon Cup Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,10 +34,12 @@
         };
     </script>
     <style>
-        body {
+        html, body {
             background-color: #FBF9F5;
             color: #0F172A;
             font-family: 'Inter', system-ui, sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -50,75 +52,97 @@
             background-color: #FFFFFF;
             color: #0F172A;
         }
+        /* Prevent iOS input zoom while keeping crisp mobile inputs */
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="password"],
+        select,
+        textarea {
+            font-size: 16px;
+        }
+        @media (min-width: 640px) {
+            input[type="text"],
+            input[type="number"],
+            input[type="date"],
+            input[type="password"],
+            select,
+            textarea {
+                font-size: 0.875rem;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
-    <!-- Top Header & Navigation -->
-    <header class="bg-lga-navy text-white border-b border-lga-gold/30 sticky top-0 z-30 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+<body class="min-h-screen flex flex-col w-full max-w-full">
+    <!-- Top Header & Mobile-Streamlined Navigation -->
+    <header class="bg-lga-navy text-white border-b border-lga-gold/30 sticky top-0 z-30 shadow-md w-full">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5 sm:gap-3">
                 <!-- Brand & Live Sync Status -->
-                <div class="flex items-center gap-3.5">
-                    <div class="w-11 h-11 rounded-full bg-lga-navyLight border-2 border-lga-gold flex items-center justify-center shrink-0 shadow">
-                        <span class="font-serif font-extrabold text-lga-gold text-sm tracking-wider">LGA</span>
-                    </div>
-                    <div>
-                        <div class="flex flex-wrap items-center gap-2.5">
-                            <h1 class="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white">Legends Golfing Association</h1>
-                            <span id="live-sync-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">
-                                <span id="live-sync-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                <span id="live-sync-text">Live Sync Active</span>
-                            </span>
+                <div class="flex items-center justify-between lg:justify-start gap-2.5 sm:gap-3.5">
+                    <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-lga-navyLight border-2 border-lga-gold flex items-center justify-center shrink-0 shadow">
+                            <span class="font-serif font-extrabold text-lga-gold text-xs sm:text-sm tracking-wider">LGA</span>
                         </div>
-                        <p class="text-xs text-slate-300">Official WHS Handicap, Hole-by-Hole Stableford &amp; Championship Archive</p>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h1 class="font-serif text-base sm:text-2xl font-bold tracking-tight text-white truncate">Legends Golfing Association</h1>
+                            </div>
+                            <p class="hidden sm:block text-xs text-slate-300">Official WHS Handicap, Hole-by-Hole Stableford &amp; Championship Archive</p>
+                        </div>
                     </div>
+
+                    <span id="live-sync-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 rounded-full text-[11px] sm:text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 shrink-0">
+                        <span id="live-sync-dot" class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400"></span>
+                        <span id="live-sync-text">Live Sync Active</span>
+                    </span>
                 </div>
 
                 <!-- Active Golfer, Backup, Restore (Admin Only), and Admin Lock -->
-                <div class="flex flex-wrap items-center gap-2.5">
-                    <label class="flex items-center gap-2 bg-lga-navyLight border border-lga-gold/40 rounded-xl px-3 py-1.5 text-xs">
-                        <span class="text-lga-goldLight font-semibold uppercase tracking-wider">Active Golfer</span>
-                        <select id="active-golfer-select" onchange="onActiveGolferChange(this.value)" class="bg-transparent text-white font-semibold focus:outline-none cursor-pointer"></select>
+                <div class="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2.5">
+                    <label class="col-span-3 sm:col-span-1 flex items-center justify-between sm:justify-start gap-2 bg-lga-navyLight border border-lga-gold/40 rounded-xl px-2.5 py-2 sm:py-1.5 text-xs">
+                        <span class="text-lga-goldLight font-semibold uppercase tracking-wider shrink-0">Golfer</span>
+                        <select id="active-golfer-select" onchange="onActiveGolferChange(this.value)" class="w-full sm:w-auto bg-transparent text-white font-semibold focus:outline-none cursor-pointer truncate"></select>
                     </label>
 
-                    <button type="button" onclick="downloadBackup()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-lga-navyLight hover:bg-slate-800 text-white border border-lga-gold/35 transition cursor-pointer">
+                    <button type="button" onclick="downloadBackup()" class="px-2.5 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-lga-navyLight hover:bg-slate-800 text-white border border-lga-gold/35 transition cursor-pointer text-center">
                         Backup
                     </button>
 
-                    <button type="button" id="admin-restore-btn" onclick="openRestoreModal()" class="hidden px-3 py-2 rounded-xl text-xs font-semibold bg-amber-900/70 hover:bg-amber-800 text-amber-200 border border-amber-400/40 transition cursor-pointer">
-                        Restore Data
+                    <button type="button" id="admin-restore-btn" onclick="openRestoreModal()" class="hidden px-2.5 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-amber-900/70 hover:bg-amber-800 text-amber-200 border border-amber-400/40 transition cursor-pointer text-center">
+                        Restore
                     </button>
 
-                    <button type="button" id="admin-lock-btn" onclick="handleAdminButtonClick()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-lga-gold hover:bg-lga-goldLight text-lga-navy transition shadow cursor-pointer">
+                    <button type="button" id="admin-lock-btn" onclick="handleAdminButtonClick()" class="col-span-2 sm:col-span-1 px-3 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-gold hover:bg-lga-goldLight text-lga-navy transition shadow cursor-pointer text-center">
                         Admin Locked
                     </button>
                 </div>
             </div>
 
-            <!-- Navigation Tabs -->
-            <nav class="mt-3.5 pt-2.5 border-t border-white/10 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                <button type="button" data-tab="dashboard" onclick="switchTab('dashboard')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
+            <!-- Horizontal Scrollable Navigation Tabs -->
+            <nav class="mt-2.5 sm:mt-3.5 pt-2 border-t border-white/10 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                <button type="button" data-tab="dashboard" onclick="switchTab('dashboard')" class="nav-tab px-3 py-2 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
                     Clubhouse &amp; WHS
                 </button>
-                <button type="button" data-tab="log-round" onclick="switchTab('log-round')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
+                <button type="button" data-tab="log-round" onclick="switchTab('log-round')" class="nav-tab px-3 py-2 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
                     Log Round
                 </button>
-                <button type="button" data-tab="history" onclick="switchTab('history')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
+                <button type="button" data-tab="history" onclick="switchTab('history')" class="nav-tab px-3 py-2 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
                     Championship Results Matrix
                 </button>
-                <button type="button" data-tab="handicap-history" onclick="switchTab('handicap-history')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
+                <button type="button" data-tab="handicap-history" onclick="switchTab('handicap-history')" class="nav-tab px-3 py-2 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
                     Yearly Handicap Record
                 </button>
-                <button type="button" data-tab="courses" onclick="switchTab('courses')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
+                <button type="button" data-tab="courses" onclick="switchTab('courses')" class="nav-tab px-3 py-2 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
                     Course Directory
                 </button>
-                <button type="button" data-tab="lineup" onclick="switchTab('lineup')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
+                <button type="button" data-tab="lineup" onclick="switchTab('lineup')" class="nav-tab px-3 py-2 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
                     LGA Lineup
                 </button>
-                <button type="button" data-tab="rules" onclick="switchTab('rules')" class="nav-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
+                <button type="button" data-tab="rules" onclick="switchTab('rules')" class="nav-tab px-3 py-2 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
                     LGA Rules
                 </button>
-                <button type="button" id="tour-locations-tab-btn" data-tab="tour-locations" onclick="switchTab('tour-locations')" class="nav-tab hidden px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
+                <button type="button" id="tour-locations-tab-btn" data-tab="tour-locations" onclick="switchTab('tour-locations')" class="nav-tab hidden px-3 py-2 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer">
                     Tour Locations
                 </button>
             </nav>
@@ -126,145 +150,206 @@
     </header>
 
     <!-- Main Content Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
         <!-- TAB 1: CLUBHOUSE & WHS -->
-        <section id="tab-dashboard" class="tab-panel space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                <div class="bg-white rounded-2xl border border-lga-gold/35 p-5 shadow-sm">
-                    <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Active WHS Index</div>
-                    <div id="kpi-whs-index" class="mt-1 font-serif text-3xl font-bold text-lga-navy">—</div>
-                    <div id="kpi-whs-sub" class="mt-1 text-xs text-lga-slate">Last-year baseline + rounds (max 36.0)</div>
+        <section id="tab-dashboard" class="tab-panel space-y-4 sm:space-y-6">
+            <div class="grid grid-cols-2 xl:grid-cols-4 gap-2.5 sm:gap-4">
+                <div class="bg-white rounded-2xl border border-lga-gold/35 p-3.5 sm:p-5 shadow-sm">
+                    <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Active WHS Index</div>
+                    <div id="kpi-whs-index" class="mt-1 font-serif text-2xl sm:text-3xl font-bold text-lga-navy">TBC</div>
+                    <div id="kpi-whs-sub" class="mt-1 text-[11px] sm:text-xs text-lga-slate line-clamp-2">Max 36.0 • TBC if unplayed</div>
                 </div>
-                <div class="bg-white rounded-2xl border border-lga-gold/35 p-5 shadow-sm">
-                    <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">12-Month Low Index</div>
-                    <div id="kpi-low-index" class="mt-1 font-serif text-3xl font-bold text-lga-navy">—</div>
-                    <div class="mt-1 text-xs text-lga-slate">WHS low handicap safeguard</div>
+                <div class="bg-white rounded-2xl border border-lga-gold/35 p-3.5 sm:p-5 shadow-sm">
+                    <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">12-Month Low Index</div>
+                    <div id="kpi-low-index" class="mt-1 font-serif text-2xl sm:text-3xl font-bold text-lga-navy">TBC</div>
+                    <div class="mt-1 text-[11px] sm:text-xs text-lga-slate line-clamp-2">WHS low cap safeguard</div>
                 </div>
-                <div class="bg-white rounded-2xl border border-lga-gold/35 p-5 shadow-sm">
-                    <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Logged Rounds</div>
-                    <div id="kpi-rounds-count" class="mt-1 font-serif text-3xl font-bold text-lga-navy">0</div>
-                    <div id="kpi-rounds-sub" class="mt-1 text-xs text-lga-slate">Best differentials counted</div>
+                <div class="bg-white rounded-2xl border border-lga-gold/35 p-3.5 sm:p-5 shadow-sm">
+                    <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Logged Rounds</div>
+                    <div id="kpi-rounds-count" class="mt-1 font-serif text-2xl sm:text-3xl font-bold text-lga-navy">0</div>
+                    <div id="kpi-rounds-sub" class="mt-1 text-[11px] sm:text-xs text-lga-slate line-clamp-2">Best differentials counted</div>
                 </div>
-                <div class="bg-white rounded-2xl border border-lga-gold/35 p-5 shadow-sm">
-                    <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Pidgeon Cup Titles</div>
-                    <div id="kpi-titles-count" class="mt-1 font-serif text-3xl font-bold text-lga-navy">0</div>
-                    <div id="kpi-titles-sub" class="mt-1 text-xs text-lga-slate">1st place finishes</div>
+                <div class="bg-white rounded-2xl border border-lga-gold/35 p-3.5 sm:p-5 shadow-sm">
+                    <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Pidgeon Cup Titles</div>
+                    <div id="kpi-titles-count" class="mt-1 font-serif text-2xl sm:text-3xl font-bold text-lga-navy">0</div>
+                    <div id="kpi-titles-sub" class="mt-1 text-[11px] sm:text-xs text-lga-slate line-clamp-2">1st place finishes</div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <!-- Course Daily Handicap Calculator -->
-                <div class="bg-white rounded-2xl border border-lga-gold/35 p-5 shadow-sm space-y-4">
+                <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
                     <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Course Handicap Preview</div>
-                        <h2 class="font-serif text-xl font-bold text-lga-navy">Daily Handicap Calculator</h2>
+                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Course Handicap Preview</div>
+                        <h2 class="font-serif text-lg sm:text-xl font-bold text-lga-navy">Daily Handicap Calculator</h2>
                     </div>
-                    <div class="space-y-2">
+                    <div class="space-y-1.5">
                         <label for="dash-course-preview" class="block text-xs font-semibold text-lga-slate">Select Course</label>
-                        <select id="dash-course-preview" onchange="updateDashboardDailyPreview()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-xs sm:text-sm font-medium text-lga-navy focus:outline-none focus:border-lga-gold"></select>
+                        <select id="dash-course-preview" onchange="updateDashboardDailyPreview()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy focus:outline-none focus:border-lga-gold"></select>
                     </div>
-                    <div id="dash-daily-result" class="rounded-xl bg-lga-sand/70 border border-lga-gold/30 p-4 text-center">
-                        <div class="text-xs font-bold uppercase tracking-wider text-lga-slate">Playing Daily Handicap</div>
-                        <div id="dash-daily-value" class="font-serif text-4xl font-extrabold text-lga-navy mt-1">—</div>
-                        <div id="dash-daily-formula" class="text-xs text-lga-slate mt-1">WHS Index × (Slope ÷ 113) + (Rating − Par)</div>
+                    <div id="dash-daily-result" class="rounded-xl bg-lga-sand/70 border border-lga-gold/30 p-3.5 sm:p-4 text-center">
+                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-slate">Playing Daily Handicap</div>
+                        <div id="dash-daily-value" class="font-serif text-3xl sm:text-4xl font-extrabold text-lga-navy mt-1">TBC</div>
+                        <div id="dash-daily-formula" class="text-[11px] sm:text-xs text-lga-slate mt-1">WHS Index × (Slope ÷ 113) + (Rating − Par)</div>
                     </div>
                 </div>
 
                 <!-- Group WHS Standings -->
-                <div class="lg:col-span-2 bg-white rounded-2xl border border-lga-gold/35 p-5 shadow-sm space-y-4">
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
                     <div class="flex items-center justify-between gap-2">
                         <div>
-                            <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Roster Standings</div>
-                            <h2 class="font-serif text-xl font-bold text-lga-navy">LGA Handicap Board</h2>
+                            <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Roster Standings</div>
+                            <h2 class="font-serif text-lg sm:text-xl font-bold text-lga-navy">LGA Handicap Board</h2>
                         </div>
-                        <span id="group-member-count-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-lga-sand text-lga-navy border border-lga-gold/30">0 Members</span>
+                        <span id="group-member-count-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-lga-sand text-lga-navy border border-lga-gold/30 shrink-0">0 Members</span>
                     </div>
-                    <div id="group-whs-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[420px] overflow-y-auto pr-1"></div>
+                    <div id="group-whs-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[420px] overflow-y-auto pr-0.5"></div>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 2: LOG ROUND -->
-        <section id="tab-log-round" class="tab-panel hidden space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <form id="log-round-form" onsubmit="handleLogRoundSubmit(event)" class="lg:col-span-2 bg-white rounded-2xl border border-lga-gold/35 p-6 shadow-sm space-y-5">
+        <!-- TAB 2: LOG ROUND (WITH HOLE-BY-HOLE SCORECARD) -->
+        <section id="tab-log-round" class="tab-panel hidden space-y-4 sm:space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <form id="log-round-form" onsubmit="handleLogRoundSubmit(event)" class="lg:col-span-2 bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
                     <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Scorecard Entry</div>
-                        <h2 class="font-serif text-2xl font-bold text-lga-navy">Log Round &amp; Live WHS Update</h2>
+                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Hole-by-Hole Scorecard Entry</div>
+                        <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Log Round &amp; Live WHS Update</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         <div>
                             <label for="log-golfer" class="block text-xs font-semibold text-lga-slate mb-1">Golfer</label>
-                            <select id="log-golfer" onchange="updateLogRoundCalc()" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-lga-navy"></select>
+                            <select id="log-golfer" onchange="updateLogRoundCalc()" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-medium text-lga-navy"></select>
                         </div>
                         <div>
                             <label for="log-course" class="block text-xs font-semibold text-lga-slate mb-1">Course</label>
-                            <select id="log-course" onchange="updateLogRoundCalc()" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-lga-navy"></select>
-                        </div>
-                        <div>
-                            <label for="log-course" class="block text-xs font-semibold text-lga-slate mb-1">Course</label>
-                            <select id="log-course" onchange="updateLogRoundCalc()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-sm font-medium text-lga-navy"></select>
+                            <select id="log-course" onchange="onLogCourseChange()" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-medium text-lga-navy"></select>
                         </div>
                         <div>
                             <label for="log-date" class="block text-xs font-semibold text-lga-slate mb-1">Date</label>
-                            <input type="date" id="log-date" required class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-sm text-lga-navy">
+                            <input type="date" id="log-date" required class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Hole-by-Hole Scorecard Grid (Front 9 & Back 9) -->
+                    <div class="rounded-2xl border border-lga-gold/35 bg-lga-cream/60 p-3 sm:p-4 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <div class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">18-Hole Scorecard</div>
+                                <p class="text-[11px] sm:text-xs text-lga-slate">Enter gross strokes per hole (or use total Gross below) to auto-calculate Stableford.</p>
+                            </div>
+                            <button type="button" onclick="fillParScorecard()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-lga-sand hover:bg-amber-200/70 text-lga-navy border border-lga-gold/40 cursor-pointer">
+                                Fill Par
+                            </button>
+                        </div>
+
+                        <!-- Front 9 -->
+                        <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                            <table class="min-w-[540px] w-full text-center border-collapse text-xs">
+                                <thead class="bg-lga-navy text-lga-goldLight">
+                                    <tr>
+                                        <th class="px-2 py-2 text-left">Hole</th>
+                                        <th class="px-1.5 py-2">1</th>
+                                        <th class="px-1.5 py-2">2</th>
+                                        <th class="px-1.5 py-2">3</th>
+                                        <th class="px-1.5 py-2">4</th>
+                                        <th class="px-1.5 py-2">5</th>
+                                        <th class="px-1.5 py-2">6</th>
+                                        <th class="px-1.5 py-2">7</th>
+                                        <th class="px-1.5 py-2">8</th>
+                                        <th class="px-1.5 py-2">9</th>
+                                        <th class="px-2 py-2 bg-lga-navyLight">Out</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    <tr id="par-row-front" class="bg-lga-sand/50 font-semibold text-lga-slate"></tr>
+                                    <tr id="gross-row-front"></tr>
+                                    <tr id="pts-row-front" class="bg-amber-50/60 font-mono text-[11px] text-lga-goldDark"></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Back 9 -->
+                        <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                            <table class="min-w-[540px] w-full text-center border-collapse text-xs">
+                                <thead class="bg-lga-navy text-lga-goldLight">
+                                    <tr>
+                                        <th class="px-2 py-2 text-left">Hole</th>
+                                        <th class="px-1.5 py-2">10</th>
+                                        <th class="px-1.5 py-2">11</th>
+                                        <th class="px-1.5 py-2">12</th>
+                                        <th class="px-1.5 py-2">13</th>
+                                        <th class="px-1.5 py-2">14</th>
+                                        <th class="px-1.5 py-2">15</th>
+                                        <th class="px-1.5 py-2">16</th>
+                                        <th class="px-1.5 py-2">17</th>
+                                        <th class="px-1.5 py-2">18</th>
+                                        <th class="px-2 py-2 bg-lga-navyLight">In / Tot</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    <tr id="par-row-back" class="bg-lga-sand/50 font-semibold text-lga-slate"></tr>
+                                    <tr id="gross-row-back"></tr>
+                                    <tr id="pts-row-back" class="bg-amber-50/60 font-mono text-[11px] text-lga-goldDark"></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         <div>
                             <label for="log-gross" class="block text-xs font-semibold text-lga-slate mb-1">Gross Score</label>
-                            <input type="number" id="log-gross" min="45" max="180" placeholder="e.g. 88" oninput="updateLogRoundCalc()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-sm text-lga-navy">
+                            <input type="number" id="log-gross" min="45" max="180" placeholder="Auto or e.g. 88" oninput="updateLogRoundCalc()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                         <div>
                             <label for="log-stableford" class="block text-xs font-semibold text-lga-slate mb-1">Stableford Points</label>
-                            <input type="number" id="log-stableford" min="0" max="60" placeholder="Optional" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-sm text-lga-navy">
+                            <input type="number" id="log-stableford" min="0" max="60" placeholder="Auto or manual" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                         <div>
                             <label for="log-notes" class="block text-xs font-semibold text-lga-slate mb-1">Round Notes</label>
-                            <input type="text" id="log-notes" placeholder="e.g. Pidgeon Cup Day 1" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-sm text-lga-navy">
+                            <input type="text" id="log-notes" placeholder="e.g. Pidgeon Cup Day 1" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                     </div>
 
-                    <div class="rounded-xl bg-lga-sand/70 border border-lga-gold/30 p-4 flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm">
-                        <div>Daily Handicap: <strong id="calc-daily-hcp" class="font-mono text-lga-navy">—</strong></div>
-                        <div>Adjusted Gross: <strong id="calc-adj-gross" class="font-mono text-lga-navy">—</strong></div>
-                        <div>Score Differential: <strong id="calc-differential" class="font-mono text-lga-navy">—</strong></div>
+                    <div class="rounded-xl bg-lga-sand/70 border border-lga-gold/30 p-3.5 sm:p-4 grid grid-cols-3 gap-2 text-center text-xs sm:text-sm">
+                        <div><span class="block text-[11px] text-lga-slate">Daily Hcp</span><strong id="calc-daily-hcp" class="font-mono text-lga-navy">TBC</strong></div>
+                        <div><span class="block text-[11px] text-lga-slate">Gross</span><strong id="calc-adj-gross" class="font-mono text-lga-navy">—</strong></div>
+                        <div><span class="block text-[11px] text-lga-slate">Differential</span><strong id="calc-differential" class="font-mono text-lga-navy">—</strong></div>
                     </div>
 
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-lga-navy hover:bg-lga-navyLight text-lga-gold font-bold text-sm shadow transition cursor-pointer">
+                    <button type="submit" class="w-full sm:w-auto px-5 py-3 sm:py-2.5 rounded-xl bg-lga-navy hover:bg-lga-navyLight text-lga-gold font-bold text-sm shadow transition cursor-pointer">
                         Save &amp; Sync Round
                     </button>
                 </form>
 
                 <!-- Recent Rounds Feed -->
-                <div class="bg-white rounded-2xl border border-lga-gold/35 p-6 shadow-sm space-y-4">
+                <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
                     <div class="flex items-center justify-between gap-2">
                         <h3 class="font-serif text-lg font-bold text-lga-navy">Logged Rounds</h3>
-                        <select id="rounds-filter-golfer" onchange="renderRoundsFeed()" class="rounded-lg border border-slate-300 bg-lga-cream px-2.5 py-1.5 text-xs font-semibold text-lga-navy">
+                        <select id="rounds-filter-golfer" onchange="renderRoundsFeed()" class="rounded-lg border border-slate-300 bg-lga-cream px-2.5 py-2 text-xs font-semibold text-lga-navy">
                             <option value="ALL">All Golfers</option>
                             <option value="ACTIVE">Active Golfer Only</option>
                         </select>
                     </div>
-                    <div id="rounds-feed-list" class="space-y-2.5 max-h-[460px] overflow-y-auto pr-1"></div>
+                    <div id="rounds-feed-list" class="space-y-2.5 max-h-[460px] overflow-y-auto pr-0.5"></div>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 3: CHAMPIONSHIP RESULTS MATRIX -->
-        <section id="tab-history" class="tab-panel hidden space-y-6">
-            <div class="bg-white rounded-2xl border border-lga-gold/35 p-6 shadow-sm space-y-4">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <!-- TAB 3: CHAMPIONSHIP RESULTS MATRIX (RANK & SCORE ONLY) -->
+        <section id="tab-history" class="tab-panel hidden space-y-4 sm:space-y-6">
+            <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5">
                     <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Pidgeon Cup Archive</div>
-                        <h2 class="font-serif text-2xl font-bold text-lga-navy">Championship Results Matrix</h2>
-                        <p class="text-xs sm:text-sm text-lga-slate mt-0.5">Missing historical fields are left blank for admin completion. Unlock Admin (<span class="font-mono">1986</span>) to edit any cell.</p>
+                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Pidgeon Cup Archive</div>
+                        <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Championship Results Matrix</h2>
+                        <p class="text-xs text-lga-slate mt-0.5">Shows place and score only (2015–2025 left to right). Unlock Admin mode to edit any cell.</p>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                        <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">1st / Champion</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-300">2nd Place</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-orange-100 text-orange-900 border border-orange-300">3rd Place</span>
+                    <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
+                        <span class="px-2 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">1st</span>
+                        <span class="px-2 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-300">2nd</span>
+                        <span class="px-2 py-1 rounded-lg bg-orange-100 text-orange-900 border border-orange-300">3rd</span>
                     </div>
                 </div>
 
@@ -277,23 +362,23 @@
             </div>
 
             <!-- Year-by-Year Breakdown -->
-            <div class="bg-white rounded-2xl border border-lga-gold/35 p-6 shadow-sm space-y-4">
+            <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4">
                 <div>
-                    <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Player Breakdown</div>
-                    <h3 class="font-serif text-xl font-bold text-lga-navy">Annual Championship Entries</h3>
+                    <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Player Breakdown</div>
+                    <h3 class="font-serif text-lg sm:text-xl font-bold text-lga-navy">Annual Championship Entries</h3>
                 </div>
-                <div id="champ-year-breakdowns" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <div id="champ-year-breakdowns" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"></div>
             </div>
         </section>
 
         <!-- TAB 4: YEARLY HANDICAP RECORD -->
-        <section id="tab-handicap-history" class="tab-panel hidden space-y-6">
-            <div class="bg-white rounded-2xl border border-lga-gold/35 p-6 shadow-sm space-y-4">
+        <section id="tab-handicap-history" class="tab-panel hidden space-y-4 sm:space-y-6">
+            <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Annual Handicap Progression</div>
-                        <h2 class="font-serif text-2xl font-bold text-lga-navy">Yearly Handicap Record</h2>
-                        <p id="hcp-history-subtitle" class="text-xs sm:text-sm text-lga-slate mt-0.5">Shows each golfer's single recorded handicap value per year (capped at 36.0) and uses the most recent recorded year as baseline.</p>
+                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Annual Handicap Progression</div>
+                        <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Yearly Handicap Record</h2>
+                        <p id="hcp-history-subtitle" class="text-xs text-lga-slate mt-0.5">Shows each golfer's single recorded handicap per year (max 36.0) or <strong>TBC</strong> if unplayed.</p>
                     </div>
                     <span id="hcp-admin-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-lga-slate border border-slate-300 self-start sm:self-auto">
                         Handicaps Locked (Admin Only)
@@ -309,76 +394,76 @@
         </section>
 
         <!-- TAB 5: COURSE DIRECTORY -->
-        <section id="tab-courses" class="tab-panel hidden space-y-6">
-            <div class="bg-white rounded-2xl border border-lga-gold/35 p-6 shadow-sm space-y-5">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <section id="tab-courses" class="tab-panel hidden space-y-4 sm:space-y-6">
+            <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
                     <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Victorian &amp; Australian Venues</div>
-                        <h2 class="font-serif text-2xl font-bold text-lga-navy">Course Directory</h2>
+                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Victorian &amp; Australian Venues</div>
+                        <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Course Directory</h2>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2.5">
-                        <input type="text" id="course-search-input" oninput="renderCourses()" placeholder="Search course, state or region..." class="rounded-xl border border-slate-300 bg-lga-cream px-3.5 py-2 text-xs sm:text-sm text-lga-navy focus:outline-none focus:border-lga-gold">
-                        <button type="button" onclick="openAddCourseModal()" class="px-4 py-2 rounded-xl bg-lga-navy hover:bg-lga-navyLight text-lga-gold text-xs sm:text-sm font-bold transition cursor-pointer">
-                            + Add Course
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="course-search-input" oninput="renderCourses()" placeholder="Search course or state..." class="flex-1 sm:w-64 rounded-xl border border-slate-300 bg-lga-cream px-3.5 py-2 text-lga-navy focus:outline-none focus:border-lga-gold">
+                        <button type="button" onclick="openAddCourseModal()" class="px-3.5 py-2.5 sm:py-2 rounded-xl bg-lga-navy hover:bg-lga-navyLight text-lga-gold text-xs sm:text-sm font-bold transition cursor-pointer shrink-0">
+                            + Add
                         </button>
                     </div>
                 </div>
-                <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
             </div>
         </section>
 
         <!-- TAB 6: LGA LINEUP -->
-        <section id="tab-lineup" class="tab-panel hidden space-y-6">
-            <div class="bg-white rounded-2xl border border-lga-gold/35 p-6 shadow-sm space-y-5">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <section id="tab-lineup" class="tab-panel hidden space-y-4 sm:space-y-6">
+            <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
+                <div class="flex items-center justify-between gap-2.5">
                     <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Official Roster</div>
-                        <h2 class="font-serif text-2xl font-bold text-lga-navy">LGA Lineup</h2>
+                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Official Roster</div>
+                        <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">LGA Lineup</h2>
                     </div>
-                    <button type="button" onclick="openAddGolferModal()" class="px-4 py-2 rounded-xl bg-lga-navy hover:bg-lga-navyLight text-lga-gold text-xs sm:text-sm font-bold transition cursor-pointer">
+                    <button type="button" onclick="openAddGolferModal()" class="px-3.5 py-2.5 sm:py-2 rounded-xl bg-lga-navy hover:bg-lga-navyLight text-lga-gold text-xs sm:text-sm font-bold transition cursor-pointer shrink-0">
                         + Add Golfer
                     </button>
                 </div>
-                <div id="lineup-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <div id="lineup-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
             </div>
         </section>
 
         <!-- TAB 7: LGA RULES -->
-        <section id="tab-rules" class="tab-panel hidden space-y-6">
-            <div class="bg-white rounded-2xl border border-lga-gold/35 p-6 shadow-sm space-y-5">
+        <section id="tab-rules" class="tab-panel hidden space-y-4 sm:space-y-6">
+            <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
                 <div>
-                    <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Tour Standards &amp; Local Conditions</div>
-                    <h2 class="font-serif text-2xl font-bold text-lga-navy">LGA Rules</h2>
+                    <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Tour Standards &amp; Local Conditions</div>
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">LGA Rules</h2>
                     <p class="text-xs sm:text-sm text-lga-slate mt-0.5">Core playing rules enforced across all Legends Golfing Association rounds and Pidgeon Cup fixtures.</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="rounded-2xl border-2 border-lga-gold bg-lga-cream/80 p-5 space-y-2">
-                        <div class="text-xs font-extrabold uppercase tracking-wider text-lga-goldDark">Putting Policy</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    <div class="rounded-2xl border-2 border-lga-gold bg-lga-cream/80 p-4 sm:p-5 space-y-1.5">
+                        <div class="text-[11px] font-extrabold uppercase tracking-wider text-lga-goldDark">Putting Policy</div>
                         <h3 class="font-serif text-lg font-bold text-lga-navy">No Gimmies</h3>
                         <p class="text-xs sm:text-sm text-lga-slate leading-relaxed">
                             Every putt must be holed out regardless of distance—no tap-ins or conceded putts are permitted in stroke or Stableford scoring unless a hole is already conceded in match play.
                         </p>
                     </div>
 
-                    <div class="rounded-2xl border border-lga-gold/35 bg-white p-5 space-y-2">
-                        <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Relief Procedure</div>
+                    <div class="rounded-2xl border border-lga-gold/35 bg-white p-4 sm:p-5 space-y-1.5">
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">Relief Procedure</div>
                         <h3 class="font-serif text-lg font-bold text-lga-navy">Ball Drops &amp; Relief Areas</h3>
                         <p class="text-xs sm:text-sm text-lga-slate leading-relaxed">
                             Drop the ball straight down from knee height into the designated relief area without touching any part of the course on the way down. If the dropped ball rolls outside the relief area, re-drop once; if it rolls outside a second time, place it where it first struck the ground on the second drop.
                         </p>
                     </div>
 
-                    <div class="rounded-2xl border border-lga-gold/35 bg-white p-5 space-y-2">
-                        <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Penalty Areas</div>
+                    <div class="rounded-2xl border border-lga-gold/35 bg-white p-4 sm:p-5 space-y-1.5">
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">Penalty Areas</div>
                         <h3 class="font-serif text-lg font-bold text-lga-navy">Water &amp; Penalty Areas (Red &amp; Yellow)</h3>
                         <p class="text-xs sm:text-sm text-lga-slate leading-relaxed">
                             You may play the ball as it lies or take one penalty stroke for: (a) stroke-and-distance from the previous spot, or (b) back-on-the-line relief keeping the flagstick between you and the hole. For red penalty areas only, you may also take two club-lengths lateral relief from the estimated entry point, no nearer the hole.
                         </p>
                     </div>
 
-                    <div class="rounded-2xl border border-lga-gold/35 bg-white p-5 space-y-2">
-                        <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Unplayable Lie &amp; OB</div>
+                    <div class="rounded-2xl border border-lga-gold/35 bg-white p-4 sm:p-5 space-y-1.5">
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">Unplayable Lie &amp; OB</div>
                         <h3 class="font-serif text-lg font-bold text-lga-navy">Unplayable Balls, Out of Bounds &amp; Provisionals</h3>
                         <p class="text-xs sm:text-sm text-lga-slate leading-relaxed">
                             You are the sole judge of an unplayable lie and may take one penalty stroke using stroke-and-distance, back-on-the-line, or two club-lengths lateral relief. Out of bounds carries stroke-and-distance; always announce and play a provisional ball before walking forward if a ball may be lost outside a penalty area or out of bounds.
@@ -389,37 +474,37 @@
         </section>
 
         <!-- TAB 8: TOUR LOCATIONS (ADMIN ONLY) -->
-        <section id="tab-tour-locations" class="tab-panel hidden space-y-6">
-            <div class="bg-white rounded-2xl border border-lga-gold/35 p-6 shadow-sm space-y-4">
+        <section id="tab-tour-locations" class="tab-panel hidden space-y-4 sm:space-y-6">
+            <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4">
                 <div>
-                    <div class="text-xs font-bold uppercase tracking-wider text-lga-goldDark">Admin Control</div>
-                    <h2 class="font-serif text-2xl font-bold text-lga-navy">Tour Locations (2015–2025)</h2>
+                    <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Admin Control</div>
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Tour Locations (2015–2025)</h2>
                     <p class="text-xs sm:text-sm text-lga-slate">Blank when unknown; saving updates championship breakdowns and synced state.</p>
                 </div>
-                <div id="tour-locations-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <div id="tour-locations-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
             </div>
         </section>
     </main>
 
     <!-- Toast Notification -->
-    <div id="toast-box" class="fixed bottom-5 right-5 z-50 hidden max-w-sm px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-semibold border"></div>
+    <div id="toast-box" class="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-5 sm:bottom-5 z-50 hidden sm:max-w-sm px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-semibold border text-center sm:text-left"></div>
 
     <!-- Admin Unlock Modal -->
-    <div id="admin-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-sm w-full p-6 shadow-xl space-y-4">
+    <div id="admin-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-sm w-full p-5 sm:p-6 shadow-xl space-y-4">
             <h3 class="font-serif text-xl font-bold text-lga-navy">Unlock Admin Mode</h3>
             <p class="text-xs text-lga-slate">Enter the LGA admin passcode to edit results, handicaps, tour locations, or restore data.</p>
-            <input type="password" id="admin-passcode-input" placeholder="Enter passcode" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3.5 py-2.5 text-sm text-lga-navy">
+            <input type="password" id="admin-passcode-input" placeholder="Enter passcode" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3.5 py-2.5 text-lga-navy">
             <div class="flex justify-end gap-2">
-                <button type="button" onclick="closeAdminModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
-                <button type="button" onclick="submitAdminPasscode()" class="px-4 py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Unlock</button>
+                <button type="button" onclick="closeAdminModal()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
+                <button type="button" onclick="submitAdminPasscode()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Unlock</button>
             </div>
         </div>
     </div>
 
     <!-- Championship Cell Edit Modal -->
-    <div id="champ-cell-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-md w-full p-6 shadow-xl space-y-4">
+    <div id="champ-cell-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-md w-full p-5 sm:p-6 shadow-xl space-y-4">
             <h3 id="champ-modal-title" class="font-serif text-xl font-bold text-lga-navy">Edit Result</h3>
             <div class="grid grid-cols-2 gap-3 text-xs">
                 <div>
@@ -438,47 +523,43 @@
                     <label class="block font-semibold text-lga-slate mb-1">Day 2</label>
                     <input type="text" id="champ-edit-day2" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
                 </div>
-                <div>
+                <div class="col-span-2">
                     <label class="block font-semibold text-lga-slate mb-1">Format</label>
                     <input type="text" id="champ-edit-format" placeholder="Stableford / Stroke" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
                 </div>
-                <div>
-                    <label class="block font-semibold text-lga-slate mb-1">Allocated HCP</label>
-                    <input type="text" id="champ-edit-hcp" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
-                </div>
             </div>
             <div class="flex justify-between gap-2 pt-2">
-                <button type="button" onclick="clearChampCell()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 cursor-pointer">Clear Cell</button>
+                <button type="button" onclick="clearChampCell()" class="px-3.5 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 cursor-pointer">Clear Cell</button>
                 <div class="flex gap-2">
-                    <button type="button" onclick="closeChampCellModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
-                    <button type="button" onclick="saveChampCell()" class="px-4 py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Save</button>
+                    <button type="button" onclick="closeChampCellModal()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
+                    <button type="button" onclick="saveChampCell()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Save</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Yearly Handicap Edit Modal (Admin Only) -->
-    <div id="hcp-edit-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-sm w-full p-6 shadow-xl space-y-4">
+    <div id="hcp-edit-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-sm w-full p-5 sm:p-6 shadow-xl space-y-4">
             <h3 id="hcp-modal-title" class="font-serif text-xl font-bold text-lga-navy">Edit Handicap</h3>
             <p class="text-xs text-lga-slate">Handicaps are capped at 36.0; any excess above 36.0 is redistributed evenly downward across other players.</p>
             <div class="text-xs">
                 <label class="block font-semibold text-lga-slate mb-1">Handicap Value (0.0 – 36.0)</label>
-                <input type="number" step="0.1" min="0" max="54" id="hcp-edit-value" placeholder="Leave blank to clear" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-sm text-lga-navy">
+                <input type="number" step="0.1" min="0" max="54" id="hcp-edit-value" placeholder="Leave blank for TBC" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
             </div>
             <div class="flex justify-between gap-2 pt-2">
-                <button type="button" onclick="clearHandicapEntry()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 cursor-pointer">Clear</button>
+                <button type="button" onclick="clearHandicapEntry()" class="px-3.5 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 cursor-pointer">Clear</button>
                 <div class="flex gap-2">
-                    <button type="button" onclick="closeHandicapEditModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
-                    <button type="button" onclick="saveHandicapEntry()" class="px-4 py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Save</button>
+                    <button type="button" onclick="closeHandicapEditModal()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
+                    <button type="button" onclick="saveHandicapEntry()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Save</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Add Course Modal -->
-    <div id="add-course-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-center justify-center p-4">
-        <form onsubmit="saveNewCourse(event)" class="bg-white rounded-2xl border border-lga-gold/40 max-w-md w-full p-6 shadow-xl space-y-4">
+    <div id="add-course-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <form onsubmit="saveNewCourse(event)" class="bg-white rounded-2xl border border-lga-gold/40 max-w-md w-full p-5 sm:p-6 shadow-xl space-y-4">
             <h3 class="font-serif text-xl font-bold text-lga-navy">Add Course</h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div class="sm:col-span-2">
@@ -519,15 +600,15 @@
                 </div>
             </div>
             <div class="flex justify-end gap-2 pt-2">
-                <button type="button" onclick="closeAddCourseModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
-                <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Add Course</button>
+                <button type="button" onclick="closeAddCourseModal()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
+                <button type="submit" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Add Course</button>
             </div>
         </form>
     </div>
 
     <!-- Add Golfer Modal -->
-    <div id="add-golfer-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-center justify-center p-4">
-        <form onsubmit="saveNewGolfer(event)" class="bg-white rounded-2xl border border-lga-gold/40 max-w-md w-full p-6 shadow-xl space-y-4">
+    <div id="add-golfer-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <form onsubmit="saveNewGolfer(event)" class="bg-white rounded-2xl border border-lga-gold/40 max-w-md w-full p-5 sm:p-6 shadow-xl space-y-4">
             <h3 class="font-serif text-xl font-bold text-lga-navy">Add Golfer to Lineup</h3>
             <div class="space-y-3 text-xs">
                 <div>
@@ -541,7 +622,7 @@
                     </div>
                     <div>
                         <label id="new-golfer-whs-label" class="block font-semibold text-lga-slate mb-1">Baseline WHS (Admin Only)</label>
-                        <input type="number" step="0.1" id="new-golfer-whs" value="20.0" disabled class="w-full rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-lga-navy disabled:opacity-60">
+                        <input type="number" step="0.1" id="new-golfer-whs" value="" placeholder="TBC" disabled class="w-full rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-lga-navy disabled:opacity-60">
                     </div>
                 </div>
                 <div>
@@ -550,30 +631,32 @@
                 </div>
             </div>
             <div class="flex justify-end gap-2 pt-2">
-                <button type="button" onclick="closeAddGolferModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
-                <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Save Golfer</button>
+                <button type="button" onclick="closeAddGolferModal()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
+                <button type="submit" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Save Golfer</button>
             </div>
         </form>
     </div>
 
     <!-- Restore JSON Modal (Admin Only) -->
-    <div id="restore-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-lg w-full p-6 shadow-xl space-y-4">
+    <div id="restore-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-lg w-full p-5 sm:p-6 shadow-xl space-y-4">
             <h3 class="font-serif text-xl font-bold text-lga-navy">Restore State from JSON</h3>
             <textarea id="restore-json-input" rows="7" placeholder="Paste exported LGA JSON backup here..." class="w-full rounded-xl border border-slate-300 bg-lga-cream p-3 font-mono text-xs text-lga-navy"></textarea>
             <div class="flex justify-end gap-2">
-                <button type="button" onclick="closeRestoreModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
-                <button type="button" onclick="applyRestoreJson()" class="px-4 py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Restore</button>
+                <button type="button" onclick="closeRestoreModal()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
+                <button type="button" onclick="applyRestoreJson()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Restore</button>
             </div>
         </div>
     </div>
 
     <script>
         // Storage, Handicap Cap & Admin Constants
-        const STORAGE_KEY = 'lga_tracker_state_v11';
+        const STORAGE_KEY = 'lga_tracker_state_v13';
         const ADMIN_PASSCODE = '1986';
         const MAX_HANDICAP = 36.0;
         const TOUR_YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
+        const DEFAULT_HOLE_PARS = [4, 4, 3, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 3, 4, 5, 4];
+        const DEFAULT_HOLE_SI = [7, 1, 15, 3, 9, 11, 17, 5, 13, 6, 16, 10, 2, 8, 18, 12, 4, 14];
         const APP_ID = typeof __app_id !== 'undefined' && __app_id ? __app_id : 'lga-pidgeon-cup-tracker';
 
         function compareAlpha(a, b) {
@@ -612,26 +695,28 @@
             );
         }
 
-        // Default LGA Lineup (Dave & David O'Connor merged into David O'Connor)
+        // Default LGA Lineup (Unplayed golfers start with null handicap -> TBC)
         const DEFAULT_GOLFERS = sortGolfersAlphabetically([
             { id: 'alex-kostov', name: 'Alex Kostov', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 25.0, lowCap12m: 25.0 },
             { id: 'andrew-dorrington', name: 'Andrew Dorrington', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 36.0, lowCap12m: 36.0 },
             { id: 'ben-burke', name: 'Ben Burke (President)', role: 'President', homeClub: 'Legends Touring Chapter', baselineWhs: 9.0, lowCap12m: 9.0 },
             { id: 'ben-cohen', name: 'Ben Cohen', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 15.0, lowCap12m: 15.0 },
-            { id: 'ben-lenz', name: 'Ben Lenz', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 18.0, lowCap12m: 18.0 },
+            { id: 'ben-lenz', name: 'Ben Lenz', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: null, lowCap12m: null },
             { id: 'craig-tubb', name: 'Craig Tubb', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 18.0, lowCap12m: 18.0 },
-            { id: 'daniel-bennets', name: 'Daniel Bennets', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 20.0, lowCap12m: 20.0 },
+            { id: 'daniel-bennets', name: 'Daniel Bennets', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: null, lowCap12m: null },
             { id: 'david-oconnor', name: "David O'Connor", role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 22.0, lowCap12m: 22.0 },
+            { id: 'doz', name: 'Doz', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 36.0, lowCap12m: 36.0 },
             { id: 'dylan-willcock', name: 'Dylan Willcock', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 22.0, lowCap12m: 22.0 },
             { id: 'federico-bianco', name: 'Federico Bianco', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 30.0, lowCap12m: 30.0 },
             { id: 'james-patrick', name: 'James Patrick', role: 'Reigning Champion', homeClub: 'Legends Touring Chapter', baselineWhs: 18.0, lowCap12m: 18.0 },
             { id: 'jason-daye', name: 'Jason Daye', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 23.0, lowCap12m: 23.0 },
             { id: 'jon-dardaganis', name: 'Jon Dardaganis', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 36.0, lowCap12m: 36.0 },
             { id: 'michael-stowe', name: 'Michael Stowe', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 17.0, lowCap12m: 17.0 },
-            { id: 'nigel-willcock', name: 'Nigel Willcock', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 36.0, lowCap12m: 36.0 },
+            { id: 'nigel-willcock', name: 'Nigel Willcock', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: null, lowCap12m: null },
             { id: 'oscar-kus', name: 'Oscar Kus', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 36.0, lowCap12m: 36.0 },
             { id: 'rob-rosengarten', name: 'Rob Rosengarten', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 20.0, lowCap12m: 20.0 },
-            { id: 'simon-willcock', name: 'Simon Willcock', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 36.0, lowCap12m: 36.0 }
+            { id: 'simon-willcock', name: 'Simon Willcock', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: 36.0, lowCap12m: 36.0 },
+            { id: 'steven-raphael', name: 'Steven Raphael', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: null, lowCap12m: null }
         ]);
 
         // 52 Golf & Links Courses (Victorian & Interstate Australian) with State Codes
@@ -696,7 +781,7 @@
             2016: '',
             2017: '',
             2018: '',
-            2019: '',
+            2019: 'Queenscliff & Portsea',
             2020: '',
             2021: '',
             2022: '',
@@ -715,108 +800,126 @@
             'craig-tubb': { 2017: 22, 2018: 18, 2019: 20, 2020: 20, 2021: 23, 2022: 16, 2025: 18 },
             'daniel-bennets': {},
             'david-oconnor': { 2017: 28, 2018: 24, 2019: 23 },
+            'doz': { 2025: 36 },
             'dylan-willcock': { 2017: 26, 2018: 23, 2019: 25, 2020: 24, 2021: 27, 2022: 27, 2025: 22 },
             'federico-bianco': { 2025: 30 },
             'james-patrick': { 2017: 36, 2018: 36, 2019: 36, 2020: 36, 2021: 36, 2022: 32, 2025: 18 },
-            'jason-daye': { 2019: 23 },
+            'jason-daye': { 2019: 23, 2025: 18 },
             'jon-dardaganis': { 2019: 36, 2020: 36, 2021: 36, 2022: 36, 2025: 36 },
             'michael-stowe': { 2015: 28, 2017: 19, 2020: 21, 2022: 20, 2025: 17 },
             'nigel-willcock': {},
             'oscar-kus': { 2018: 36, 2019: 36 },
             'rob-rosengarten': { 2025: 20 },
-            'simon-willcock': { 2018: 36, 2019: 36 }
+            'simon-willcock': { 2018: 36, 2019: 36, 2025: 36 },
+            'steven-raphael': {}
         };
 
-        // Historical Pidgeon Cup Results (2015-2025)
+        // Historical Pidgeon Cup Results (2015-2025; James Patrick sole 2022 winner)
         const DEFAULT_CHAMPIONSHIP_RESULTS = {
             2015: {
-                'michael-stowe': { rank: '1', score: '149', format: 'Stroke', hcp: '28', venue: 'Yarrawonga' }
+                'michael-stowe': { rank: '1', score: '149', format: 'Stroke', venue: 'Yarrawonga' },
+                'steven-raphael': { rank: '', score: '', format: 'Stroke', venue: 'Yarrawonga' }
             },
             2016: {
-                'ben-burke': { rank: '1', score: '', format: 'Stableford', hcp: '21', venue: 'Barwon Heads' }
+                'ben-burke': { rank: '1', score: '', format: 'Stroke', venue: 'Barwon Heads' }
             },
             2017: {
-                'david-oconnor': { rank: '1', score: '149', format: 'Stroke', hcp: '28', venue: 'Peninsula' },
-                'dylan-willcock': { rank: '2', score: '150', format: 'Stroke', hcp: '26', venue: 'Peninsula' },
-                'ben-cohen': { rank: '3', score: '152', format: 'Stroke', hcp: '20', venue: 'Peninsula' },
-                'ben-burke': { rank: '4', score: '153', format: 'Stroke', hcp: '22', venue: 'Peninsula' },
-                'michael-stowe': { rank: '5', score: '156', format: 'Stroke', hcp: '19', venue: 'Peninsula' },
-                'craig-tubb': { rank: '6', score: '161', format: 'Stroke', hcp: '22', venue: 'Peninsula' },
-                'james-patrick': { rank: '7', score: '202', format: 'Stroke', hcp: '36', venue: 'Peninsula' }
+                'david-oconnor': { rank: '1', score: '149', format: 'Stroke', venue: 'Peninsula' },
+                'dylan-willcock': { rank: '2', score: '150', format: 'Stroke', venue: 'Peninsula' },
+                'ben-cohen': { rank: '3', score: '152', format: 'Stroke', venue: 'Peninsula' },
+                'ben-burke': { rank: '4', score: '153', format: 'Stroke', venue: 'Peninsula' },
+                'michael-stowe': { rank: '5', score: '156', format: 'Stroke', venue: 'Peninsula' },
+                'craig-tubb': { rank: '6', score: '161', format: 'Stroke', venue: 'Peninsula' },
+                'james-patrick': { rank: '7', score: '202', format: 'Stroke', venue: 'Peninsula' }
             },
             2018: {
-                'ben-cohen': { rank: '1', score: '69', format: 'Stableford', hcp: '17', venue: 'Melbourne' },
-                'ben-burke': { rank: '2', score: '66', format: 'Stableford', hcp: '21', venue: 'Melbourne' },
-                'dylan-willcock': { rank: '3', score: '59', format: 'Stableford', hcp: '23', venue: 'Melbourne' },
-                'james-patrick': { rank: '4', score: '57', format: 'Stableford', hcp: '36', venue: 'Melbourne' },
-                'craig-tubb': { rank: '5', score: '52', format: 'Stableford', hcp: '18', venue: 'Melbourne' },
-                'simon-willcock': { rank: '5=', score: '52', format: 'Stableford', hcp: '36', venue: 'Melbourne' },
-                'andrew-dorrington': { rank: '7', score: '50', format: 'Stableford', hcp: '36', venue: 'Melbourne' },
-                'david-oconnor': { rank: '8', score: '39', format: 'Stableford', hcp: '24', venue: 'Melbourne' },
-                'oscar-kus': { rank: '9', score: '28', format: 'Stableford', hcp: '36', venue: 'Melbourne' }
+                'ben-cohen': { rank: '1', score: '69', format: 'Stableford', venue: 'Melbourne' },
+                'ben-burke': { rank: '2', score: '66', format: 'Stableford', venue: 'Melbourne' },
+                'dylan-willcock': { rank: '3', score: '59', format: 'Stableford', venue: 'Melbourne' },
+                'james-patrick': { rank: '4', score: '57', format: 'Stableford', venue: 'Melbourne' },
+                'craig-tubb': { rank: '5', score: '52', format: 'Stableford', venue: 'Melbourne' },
+                'simon-willcock': { rank: '5=', score: '52', format: 'Stableford', venue: 'Melbourne' },
+                'andrew-dorrington': { rank: '7', score: '50', format: 'Stableford', venue: 'Melbourne' },
+                'david-oconnor': { rank: '8', score: '39', format: 'Stableford', venue: 'Melbourne' },
+                'oscar-kus': { rank: '9', score: '28', format: 'Stableford', venue: 'Melbourne' }
             },
-            2019: {},
+            2019: {
+                'ben-cohen': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'simon-willcock': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'oscar-kus': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'david-oconnor': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'ben-burke': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'michael-stowe': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'craig-tubb': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'james-patrick': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'andrew-dorrington': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' },
+                'dylan-willcock': { rank: '', score: '', format: 'Stableford', venue: 'Queenscliff & Portsea' }
+            },
             2020: {
-                'ben-burke': { rank: '1', score: '77', format: 'Stableford', hcp: '20', venue: '' },
-                'michael-stowe': { rank: '2', score: '69', format: 'Stableford', hcp: '21', venue: '' },
-                'james-patrick': { rank: '3', score: '64', format: 'Stableford', hcp: '36', venue: '' },
-                'craig-tubb': { rank: '4', score: '58', format: 'Stableford', hcp: '20', venue: '' },
-                'ben-cohen': { rank: '5', score: '53', format: 'Stableford', hcp: '15', venue: '' },
-                'dylan-willcock': { rank: '6', score: '52', format: 'Stableford', hcp: '24', venue: '' },
-                'jon-dardaganis': { rank: '8', score: '35', format: 'Stableford', hcp: '36', venue: '' }
+                'ben-burke': { rank: '1', score: '77', format: 'Stableford', venue: '' },
+                'michael-stowe': { rank: '2', score: '69', format: 'Stableford', venue: '' },
+                'james-patrick': { rank: '3', score: '64', format: 'Stableford', venue: '' },
+                'craig-tubb': { rank: '4', score: '58', format: 'Stableford', venue: '' },
+                'ben-cohen': { rank: '5', score: '53', format: 'Stableford', venue: '' },
+                'dylan-willcock': { rank: '6', score: '52', format: 'Stableford', venue: '' },
+                'jon-dardaganis': { rank: '8', score: '35', format: 'Stableford', venue: '' }
             },
             2021: {
-                'craig-tubb': { rank: '1', score: '71', format: 'Stableford', hcp: '23', venue: '' },
-                'dylan-willcock': { rank: '2', score: '70', format: 'Stableford', hcp: '27', venue: '' },
-                'ben-cohen': { rank: '3', score: '69', format: 'Stableford', hcp: '19', venue: '' },
-                'james-patrick': { rank: '4', score: '65', format: 'Stableford', hcp: '36', venue: '' },
-                'ben-burke': { rank: '5', score: '50', format: 'Stableford', hcp: '12', venue: '' },
-                'jon-dardaganis': { rank: '6', score: '39', format: 'Stableford', hcp: '36', venue: '' }
+                'craig-tubb': { rank: '1', score: '71', format: 'Stableford', venue: '' },
+                'dylan-willcock': { rank: '2', score: '70', format: 'Stableford', venue: '' },
+                'ben-cohen': { rank: '3', score: '69', format: 'Stableford', venue: '' },
+                'james-patrick': { rank: '4', score: '65', format: 'Stableford', venue: '' },
+                'ben-burke': { rank: '5', score: '50', format: 'Stableford', venue: '' },
+                'jon-dardaganis': { rank: '6', score: '39', format: 'Stableford', venue: '' }
             },
             2022: {
-                'dylan-willcock': { rank: '1=', score: '60', format: 'Stableford', hcp: '27', venue: '' },
-                'james-patrick': { rank: '1=', score: '60', format: 'Stableford', hcp: '32', venue: '' },
-                'ben-cohen': { rank: '3', score: '57', format: 'Stableford', hcp: '18', venue: '' },
-                'ben-burke': { rank: '4', score: '51', format: 'Stableford', hcp: '16', venue: '' },
-                'craig-tubb': { rank: '5=', score: '45', format: 'Stableford', hcp: '16', venue: '' },
-                'michael-stowe': { rank: '7', score: '41', format: 'Stableford', hcp: '20', venue: '' },
-                'jon-dardaganis': { rank: '8', score: '30', format: 'Stableford', hcp: '36', venue: '' }
+                'james-patrick': { rank: '1', score: '60', format: 'Stableford', venue: '' },
+                'dylan-willcock': { rank: '2', score: '60', format: 'Stableford', venue: '' },
+                'ben-cohen': { rank: '3', score: '57', format: 'Stableford', venue: '' },
+                'ben-burke': { rank: '4', score: '51', format: 'Stableford', venue: '' },
+                'craig-tubb': { rank: '5=', score: '45', format: 'Stableford', venue: '' },
+                'michael-stowe': { rank: '7', score: '41', format: 'Stableford', venue: '' },
+                'jon-dardaganis': { rank: '8', score: '30', format: 'Stableford', venue: '' }
             },
             2023: {
-                'dylan-willcock': { rank: '1', day1: '34', day2: '34', score: '68', format: 'Stableford', hcp: '', venue: '' },
-                'ben-cohen': { rank: '2', day1: '33', day2: '33', score: '66', format: 'Stableford', hcp: '', venue: '' },
-                'jason-daye': { rank: '3', day1: '27', day2: '36', score: '63', format: 'Stableford', hcp: '', venue: '' },
-                'michael-stowe': { rank: '4', day1: '32', day2: '30', score: '62', format: 'Stableford', hcp: '', venue: '' },
-                'ben-burke': { rank: '5=', day1: '29', day2: '22', score: '51', format: 'Stableford', hcp: '', venue: '' },
-                'simon-willcock': { rank: '5=', day1: '26', day2: '25', score: '51', format: 'Stableford', hcp: '', venue: '' },
-                'craig-tubb': { rank: '7', day1: '26', day2: '24', score: '50', format: 'Stableford', hcp: '', venue: '' },
-                'jon-dardaganis': { rank: '8=', day1: '18', day2: '28', score: '46', format: 'Stableford', hcp: '', venue: '' },
-                'james-patrick': { rank: '10', day1: '20', day2: '24', score: '44', format: 'Stableford', hcp: '', venue: '' },
-                'nigel-willcock': { rank: '11', day1: '9', day2: '12', score: '21', format: 'Stableford', hcp: '', venue: '' }
+                'dylan-willcock': { rank: '1', day1: '34', day2: '34', score: '68', format: 'Stableford', venue: '' },
+                'ben-cohen': { rank: '2', day1: '33', day2: '33', score: '66', format: 'Stableford', venue: '' },
+                'jason-daye': { rank: '3', day1: '27', day2: '36', score: '63', format: 'Stableford', venue: '' },
+                'michael-stowe': { rank: '4', day1: '32', day2: '30', score: '62', format: 'Stableford', venue: '' },
+                'ben-burke': { rank: '5=', day1: '29', day2: '22', score: '51', format: 'Stableford', venue: '' },
+                'simon-willcock': { rank: '5=', day1: '26', day2: '25', score: '51', format: 'Stableford', venue: '' },
+                'craig-tubb': { rank: '7', day1: '26', day2: '24', score: '50', format: 'Stableford', venue: '' },
+                'jon-dardaganis': { rank: '8=', day1: '18', day2: '28', score: '46', format: 'Stableford', venue: '' },
+                'james-patrick': { rank: '10', day1: '20', day2: '24', score: '44', format: 'Stableford', venue: '' },
+                'nigel-willcock': { rank: '11', day1: '9', day2: '12', score: '21', format: 'Stableford', venue: '' }
             },
             2024: {
-                'ben-burke': { rank: '1', day1: '38', day2: '35', score: '73', format: 'Stableford', hcp: '', venue: '' },
-                'ben-cohen': { rank: '2', day1: '35', day2: '37', score: '72', format: 'Stableford', hcp: '', venue: '' },
-                'jon-dardaganis': { rank: '3', day1: '30', day2: '39', score: '69', format: 'Stableford', hcp: '', venue: '' },
-                'michael-stowe': { rank: '4', day1: '30', day2: '37', score: '67', format: 'Stableford', hcp: '', venue: '' },
-                'simon-willcock': { rank: '5', day1: '25', day2: '40', score: '65', format: 'Stableford', hcp: '', venue: '' },
-                'james-patrick': { rank: '6', day1: '31', day2: '32', score: '63', format: 'Stableford', hcp: '', venue: '' },
-                'david-oconnor': { rank: '7', day1: '30', day2: '32', score: '62', format: 'Stableford', hcp: '', venue: '' },
-                'craig-tubb': { rank: '8', day1: '35', day2: '26', score: '61', format: 'Stableford', hcp: '', venue: '' },
-                'jason-daye': { rank: '9', day1: '25', day2: '32', score: '57', format: 'Stableford', hcp: '', venue: '' },
-                'dylan-willcock': { rank: '10', day1: '18', day2: '22', score: '40', format: 'Stableford', hcp: '', venue: '' },
-                'nigel-willcock': { rank: '11', day1: '16', day2: '5', score: '21', format: 'Stableford', hcp: '', venue: '' }
+                'ben-burke': { rank: '1', day1: '38', day2: '35', score: '73', format: 'Stableford', venue: '' },
+                'ben-cohen': { rank: '2', day1: '35', day2: '37', score: '72', format: 'Stableford', venue: '' },
+                'jon-dardaganis': { rank: '3', day1: '30', day2: '39', score: '69', format: 'Stableford', venue: '' },
+                'michael-stowe': { rank: '4', day1: '30', day2: '37', score: '67', format: 'Stableford', venue: '' },
+                'simon-willcock': { rank: '5', day1: '25', day2: '40', score: '65', format: 'Stableford', venue: '' },
+                'james-patrick': { rank: '6', day1: '31', day2: '32', score: '63', format: 'Stableford', venue: '' },
+                'david-oconnor': { rank: '7', day1: '30', day2: '32', score: '62', format: 'Stableford', venue: '' },
+                'craig-tubb': { rank: '8', day1: '35', day2: '26', score: '61', format: 'Stableford', venue: '' },
+                'jason-daye': { rank: '9', day1: '25', day2: '32', score: '57', format: 'Stableford', venue: '' },
+                'dylan-willcock': { rank: '10', day1: '18', day2: '22', score: '40', format: 'Stableford', venue: '' },
+                'nigel-willcock': { rank: '11', day1: '16', day2: '5', score: '21', format: 'Stableford', venue: '' }
             },
             2025: {
-                'james-patrick': { rank: '1', score: '65', format: 'Stableford', hcp: '18', venue: 'Port Fairy' },
-                'craig-tubb': { rank: '2', score: '60', format: 'Stableford', hcp: '18', venue: 'Port Fairy' },
-                'dylan-willcock': { rank: '3', score: '59', format: 'Stableford', hcp: '22', venue: 'Port Fairy' },
-                'ben-cohen': { rank: '4', score: '55', format: 'Stableford', hcp: '15', venue: 'Port Fairy' },
-                'michael-stowe': { rank: '5', score: '49', format: 'Stableford', hcp: '17', venue: 'Port Fairy' },
-                'ben-burke': { rank: '7', score: '37', format: 'Stableford', hcp: '9', venue: 'Port Fairy' },
-                'rob-rosengarten': { rank: '8', score: '32', format: 'Stableford', hcp: '20', venue: 'Port Fairy' },
-                'federico-bianco': { rank: '9=', score: '27', format: 'Stableford', hcp: '30', venue: 'Port Fairy' },
-                'jon-dardaganis': { rank: '9=', score: '27', format: 'Stableford', hcp: '36', venue: 'Port Fairy' }
+                'james-patrick': { rank: '1', day1: '34', day2: '31', score: '65', format: 'Stableford', venue: 'Port Fairy' },
+                'craig-tubb': { rank: '2', day1: '31', day2: '29', score: '60', format: 'Stableford', venue: 'Port Fairy' },
+                'dylan-willcock': { rank: '3', day1: '28', day2: '31', score: '59', format: 'Stableford', venue: 'Port Fairy' },
+                'jason-daye': { rank: '4', day1: '38', day2: '19', score: '57', format: 'Stableford', venue: 'Port Fairy' },
+                'ben-cohen': { rank: '5', day1: '26', day2: '29', score: '55', format: 'Stableford', venue: 'Port Fairy' },
+                'michael-stowe': { rank: '6', day1: '23', day2: '26', score: '49', format: 'Stableford', venue: 'Port Fairy' },
+                'doz': { rank: '7', day1: '28', day2: '20', score: '48', format: 'Stableford', venue: 'Port Fairy' },
+                'simon-willcock': { rank: '8', day1: '22', day2: '19', score: '41', format: 'Stableford', venue: 'Port Fairy' },
+                'ben-burke': { rank: '9', day1: '20', day2: '17', score: '37', format: 'Stableford', venue: 'Port Fairy' },
+                'rob-rosengarten': { rank: '10', day1: '17', day2: '15', score: '32', format: 'Stableford', venue: 'Port Fairy' },
+                'federico-bianco': { rank: '11=', day1: '10', day2: '17', score: '27', format: 'Stableford', venue: 'Port Fairy' },
+                'jon-dardaganis': { rank: '11=', day1: '7', day2: '20', score: '27', format: 'Stableford', venue: 'Port Fairy' },
+                'daniel-bennets': { rank: '13', day1: '16', day2: '9', score: '25', format: 'Stableford', venue: 'Port Fairy' }
             }
         };
 
@@ -835,6 +938,7 @@
         }
 
         let state = createInitialState();
+        let holeGrossScores = Array(18).fill('');
         let isAdminUnlocked = false;
         let editingChampCell = null;
         let editingHandicapCell = null;
@@ -842,6 +946,35 @@
         let cloudDocRef = null;
         let cloudUnsubscribe = null;
         let isApplyingRemoteState = false;
+
+        // Ensure Steven Raphael is present in roster and 2015 results
+        function ensureStevenRaphaelIncluded() {
+            const id = 'steven-raphael';
+            if (!state.golfers.some(g => g.id === id || /^steven\s+raphael$/i.test(g.name || ''))) {
+                state.golfers.push({
+                    id,
+                    name: 'Steven Raphael',
+                    role: 'Member',
+                    homeClub: 'Legends Touring Chapter',
+                    baselineWhs: null,
+                    lowCap12m: null
+                });
+            }
+            if (!state.yearlyHandicaps[id]) {
+                state.yearlyHandicaps[id] = {};
+            }
+            if (!state.championshipResults[2015]) {
+                state.championshipResults[2015] = {};
+            }
+            if (!state.championshipResults[2015][id]) {
+                state.championshipResults[2015][id] = {
+                    rank: '',
+                    score: '',
+                    format: 'Stroke',
+                    venue: state.tourLocations?.[2015] || ''
+                };
+            }
+        }
 
         // Merge Dave & David O'Connor into David O'Connor
         function mergeDuplicateDavidOConnor() {
@@ -901,12 +1034,15 @@
             let totalExcess = 0;
 
             state.golfers = state.golfers.map(g => {
-                const rawBase = Number(g.baselineWhs ?? 20);
+                if (g.baselineWhs === null || g.baselineWhs === undefined || g.baselineWhs === '') {
+                    return { ...g, baselineWhs: null };
+                }
+                const rawBase = Number(g.baselineWhs);
                 if (!Number.isNaN(rawBase) && rawBase > MAX_HANDICAP) {
                     totalExcess += rawBase - MAX_HANDICAP;
                     return { ...g, baselineWhs: MAX_HANDICAP };
                 }
-                return { ...g, baselineWhs: Math.max(0, Number.isNaN(rawBase) ? 20 : rawBase) };
+                return { ...g, baselineWhs: Math.max(0, Number.isNaN(rawBase) ? 0 : rawBase) };
             });
 
             if (state.yearlyHandicaps) {
@@ -923,11 +1059,11 @@
             }
 
             if (totalExcess > 0.0001 && state.golfers.length > 0) {
-                const eligible = state.golfers.filter(g => Number(g.baselineWhs) > 0);
+                const eligible = state.golfers.filter(g => g.baselineWhs !== null && Number(g.baselineWhs) > 0);
                 if (eligible.length > 0) {
                     const perGolferReduction = totalExcess / eligible.length;
                     state.golfers = state.golfers.map(g => {
-                        if (Number(g.baselineWhs) > 0) {
+                        if (g.baselineWhs !== null && Number(g.baselineWhs) > 0) {
                             const reduced = Math.max(0, Number((Number(g.baselineWhs) - perGolferReduction).toFixed(1)));
                             return { ...g, baselineWhs: reduced };
                         }
@@ -937,8 +1073,11 @@
             }
 
             state.golfers = state.golfers.map(g => {
-                const cappedBase = Math.min(MAX_HANDICAP, Math.max(0, Number(g.baselineWhs ?? 20)));
-                const rawLow = Number(g.lowCap12m ?? cappedBase);
+                if (g.baselineWhs === null || g.baselineWhs === undefined || g.baselineWhs === '') {
+                    return { ...g, baselineWhs: null, lowCap12m: null };
+                }
+                const cappedBase = Math.min(MAX_HANDICAP, Math.max(0, Number(g.baselineWhs)));
+                const rawLow = g.lowCap12m !== null && g.lowCap12m !== undefined && g.lowCap12m !== '' ? Number(g.lowCap12m) : cappedBase;
                 const cappedLow = Math.min(cappedBase, Math.min(MAX_HANDICAP, Math.max(0, Number.isNaN(rawLow) ? cappedBase : rawLow)));
                 return {
                     ...g,
@@ -954,6 +1093,7 @@
                 role: g.role === 'President Puppet' ? 'Member' : (g.role || 'Member')
             })));
             mergeDuplicateDavidOConnor();
+            ensureStevenRaphaelIncluded();
             state.golfers = sortGolfersAlphabetically(state.golfers);
 
             const rawCourses = Array.isArray(state.courses) && state.courses.length > 0 ? state.courses : structuredClone(DEFAULT_COURSES);
@@ -965,29 +1105,84 @@
             }));
 
             state.tourLocations = { ...DEFAULT_TOUR_LOCATIONS, ...(state.tourLocations || {}) };
+            if (!state.tourLocations[2019] || state.tourLocations[2019] === 'Queenscliff') {
+                state.tourLocations[2019] = 'Queenscliff & Portsea';
+            }
             state.yearlyHandicaps = { ...DEFAULT_YEARLY_HANDICAPS, ...(state.yearlyHandicaps || {}) };
             state.championshipResults = { ...DEFAULT_CHAMPIONSHIP_RESULTS, ...(state.championshipResults || {}) };
-            state.rounds = Array.isArray(state.rounds) ? state.rounds : [];
+
+            // First 3 years (2015, 2016, 2017) were Stroke play
+            for (const strokeYear of [2015, 2016, 2017]) {
+                if (state.championshipResults[strokeYear]) {
+                    for (const gId of Object.keys(state.championshipResults[strokeYear])) {
+                        if (state.championshipResults[strokeYear][gId]) {
+                            state.championshipResults[strokeYear][gId].format = 'Stroke';
+                        }
+                    }
+                }
+            }
+
+            // Use 2019 handicap records to mark who played in 2019 without showing results
+            state.championshipResults[2019] = {};
+            for (const g of state.golfers) {
+                const hcp19 = state.yearlyHandicaps?.[g.id]?.[2019];
+                if (hcp19 !== undefined && hcp19 !== null && hcp19 !== '') {
+                    state.championshipResults[2019][g.id] = {
+                        rank: '',
+                        score: '',
+                        format: 'Stableford',
+                        venue: state.tourLocations[2019] || 'Queenscliff & Portsea'
+                    };
+                }
+            }
+
+            // Ensure 2022 has James Patrick as sole 1st place winner and Dylan Willcock in 2nd
+            if (state.championshipResults[2022]) {
+                if (state.championshipResults[2022]['james-patrick']) {
+                    state.championshipResults[2022]['james-patrick'].rank = '1';
+                }
+                if (state.championshipResults[2022]['dylan-willcock']) {
+                    state.championshipResults[2022]['dylan-willcock'].rank = '2';
+                }
+            }
 
             enforceMaxHandicapCapAndRedistribute();
 
             if (!state.golfers.some(g => g.id === state.activeGolferId)) {
                 state.activeGolferId = state.golfers[0]?.id || 'ben-burke';
             }
+            if (!isAdminUnlocked && state.activeTab === 'tour-locations') {
+                state.activeTab = 'dashboard';
+            }
         }
 
-        function setLiveSyncStatus(label, connected = true) {
+        function setLiveSyncStatus(label, online = true) {
             const textEl = document.getElementById('live-sync-text');
             const dotEl = document.getElementById('live-sync-dot');
             const badgeEl = document.getElementById('live-sync-badge');
-            if (!textEl || !dotEl || !badgeEl) return;
-            textEl.textContent = label;
-            if (connected) {
-                dotEl.className = 'w-2 h-2 rounded-full bg-emerald-400';
-                badgeEl.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40';
-            } else {
-                dotEl.className = 'w-2 h-2 rounded-full bg-amber-400';
-                badgeEl.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-950/80 text-amber-300 border border-amber-500/40';
+            if (textEl) textEl.textContent = label;
+            if (dotEl) {
+                dotEl.className = `w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${online ? 'bg-emerald-400' : 'bg-amber-400'}`;
+            }
+            if (badgeEl) {
+                badgeEl.className = online
+                    ? 'inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 rounded-full text-[11px] sm:text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 shrink-0'
+                    : 'inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 rounded-full text-[11px] sm:text-xs font-semibold bg-amber-950/80 text-amber-300 border border-amber-500/40 shrink-0';
+            }
+        }
+
+        function persistState() {
+            state.updatedAt = new Date().toISOString();
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (err) {
+                console.warn('Local storage persist warning:', err);
+            }
+            if (!isApplyingRemoteState && cloudDb && cloudDocRef && typeof window.__lgaSetDoc === 'function') {
+                window.__lgaSetDoc(cloudDocRef, {
+                    payload: JSON.stringify(state),
+                    updatedAt: state.updatedAt
+                }).catch((err) => console.warn('Cloud push error:', err));
             }
         }
 
@@ -997,100 +1192,49 @@
                 if (raw) {
                     const parsed = JSON.parse(raw);
                     state = { ...createInitialState(), ...parsed };
+                } else {
+                    state = createInitialState();
                 }
             } catch (err) {
-                console.warn('Local state load issue:', err);
+                console.warn('Failed to load saved state, resetting to initial:', err);
+                state = createInitialState();
             }
             sanitizeState();
-        }
-
-        function persistState(skipCloud = false) {
-            state.updatedAt = new Date().toISOString();
-            sanitizeState();
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                setLiveSyncStatus('Live Sync Active', true);
-            } catch (err) {
-                console.warn('Local save error:', err);
-                setLiveSyncStatus('Local Only', false);
-            }
-            if (!skipCloud && !isApplyingRemoteState && cloudDocRef && typeof window.__lgaSetDoc === 'function') {
-                window.__lgaSetDoc(cloudDocRef, { payload: JSON.stringify(state), updatedAt: state.updatedAt })
-                    .catch(err => {
-                        console.warn('Cloud sync error:', err);
-                        setLiveSyncStatus('Sync Stand-By', false);
-                    });
-            }
         }
 
         function showToast(message, type = 'info') {
             const box = document.getElementById('toast-box');
+            if (!box) return;
             box.textContent = message;
-            box.classList.remove('hidden', 'bg-emerald-900', 'text-emerald-100', 'border-emerald-500', 'bg-rose-900', 'text-rose-100', 'border-rose-500', 'bg-lga-navy', 'text-lga-goldLight', 'border-lga-gold');
-            if (type === 'success') {
-                box.classList.add('bg-emerald-900', 'text-emerald-100', 'border-emerald-500');
-            } else if (type === 'error') {
-                box.classList.add('bg-rose-900', 'text-rose-100', 'border-rose-500');
-            } else {
-                box.classList.add('bg-lga-navy', 'text-lga-goldLight', 'border-lga-gold');
-            }
-            clearTimeout(window.__toastTimer);
-            window.__toastTimer = setTimeout(() => box.classList.add('hidden'), 3000);
+            box.className = 'fixed bottom-4 left-3 right-3 sm:left-auto sm:right-5 sm:bottom-5 z-50 sm:max-w-sm px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-semibold border text-center sm:text-left ' + (
+                type === 'error'
+                    ? 'bg-rose-950 text-rose-100 border-rose-500/50'
+                    : type === 'success'
+                        ? 'bg-emerald-950 text-emerald-100 border-emerald-500/50'
+                        : 'bg-lga-navy text-white border-lga-gold/50'
+            );
+            box.classList.remove('hidden');
+            clearTimeout(window.__lgaToastTimer);
+            window.__lgaToastTimer = setTimeout(() => {
+                box.classList.add('hidden');
+            }, 3000);
         }
 
-        // Admin Mode & Controls
-        function updateAdminUi() {
-            const btn = document.getElementById('admin-lock-btn');
-            const restoreBtn = document.getElementById('admin-restore-btn');
-            const tourTabBtn = document.getElementById('tour-locations-tab-btn');
-            const hcpBadge = document.getElementById('hcp-admin-badge');
-            const newGolferWhs = document.getElementById('new-golfer-whs');
-            const newGolferWhsLabel = document.getElementById('new-golfer-whs-label');
-
-            if (isAdminUnlocked) {
-                btn.textContent = 'Admin Unlocked';
-                btn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition shadow cursor-pointer';
-                restoreBtn.classList.remove('hidden');
-                tourTabBtn.classList.remove('hidden');
-                if (hcpBadge) {
-                    hcpBadge.textContent = 'Handicaps Editable (Admin)';
-                    hcpBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 self-start sm:self-auto';
-                }
-                if (newGolferWhs) {
-                    newGolferWhs.disabled = false;
-                    newGolferWhs.className = 'w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy';
-                }
-                if (newGolferWhsLabel) newGolferWhsLabel.textContent = 'Baseline WHS (Max 36.0)';
-            } else {
-                btn.textContent = 'Admin Locked';
-                btn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold bg-lga-gold hover:bg-lga-goldLight text-lga-navy transition shadow cursor-pointer';
-                restoreBtn.classList.add('hidden');
-                tourTabBtn.classList.add('hidden');
-                if (state.activeTab === 'tour-locations') {
-                    switchTab('dashboard');
-                }
-                if (hcpBadge) {
-                    hcpBadge.textContent = 'Handicaps Locked (Admin Only)';
-                    hcpBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-lga-slate border border-slate-300 self-start sm:self-auto';
-                }
-                if (newGolferWhs) {
-                    newGolferWhs.disabled = true;
-                    newGolferWhs.className = 'w-full rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-lga-navy disabled:opacity-60';
-                }
-                if (newGolferWhsLabel) newGolferWhsLabel.textContent = 'Baseline WHS (Admin Only)';
-            }
-        }
-
+        // Admin Mode (Passcode: 1986)
         function handleAdminButtonClick() {
             if (isAdminUnlocked) {
                 isAdminUnlocked = false;
+                if (state.activeTab === 'tour-locations') {
+                    switchTab('dashboard');
+                }
                 updateAdminUi();
                 renderAll();
                 showToast('Admin mode locked.');
             } else {
-                document.getElementById('admin-passcode-input').value = '';
+                const input = document.getElementById('admin-passcode-input');
+                if (input) input.value = '';
                 document.getElementById('admin-modal').classList.remove('hidden');
-                document.getElementById('admin-passcode-input').focus();
+                setTimeout(() => input?.focus(), 50);
             }
         }
 
@@ -1107,25 +1251,97 @@
                 renderAll();
                 showToast('Admin mode unlocked.', 'success');
             } else {
-                showToast('Incorrect passcode.', 'error');
+                showToast('Incorrect admin passcode.', 'error');
             }
         }
 
-        // Backup & Admin-Only Restore
+        function updateAdminUi() {
+            const lockBtn = document.getElementById('admin-lock-btn');
+            const tourTabBtn = document.getElementById('tour-locations-tab-btn');
+            const restoreBtn = document.getElementById('admin-restore-btn');
+            const hcpBadge = document.getElementById('hcp-admin-badge');
+            const hcpSub = document.getElementById('hcp-history-subtitle');
+            const newGolferWhsInput = document.getElementById('new-golfer-whs');
+            const newGolferWhsLabel = document.getElementById('new-golfer-whs-label');
+
+            if (lockBtn) {
+                lockBtn.textContent = isAdminUnlocked ? 'Admin Unlocked' : 'Admin Locked';
+                lockBtn.className = isAdminUnlocked
+                    ? 'col-span-2 sm:col-span-1 px-3 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-emerald-400 hover:bg-emerald-300 text-lga-navy transition shadow cursor-pointer text-center'
+                    : 'col-span-2 sm:col-span-1 px-3 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-gold hover:bg-lga-goldLight text-lga-navy transition shadow cursor-pointer text-center';
+            }
+
+            if (tourTabBtn) {
+                tourTabBtn.classList.toggle('hidden', !isAdminUnlocked);
+            }
+            if (restoreBtn) {
+                restoreBtn.classList.toggle('hidden', !isAdminUnlocked);
+            }
+            if (hcpBadge) {
+                hcpBadge.textContent = isAdminUnlocked ? 'Admin Unlocked — Tap Any Handicap to Edit' : 'Handicaps Locked (Admin Only)';
+                hcpBadge.className = isAdminUnlocked
+                    ? 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 self-start sm:self-auto'
+                    : 'px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-lga-slate border border-slate-300 self-start sm:self-auto';
+            }
+            if (hcpSub) {
+                hcpSub.innerHTML = isAdminUnlocked
+                    ? 'Tap any yearly or current handicap to edit (max 36.0; excess redistributes downward) or leave blank for <strong>TBC</strong>.'
+                    : 'Shows each golfer\'s single recorded handicap per year (max 36.0) or <strong>TBC</strong> if unplayed. Unlock Admin mode to edit.';
+            }
+            if (newGolferWhsInput) {
+                newGolferWhsInput.disabled = !isAdminUnlocked;
+                newGolferWhsInput.placeholder = isAdminUnlocked ? '0.0 – 36.0 or TBC' : 'Admin Only';
+                newGolferWhsInput.className = isAdminUnlocked
+                    ? 'w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy'
+                    : 'w-full rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-lga-navy disabled:opacity-60';
+            }
+            if (newGolferWhsLabel) {
+                newGolferWhsLabel.textContent = isAdminUnlocked ? 'Baseline WHS (Max 36.0)' : 'Baseline WHS (Admin Only)';
+            }
+        }
+
+        // Tab Navigation
+        function switchTab(tabName) {
+            if (tabName === 'tour-locations' && !isAdminUnlocked) {
+                tabName = 'dashboard';
+                showToast('Unlock Admin mode to view Tour Locations.', 'error');
+            }
+            state.activeTab = tabName;
+            persistState();
+
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.toggle('hidden', panel.id !== `tab-${tabName}`);
+            });
+
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                const active = btn.dataset.tab === tabName;
+                btn.className = active
+                    ? 'nav-tab px-3 py-2 sm:px-3.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-lga-gold text-lga-navy shadow transition cursor-pointer'
+                    : 'nav-tab px-3 py-2 sm:px-3.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap text-slate-200 hover:text-white hover:bg-white/10 transition cursor-pointer';
+                if (btn.id === 'tour-locations-tab-btn' && !isAdminUnlocked) {
+                    btn.classList.add('hidden');
+                }
+            });
+        }
+
+        // Backup & Restore (Restore restricted to Admin)
         function downloadBackup() {
-            const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+            const payload = JSON.stringify(state, null, 2);
+            const blob = new Blob([payload], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `lga-backup-${new Date().toISOString().slice(0, 10)}.json`;
+            a.download = `lga-whs-backup-${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
             showToast('Backup JSON downloaded.', 'success');
         }
 
         function openRestoreModal() {
-            if (!isAdminUnlocked) return;
-            document.getElementById('restore-json-input').value = '';
+            if (!isAdminUnlocked) {
+                showToast('Only Admin can restore from JSON.', 'error');
+                return;
+            }
             document.getElementById('restore-modal').classList.remove('hidden');
         }
 
@@ -1134,278 +1350,466 @@
         }
 
         function applyRestoreJson() {
-            if (!isAdminUnlocked) return;
+            if (!isAdminUnlocked) {
+                showToast('Only Admin can restore from JSON.', 'error');
+                return;
+            }
             try {
-                const parsed = JSON.parse(document.getElementById('restore-json-input').value);
+                const raw = document.getElementById('restore-json-input').value.trim();
+                const parsed = JSON.parse(raw);
                 state = { ...createInitialState(), ...parsed };
+                sanitizeState();
                 persistState();
                 closeRestoreModal();
                 renderAll();
                 showToast('State restored from JSON.', 'success');
             } catch (err) {
-                showToast('Invalid JSON format.', 'error');
+                showToast('Invalid JSON backup format.', 'error');
             }
         }
 
-        // Navigation
-        function switchTab(tabId) {
-            if (tabId === 'tour-locations' && !isAdminUnlocked) {
-                tabId = 'dashboard';
-            }
-            state.activeTab = tabId;
-            document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
-            const panel = document.getElementById(`tab-${tabId}`);
-            if (panel) panel.classList.remove('hidden');
-
-            document.querySelectorAll('.nav-tab').forEach(btn => {
-                const active = btn.dataset.tab === tabId;
-                btn.className = `nav-tab ${btn.id === 'tour-locations-tab-btn' && !isAdminUnlocked ? 'hidden ' : ''}px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer ${
-                    active ? 'bg-lga-gold text-lga-navy font-bold shadow' : 'text-slate-300 hover:text-white hover:bg-white/10'
-                }`;
-            });
-            renderAll();
-        }
-
-        function onActiveGolferChange(golferId) {
-            state.activeGolferId = golferId;
-            document.getElementById('log-golfer').value = golferId;
-            persistState();
-            renderAll();
-        }
-
-        // Handicap & WHS Calculations
+        // WHS & Handicap Calculations (TBC when unplayed / unrecorded)
         function getGolferById(id) {
-            return state.golfers.find(g => g.id === id) || null;
+            return state.golfers.find(g => g.id === id) || state.golfers[0];
+        }
+
+        function getCourseById(id) {
+            return state.courses.find(c => c.id === id) || state.courses[0];
         }
 
         function getLatestRecordedYearHandicap(golferId) {
-            const golfer = getGolferById(golferId);
-            const yrMap = state.yearlyHandicaps?.[golferId] || {};
-            const years = Object.keys(yrMap)
+            const yearMap = state.yearlyHandicaps?.[golferId] || {};
+            const recordedYears = Object.keys(yearMap)
                 .map(Number)
-                .filter(y => !Number.isNaN(y) && yrMap[y] !== '' && yrMap[y] !== null && yrMap[y] !== undefined && !Number.isNaN(Number(yrMap[y])))
+                .filter(y => !Number.isNaN(y) && yearMap[y] !== '' && yearMap[y] !== null && yearMap[y] !== undefined)
                 .sort((a, b) => b - a);
-
-            if (years.length > 0) {
-                const val = Math.min(MAX_HANDICAP, Math.max(0, Number(yrMap[years[0]])));
-                return { year: years[0], value: val };
+            if (recordedYears.length === 0) {
+                return { year: null, value: null };
             }
-            const base = Math.min(MAX_HANDICAP, Math.max(0, Number(golfer?.baselineWhs ?? 20)));
-            return { year: null, value: base };
+            const latestYear = recordedYears[0];
+            return { year: latestYear, value: Math.min(MAX_HANDICAP, Number(yearMap[latestYear])) };
         }
 
-        function calcCourseDailyHandicap(whsIndex, course) {
-            if (!course || whsIndex === null || whsIndex === undefined || Number.isNaN(Number(whsIndex))) return null;
-            const cappedIdx = Math.min(MAX_HANDICAP, Math.max(0, Number(whsIndex)));
-            const slope = Number(course.slope) || 113;
-            const rating = Number(course.rating) || Number(course.par) || 72;
-            const par = Number(course.par) || 72;
-            return Math.round(cappedIdx * (slope / 113) + (rating - par));
-        }
-
-        function calcDifferential(gross, course) {
-            if (!course || gross === null || gross === undefined || gross === '' || Number.isNaN(Number(gross))) return null;
-            const slope = Number(course.slope) || 113;
-            const rating = Number(course.rating) || Number(course.par) || 72;
-            return Number((((Number(gross) - rating) * 113) / slope).toFixed(1));
+        function countGolferWins(golferId) {
+            return Object.values(state.championshipResults || {}).filter(yearMap => {
+                const rank = String(yearMap?.[golferId]?.rank || '').trim();
+                return rank === '1' || rank === '1=';
+            }).length;
         }
 
         function computeGolferWhs(golferId) {
             const golfer = getGolferById(golferId);
+            const golferRounds = (state.rounds || []).filter(r => r.golferId === golferId);
             const latestYr = getLatestRecordedYearHandicap(golferId);
-            const baseWhs = Math.min(MAX_HANDICAP, Math.max(0, Number(latestYr.value ?? golfer?.baselineWhs ?? 20)));
-            const golferRounds = state.rounds.filter(r => r.golferId === golferId);
+
+            const hasBaseline = golfer?.baselineWhs !== null && golfer?.baselineWhs !== undefined && golfer?.baselineWhs !== '';
+            const baseVal = hasBaseline ? Math.min(MAX_HANDICAP, Number(golfer.baselineWhs)) : null;
 
             if (golferRounds.length === 0) {
-                const roundedBase = Number(baseWhs.toFixed(1));
-                const lowCap = Math.min(roundedBase, Math.min(MAX_HANDICAP, Number(golfer?.lowCap12m ?? roundedBase)));
+                const resolvedIndex = latestYr.value !== null ? latestYr.value : baseVal;
+                if (resolvedIndex === null || resolvedIndex === undefined || Number.isNaN(resolvedIndex)) {
+                    return {
+                        whsIndex: null,
+                        isTbc: true,
+                        lowCap12m: null,
+                        roundsCount: 0,
+                        differentialsCounted: 0
+                    };
+                }
+                const cappedIndex = Math.min(MAX_HANDICAP, Number(resolvedIndex));
+                const lowCap = golfer?.lowCap12m !== null && golfer?.lowCap12m !== undefined && golfer?.lowCap12m !== ''
+                    ? Math.min(cappedIndex, Math.min(MAX_HANDICAP, Number(golfer.lowCap12m)))
+                    : cappedIndex;
                 return {
-                    whsIndex: roundedBase,
+                    whsIndex: Number(cappedIndex.toFixed(1)),
+                    isTbc: false,
                     lowCap12m: Number(lowCap.toFixed(1)),
                     roundsCount: 0,
-                    baselineYear: latestYr.year
+                    differentialsCounted: 0
                 };
             }
 
             const diffs = golferRounds
-                .map(r => {
-                    if (typeof r.differential === 'number' && !Number.isNaN(r.differential)) return r.differential;
-                    const c = state.courses.find(course => course.id === r.courseId);
-                    return calcDifferential(r.gross, c);
-                })
-                .filter(d => d !== null && !Number.isNaN(d))
+                .map(r => Number(r.differential))
+                .filter(d => !Number.isNaN(d))
                 .sort((a, b) => a - b);
 
-            const takeCount = diffs.length >= 20 ? 8 : diffs.length >= 10 ? 4 : diffs.length >= 6 ? 2 : 1;
-            const bestDiffs = diffs.slice(0, takeCount);
-            const avgDiff = bestDiffs.length > 0 ? bestDiffs.reduce((s, v) => s + v, 0) / bestDiffs.length : baseWhs;
-            const blended = Math.min(MAX_HANDICAP, Math.max(0, Number(((baseWhs + avgDiff) / 2).toFixed(1))));
-            const lowCap = Math.min(blended, Math.min(MAX_HANDICAP, Number(golfer?.lowCap12m ?? blended)));
+            const countToUse = diffs.length >= 20 ? 8 : diffs.length >= 10 ? 4 : diffs.length >= 5 ? 2 : 1;
+            const selected = diffs.slice(0, countToUse);
+            const avg = selected.reduce((sum, v) => sum + v, 0) / selected.length;
+            const whsIndex = Math.min(MAX_HANDICAP, Math.max(0, Number(avg.toFixed(1))));
+            const rawLow = golfer?.lowCap12m !== null && golfer?.lowCap12m !== undefined && golfer?.lowCap12m !== ''
+                ? Math.min(MAX_HANDICAP, Number(golfer.lowCap12m))
+                : whsIndex;
+            const lowCap12m = Math.min(whsIndex, rawLow);
 
             return {
-                whsIndex: blended,
-                lowCap12m: Number(lowCap.toFixed(1)),
+                whsIndex,
+                isTbc: false,
+                lowCap12m: Number(lowCap12m.toFixed(1)),
                 roundsCount: golferRounds.length,
-                baselineYear: latestYr.year
+                differentialsCounted: selected.length
             };
         }
 
-        // Renderers
-        function renderDashboard() {
-            const activeGolfer = getGolferById(state.activeGolferId);
-            const stats = computeGolferWhs(state.activeGolferId);
-            const wins = Object.values(state.championshipResults || {}).filter(ym => String(ym?.[state.activeGolferId]?.rank || '').startsWith('1')).length;
+        function calcCourseDailyHandicap(whsIndex, course) {
+            if (whsIndex === null || whsIndex === undefined || Number.isNaN(Number(whsIndex))) return null;
+            const raw = Number(whsIndex) * (Number(course.slope) / 113) + (Number(course.rating) - Number(course.par));
+            return Math.min(45, Math.max(0, Math.round(raw)));
+        }
 
-            document.getElementById('kpi-whs-index').textContent = stats.whsIndex.toFixed(1);
-            document.getElementById('kpi-whs-sub').textContent = stats.baselineYear
-                ? `${stats.baselineYear} record (${stats.whsIndex.toFixed(1)}) + rounds`
-                : `Baseline + rounds (${activeGolfer?.name || ''})`;
-            document.getElementById('kpi-low-index').textContent = stats.lowCap12m.toFixed(1);
+        function onActiveGolferChange(golferId) {
+            state.activeGolferId = golferId;
+            const logGolfer = document.getElementById('log-golfer');
+            if (logGolfer) logGolfer.value = golferId;
+            persistState();
+            renderAll();
+        }
+
+        // Dashboard Rendering
+        function renderDashboard() {
+            const golfer = getGolferById(state.activeGolferId);
+            const stats = computeGolferWhs(golfer.id);
+
+            document.getElementById('kpi-whs-index').textContent = stats.isTbc ? 'TBC' : stats.whsIndex.toFixed(1);
+            document.getElementById('kpi-whs-sub').textContent = stats.isTbc
+                ? `${golfer.name} • Has not played (TBC)`
+                : `${golfer.name} • Max 36.0 cap`;
+
+            document.getElementById('kpi-low-index').textContent = stats.isTbc ? 'TBC' : stats.lowCap12m.toFixed(1);
             document.getElementById('kpi-rounds-count').textContent = String(stats.roundsCount);
-            document.getElementById('kpi-titles-count').textContent = String(wins);
+            document.getElementById('kpi-rounds-sub').textContent = stats.roundsCount > 0
+                ? `Best ${stats.differentialsCounted} differential(s) counted`
+                : 'No rounds logged yet';
+
+            const titles = countGolferWins(golfer.id);
+            document.getElementById('kpi-titles-count').textContent = String(titles);
+            document.getElementById('kpi-titles-sub').textContent = titles === 1 ? 'Pidgeon Cup victory' : 'Pidgeon Cup victories';
 
             const previewSelect = document.getElementById('dash-course-preview');
-            const prevCourseVal = previewSelect.value;
-            previewSelect.innerHTML = sortCoursesAlphabetically(state.courses).map(c =>
-                `<option value="${c.id}">${formatCourseDisplayName(c)} (${c.tee}) — Par ${c.par} / CR ${c.rating} / Slope ${c.slope}</option>`
-            ).join('');
-            if (prevCourseVal && state.courses.some(c => c.id === prevCourseVal)) previewSelect.value = prevCourseVal;
+            if (previewSelect) {
+                const prevVal = previewSelect.value;
+                previewSelect.innerHTML = sortCoursesAlphabetically(state.courses)
+                    .map(c => `<option value="${c.id}">${formatCourseDisplayName(c)} (${c.tee})</option>`)
+                    .join('');
+                if (prevVal && state.courses.some(c => c.id === prevVal)) {
+                    previewSelect.value = prevVal;
+                }
+            }
             updateDashboardDailyPreview();
 
-            document.getElementById('group-member-count-badge').textContent = `${state.golfers.length} Members`;
-            const boardEl = document.getElementById('group-whs-list');
-            boardEl.innerHTML = sortGolfersAlphabetically(state.golfers).map(g => {
+            const sortedGolfers = sortGolfersAlphabetically(state.golfers);
+            document.getElementById('group-member-count-badge').textContent = `${sortedGolfers.length} Members`;
+            document.getElementById('group-whs-list').innerHTML = sortedGolfers.map(g => {
                 const s = computeGolferWhs(g.id);
-                const isActive = g.id === state.activeGolferId;
+                const isSelected = g.id === state.activeGolferId;
                 return `
-                    <div onclick="onActiveGolferChange('${g.id}')" class="p-3 rounded-xl border cursor-pointer transition flex items-center justify-between gap-2 ${
-                        isActive ? 'bg-lga-navy text-white border-lga-gold shadow' : 'bg-lga-cream/70 hover:bg-lga-sand text-lga-navy border-lga-gold/25'
+                    <button type="button" onclick="onActiveGolferChange('${g.id}')" class="w-full text-left px-3.5 py-2.5 rounded-xl border transition flex items-center justify-between gap-2 cursor-pointer ${
+                        isSelected
+                            ? 'bg-lga-navy text-white border-lga-gold shadow-sm'
+                            : 'bg-lga-cream/70 hover:bg-lga-sand text-lga-navy border-lga-gold/25'
                     }">
-                        <div>
-                            <div class="text-xs sm:text-sm font-bold">${g.name}</div>
-                            <div class="text-[11px] ${isActive ? 'text-slate-300' : 'text-lga-slate'}">${g.role} • ${s.roundsCount} rds</div>
+                        <div class="min-w-0">
+                            <div class="font-semibold text-xs sm:text-sm truncate">${g.name}</div>
+                            <div class="text-[11px] ${isSelected ? 'text-lga-goldLight' : 'text-lga-slate'} truncate">${g.role}</div>
                         </div>
-                        <div class="text-right">
-                            <div class="font-mono text-sm font-extrabold ${isActive ? 'text-lga-gold' : 'text-lga-navy'}">${s.whsIndex.toFixed(1)}</div>
-                            <div class="text-[10px] ${isActive ? 'text-slate-300' : 'text-lga-slate'}">Low ${s.lowCap12m.toFixed(1)}</div>
-                        </div>
-                    </div>
+                        <span class="font-mono font-extrabold text-xs sm:text-sm px-2.5 py-1 rounded-lg shrink-0 ${
+                            s.isTbc
+                                ? 'bg-slate-200/80 text-slate-600'
+                                : isSelected
+                                    ? 'bg-lga-gold text-lga-navy'
+                                    : 'bg-white text-lga-navy border border-lga-gold/30'
+                        }">${s.isTbc ? 'TBC' : s.whsIndex.toFixed(1)}</span>
+                    </button>
                 `;
             }).join('');
         }
 
         function updateDashboardDailyPreview() {
-            const courseId = document.getElementById('dash-course-preview').value;
-            const course = state.courses.find(c => c.id === courseId);
-            const stats = computeGolferWhs(state.activeGolferId);
+            const golfer = getGolferById(state.activeGolferId);
+            const stats = computeGolferWhs(golfer.id);
+            const courseSelect = document.getElementById('dash-course-preview');
+            const course = getCourseById(courseSelect?.value);
+            if (!course) return;
+
+            if (stats.isTbc) {
+                document.getElementById('dash-daily-value').textContent = 'TBC';
+                document.getElementById('dash-daily-formula').textContent = `${golfer.name} handicap TBC • ${formatCourseDisplayName(course)} Par ${course.par}`;
+                return;
+            }
+
             const daily = calcCourseDailyHandicap(stats.whsIndex, course);
-            document.getElementById('dash-daily-value').textContent = daily !== null ? String(daily) : '—';
-            if (course) {
-                document.getElementById('dash-daily-formula').textContent =
-                    `${stats.whsIndex.toFixed(1)} × (${course.slope} ÷ 113) + (${course.rating} − ${course.par})`;
+            document.getElementById('dash-daily-value').textContent = String(daily);
+            document.getElementById('dash-daily-formula').textContent = `${stats.whsIndex.toFixed(1)} × (${course.slope} ÷ 113) + (${course.rating} − ${course.par}) • ${formatCourseDisplayName(course)}`;
+        }
+
+        // Hole-by-Hole Scorecard Logic (Log Round Tab)
+        function calcHoleStableford(grossVal, parVal, dailyHcp, siVal) {
+            const gross = Number(grossVal);
+            if (!gross || Number.isNaN(gross) || gross <= 0) return null;
+            const hcp = Math.max(0, Number(dailyHcp) || 0);
+            const baseShots = Math.floor(hcp / 18);
+            const remShots = hcp % 18;
+            const holeStrokesReceived = baseShots + (siVal <= remShots ? 1 : 0);
+            const netScore = gross - holeStrokesReceived;
+            const pts = parVal - netScore + 2;
+            return Math.max(0, pts);
+        }
+
+        function onLogCourseChange() {
+            holeGrossScores = Array(18).fill('');
+            const grossInput = document.getElementById('log-gross');
+            const stblInput = document.getElementById('log-stableford');
+            if (grossInput) grossInput.value = '';
+            if (stblInput) stblInput.value = '';
+            renderHoleScorecard();
+            updateLogRoundCalc();
+        }
+
+        function fillParScorecard() {
+            const course = getCourseById(document.getElementById('log-course')?.value);
+            const par = Number(course?.par) || 72;
+            const delta = par - 72;
+            holeGrossScores = DEFAULT_HOLE_PARS.map((p, idx) => {
+                if (idx === 17 && delta !== 0) return Math.max(3, p + delta);
+                return p;
+            });
+            renderHoleScorecard();
+            updateLogRoundCalc();
+        }
+
+        function onHoleGrossInput(holeIdx, rawVal) {
+            const cleaned = rawVal === '' ? '' : Math.max(1, Math.min(15, Number(rawVal) || ''));
+            holeGrossScores[holeIdx] = cleaned;
+            renderHoleScorecard();
+            updateLogRoundCalc();
+        }
+
+        function renderHoleScorecard() {
+            const golferId = document.getElementById('log-golfer')?.value || state.activeGolferId;
+            const course = getCourseById(document.getElementById('log-course')?.value);
+            const stats = computeGolferWhs(golferId);
+            const dailyHcp = stats.isTbc ? 0 : calcCourseDailyHandicap(stats.whsIndex, course);
+
+            const parFront = document.getElementById('par-row-front');
+            const grossFront = document.getElementById('gross-row-front');
+            const ptsFront = document.getElementById('pts-row-front');
+            const parBack = document.getElementById('par-row-back');
+            const grossBack = document.getElementById('gross-row-back');
+            const ptsBack = document.getElementById('pts-row-back');
+            if (!parFront || !grossFront || !ptsFront || !parBack || !grossBack || !ptsBack) return;
+
+            let frontParSum = 0;
+            let frontGrossSum = 0;
+            let frontPtsSum = 0;
+            let hasFrontGross = false;
+
+            let frontParCells = '<td class="px-2 py-1.5 text-left font-bold">Par</td>';
+            let frontGrossCells = '<td class="px-2 py-1.5 text-left font-bold text-lga-navy">Gross</td>';
+            let frontPtsCells = '<td class="px-2 py-1.5 text-left font-bold">Pts</td>';
+
+            for (let i = 0; i < 9; i++) {
+                const p = DEFAULT_HOLE_PARS[i];
+                const si = DEFAULT_HOLE_SI[i];
+                const g = holeGrossScores[i];
+                frontParSum += p;
+                frontParCells += `<td class="px-1 py-1.5 font-mono">${p}</td>`;
+                frontGrossCells += `<td class="p-1"><input type="number" min="1" max="15" value="${g}" onchange="onHoleGrossInput(${i}, this.value)" class="w-10 sm:w-11 text-center rounded border border-slate-300 bg-lga-cream py-1 font-mono text-xs text-lga-navy focus:border-lga-gold focus:outline-none"></td>`;
+                if (g !== '' && !Number.isNaN(Number(g))) {
+                    hasFrontGross = true;
+                    frontGrossSum += Number(g);
+                    const pts = calcHoleStableford(g, p, dailyHcp, si);
+                    frontPtsSum += pts;
+                    frontPtsCells += `<td class="px-1 py-1.5">${pts}</td>`;
+                } else {
+                    frontPtsCells += `<td class="px-1 py-1.5 text-slate-400">·</td>`;
+                }
+            }
+
+            parFront.innerHTML = `${frontParCells}<td class="px-2 py-1.5 font-mono font-bold bg-lga-sand">${frontParSum}</td>`;
+            grossFront.innerHTML = `${frontGrossCells}<td class="px-2 py-1.5 font-mono font-extrabold text-lga-navy bg-lga-cream">${hasFrontGross ? frontGrossSum : '—'}</td>`;
+            ptsFront.innerHTML = `${frontPtsCells}<td class="px-2 py-1.5 font-mono font-extrabold text-lga-goldDark bg-amber-100/70">${hasFrontGross ? frontPtsSum : '—'}</td>`;
+
+            let backParSum = 0;
+            let backGrossSum = 0;
+            let backPtsSum = 0;
+            let hasBackGross = false;
+
+            let backParCells = '<td class="px-2 py-1.5 text-left font-bold">Par</td>';
+            let backGrossCells = '<td class="px-2 py-1.5 text-left font-bold text-lga-navy">Gross</td>';
+            let backPtsCells = '<td class="px-2 py-1.5 text-left font-bold">Pts</td>';
+
+            for (let i = 9; i < 18; i++) {
+                const p = DEFAULT_HOLE_PARS[i];
+                const si = DEFAULT_HOLE_SI[i];
+                const g = holeGrossScores[i];
+                backParSum += p;
+                backParCells += `<td class="px-1 py-1.5 font-mono">${p}</td>`;
+                backGrossCells += `<td class="p-1"><input type="number" min="1" max="15" value="${g}" onchange="onHoleGrossInput(${i}, this.value)" class="w-10 sm:w-11 text-center rounded border border-slate-300 bg-lga-cream py-1 font-mono text-xs text-lga-navy focus:border-lga-gold focus:outline-none"></td>`;
+                if (g !== '' && !Number.isNaN(Number(g))) {
+                    hasBackGross = true;
+                    backGrossSum += Number(g);
+                    const pts = calcHoleStableford(g, p, dailyHcp, si);
+                    backPtsSum += pts;
+                    backPtsCells += `<td class="px-1 py-1.5">${pts}</td>`;
+                } else {
+                    backPtsCells += `<td class="px-1 py-1.5 text-slate-400">·</td>`;
+                }
+            }
+
+            const totalGross = (hasFrontGross ? frontGrossSum : 0) + (hasBackGross ? backGrossSum : 0);
+            const totalPts = (hasFrontGross ? frontPtsSum : 0) + (hasBackGross ? backPtsSum : 0);
+            const hasAnyHole = hasFrontGross || hasBackGross;
+
+            parBack.innerHTML = `${backParCells}<td class="px-2 py-1.5 font-mono font-bold bg-lga-sand">${backParSum} / ${frontParSum + backParSum}</td>`;
+            grossBack.innerHTML = `${backGrossCells}<td class="px-2 py-1.5 font-mono font-extrabold text-lga-navy bg-lga-cream">${hasBackGross ? backGrossSum : '—'} / ${hasAnyHole ? totalGross : '—'}</td>`;
+            ptsBack.innerHTML = `${backPtsCells}<td class="px-2 py-1.5 font-mono font-extrabold text-lga-goldDark bg-amber-100/70">${hasBackGross ? backPtsSum : '—'} / ${hasAnyHole ? totalPts : '—'}</td>`;
+
+            const grossInput = document.getElementById('log-gross');
+            const stblInput = document.getElementById('log-stableford');
+            if (hasAnyHole && grossInput) {
+                grossInput.value = String(totalGross);
+            }
+            if (hasAnyHole && stblInput) {
+                stblInput.value = String(totalPts);
             }
         }
 
         function updateLogRoundCalc() {
-            const golferId = document.getElementById('log-golfer').value;
-            const courseId = document.getElementById('log-course').value;
-            const grossVal = document.getElementById('log-gross').value;
-            const course = state.courses.find(c => c.id === courseId);
+            renderHoleScorecard();
+            const golferId = document.getElementById('log-golfer')?.value || state.activeGolferId;
+            const course = getCourseById(document.getElementById('log-course')?.value);
+            const grossVal = Number(document.getElementById('log-gross')?.value);
             const stats = computeGolferWhs(golferId);
-            const daily = calcCourseDailyHandicap(stats.whsIndex, course);
-            const diff = calcDifferential(grossVal, course);
 
-            document.getElementById('calc-daily-hcp').textContent = daily !== null ? String(daily) : '—';
-            document.getElementById('calc-adj-gross').textContent = grossVal ? String(grossVal) : '—';
-            document.getElementById('calc-differential').textContent = diff !== null ? diff.toFixed(1) : '—';
+            if (!course) return;
+
+            if (stats.isTbc) {
+                document.getElementById('calc-daily-hcp').textContent = 'TBC';
+                document.getElementById('calc-adj-gross').textContent = grossVal > 0 ? String(grossVal) : '—';
+                document.getElementById('calc-differential').textContent = 'TBC';
+                return;
+            }
+
+            const daily = calcCourseDailyHandicap(stats.whsIndex, course);
+            document.getElementById('calc-daily-hcp').textContent = String(daily);
+
+            if (!grossVal || Number.isNaN(grossVal) || grossVal <= 0) {
+                document.getElementById('calc-adj-gross').textContent = '—';
+                document.getElementById('calc-differential').textContent = '—';
+                return;
+            }
+
+            const diff = ((113 / Number(course.slope)) * (grossVal - Number(course.rating))).toFixed(1);
+            document.getElementById('calc-adj-gross').textContent = String(grossVal);
+            document.getElementById('calc-differential').textContent = diff;
         }
 
         function handleLogRoundSubmit(event) {
             event.preventDefault();
             const golferId = document.getElementById('log-golfer').value;
-            const courseId = document.getElementById('log-course').value;
+            const course = getCourseById(document.getElementById('log-course').value);
             const date = document.getElementById('log-date').value;
-            const grossRaw = document.getElementById('log-gross').value;
-            const stablefordRaw = document.getElementById('log-stableford').value;
+            const gross = Number(document.getElementById('log-gross').value);
             const notes = document.getElementById('log-notes').value.trim();
 
-            const course = state.courses.find(c => c.id === courseId);
+            if (!golferId || !course || !date || !gross || gross < 45) {
+                showToast('Please enter a valid gross score or hole-by-hole scorecard.', 'error');
+                return;
+            }
+
             const stats = computeGolferWhs(golferId);
-            const gross = grossRaw !== '' ? Number(grossRaw) : null;
-            const stableford = stablefordRaw !== '' ? Number(stablefordRaw) : null;
-            const dailyHcp = calcCourseDailyHandicap(stats.whsIndex, course);
-            const differential = gross !== null ? calcDifferential(gross, course) : null;
+            const daily = stats.isTbc ? 0 : calcCourseDailyHandicap(stats.whsIndex, course);
+            const holeScoresClean = holeGrossScores.map(v => (v === '' ? null : Number(v)));
+            const computedHolePts = holeScoresClean.some(v => v !== null)
+                ? holeScoresClean.reduce((sum, gVal, idx) => sum + (gVal !== null ? calcHoleStableford(gVal, DEFAULT_HOLE_PARS[idx], daily, DEFAULT_HOLE_SI[idx]) : 0), 0)
+                : null;
+
+            const manualStbl = document.getElementById('log-stableford').value;
+            const stableford = manualStbl !== ''
+                ? Number(manualStbl)
+                : (computedHolePts !== null ? computedHolePts : Math.max(0, 36 + daily - (gross - course.par)));
+
+            const differential = Number(((113 / Number(course.slope)) * (gross - Number(course.rating))).toFixed(1));
 
             state.rounds.unshift({
                 id: `round-${Date.now()}`,
                 golferId,
-                courseId,
-                courseName: course ? formatCourseDisplayName(course) : 'Course',
+                courseId: course.id,
+                courseName: formatCourseDisplayName(course),
                 date,
                 gross,
                 stableford,
-                dailyHcp,
                 differential,
+                holeGrossScores: holeScoresClean,
                 notes
             });
 
-            persistState();
+            const updatedStats = computeGolferWhs(golferId);
+            const golferObj = getGolferById(golferId);
+            if (golferObj && !updatedStats.isTbc) {
+                golferObj.baselineWhs = updatedStats.whsIndex;
+                golferObj.lowCap12m = updatedStats.lowCap12m;
+            }
+
+            holeGrossScores = Array(18).fill('');
             document.getElementById('log-gross').value = '';
             document.getElementById('log-stableford').value = '';
             document.getElementById('log-notes').value = '';
-            updateLogRoundCalc();
-            renderAll();
-            showToast('Round saved and synced.', 'success');
-        }
 
-        function deleteRound(roundId) {
-            state.rounds = state.rounds.filter(r => r.id !== roundId);
             persistState();
             renderAll();
-            showToast('Round removed.');
+            showToast('Round and scorecard saved & synced.', 'success');
         }
 
         function renderRoundsFeed() {
-            const filter = document.getElementById('rounds-filter-golfer').value;
+            const filter = document.getElementById('rounds-filter-golfer')?.value || 'ALL';
             const listEl = document.getElementById('rounds-feed-list');
-            const rows = state.rounds
-                .filter(r => filter === 'ALL' || r.golferId === state.activeGolferId)
-                .sort((a, b) => {
-                    const gA = getGolferById(a.golferId)?.name || a.golferId;
-                    const gB = getGolferById(b.golferId)?.name || b.golferId;
-                    const nameCmp = compareAlpha(gA, gB);
-                    if (nameCmp !== 0) return nameCmp;
-                    return new Date(b.date) - new Date(a.date);
-                });
+            const items = (state.rounds || []).filter(r => filter === 'ALL' || r.golferId === state.activeGolferId);
 
-            if (rows.length === 0) {
-                listEl.innerHTML = `<div class="p-6 rounded-xl bg-lga-cream border border-lga-gold/30 text-center text-xs sm:text-sm text-lga-slate">No rounds logged yet. Use <strong>Log Round</strong> to record a scorecard.</div>`;
+            if (items.length === 0) {
+                listEl.innerHTML = `<div class="p-6 text-center text-xs text-lga-slate bg-lga-cream/60 rounded-xl border border-lga-gold/25">No rounds logged yet.</div>`;
                 return;
             }
 
-            listEl.innerHTML = rows.map(r => {
+            listEl.innerHTML = items.map(r => {
                 const golfer = getGolferById(r.golferId);
-                const courseObj = state.courses.find(c => c.id === r.courseId);
-                const courseLabel = courseObj ? formatCourseDisplayName(courseObj) : r.courseName;
                 return `
-                    <div class="p-4 rounded-xl bg-lga-cream/70 border border-lga-gold/30 flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-xs sm:text-sm font-bold text-lga-navy">${golfer?.name || r.golferId} • <span class="text-lga-goldDark">${courseLabel}</span></div>
-                            <div class="text-xs text-lga-slate">${r.date} • Gross ${r.gross ?? '—'} • Daily Hcp ${r.dailyHcp ?? '—'}</div>
-                            ${r.notes ? `<div class="text-[11px] text-slate-600 mt-0.5">${r.notes}</div>` : ''}
+                    <div class="p-3.5 rounded-xl border border-lga-gold/30 bg-lga-cream/60 space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-bold text-xs sm:text-sm text-lga-navy truncate">${golfer?.name || r.golferId}</span>
+                            <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-lga-navy text-lga-gold shrink-0">Diff ${Number(r.differential).toFixed(1)}</span>
                         </div>
-                        <button type="button" onclick="deleteRound('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-700 hover:bg-rose-100 cursor-pointer">Delete</button>
+                        <div class="text-xs text-lga-slate truncate">${r.courseName} • ${r.date}</div>
+                        <div class="flex items-center justify-between text-xs font-mono text-lga-navy pt-1">
+                            <span>Gross ${r.gross} • ${r.stableford} pts</span>
+                            <span class="text-lga-slate font-sans truncate max-w-[140px]">${r.notes || ''}</span>
+                        </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function getRankBadgeClass(rankStr) {
-            const s = String(rankStr || '').trim();
-            if (s === '1' || s === '1=') return 'bg-amber-100 text-amber-950 border-amber-300 font-bold';
-            if (s === '2' || s === '2=') return 'bg-slate-100 text-slate-900 border-slate-300 font-semibold';
-            if (s === '3' || s === '3=') return 'bg-orange-100 text-orange-950 border-orange-300 font-semibold';
-            return 'bg-lga-cream text-lga-navy border-slate-200';
+        // Championship Results Matrix (Rank & Score Only, 2015 -> 2025 Left to Right)
+        function formatChampCellSummary(entry) {
+            if (!entry) return '—';
+            const rankStr = String(entry.rank || '').trim();
+            const scoreStr = String(entry.score || '').trim();
+            if (!rankStr && !scoreStr) return 'Played';
+            if (rankStr && scoreStr) {
+                const suffix = entry.format === 'Stroke' ? '' : ' pts';
+                return `#${rankStr} (${scoreStr}${suffix})`;
+            }
+            return rankStr ? `#${rankStr}` : `${scoreStr} pts`;
+        }
+
+        function getChampCellBadgeClass(entry) {
+            if (!entry) return 'text-slate-300';
+            const r = String(entry.rank || '').trim();
+            if (r === '1' || r === '1=') return 'bg-amber-100 text-amber-950 border border-amber-300 font-extrabold';
+            if (r === '2' || r === '2=') return 'bg-slate-100 text-slate-900 border border-slate-300 font-bold';
+            if (r === '3' || r === '3=') return 'bg-orange-100 text-orange-950 border border-orange-300 font-bold';
+            return 'bg-lga-cream text-lga-navy border border-lga-gold/25 font-semibold';
         }
 
         function renderChampionshipHistory() {
@@ -1415,30 +1819,30 @@
 
             headEl.innerHTML = `
                 <tr>
-                    <th class="px-3 py-3 sticky left-0 bg-lga-navy z-10 min-w-[180px]">Golfer</th>
-                    ${yearsAsc.map(y => {
-                        const loc = state.tourLocations?.[y] || '';
-                        return `<th class="px-3 py-3 min-w-[125px] text-center"><div>${y}</div>${loc ? `<div class="text-[10px] font-normal text-slate-300">${loc}</div>` : ''}</th>`;
-                    }).join('')}
+                    <th class="px-3 py-2.5 sticky left-0 bg-lga-navy z-10 min-w-[155px] sm:min-w-[180px]">Golfer</th>
+                    ${yearsAsc.map(y => `
+                        <th class="px-2.5 py-2.5 text-center min-w-[100px]">
+                            <div>${y}</div>
+                        </th>
+                    `).join('')}
                 </tr>
             `;
 
-            const bodyRows = sortGolfersAlphabetically(state.golfers).map(g => {
+            const activeGolfers = sortGolfersAlphabetically(state.golfers).filter(g => {
+                const hasYearHcp = Object.values(state.yearlyHandicaps?.[g.id] || {}).some(v => v !== '' && v !== null && v !== undefined);
+                const hasChamp = yearsAsc.some(y => Boolean(state.championshipResults?.[y]?.[g.id]));
+                return hasYearHcp || hasChamp;
+            });
+
+            bodyEl.innerHTML = activeGolfers.map(g => {
                 const cells = yearsAsc.map(y => {
-                    const entry = state.championshipResults?.[y]?.[g.id];
-                    const cursorClass = isAdminUnlocked ? 'cursor-pointer hover:bg-lga-sand/80' : '';
-                    const clickAttr = isAdminUnlocked ? `onclick="openChampCellModal('${g.id}', ${y})"` : '';
-                    if (!entry || (!entry.rank && !entry.score)) {
-                        return `<td ${clickAttr} class="px-2.5 py-2.5 text-center text-slate-300 ${cursorClass}">—</td>`;
-                    }
-                    const rankText = entry.rank ? `#${entry.rank}` : '';
-                    const scoreText = entry.score ? `${entry.score}` : '';
+                    const entry = state.championshipResults?.[y]?.[g.id] || null;
+                    const summary = formatChampCellSummary(entry);
+                    const badgeCls = getChampCellBadgeClass(entry);
+                    const clickAttr = isAdminUnlocked ? `onclick="openChampCellModal(${y}, '${g.id}')"` : '';
                     return `
-                        <td ${clickAttr} class="px-2.5 py-2 text-center ${cursorClass}">
-                            <div class="inline-block px-2 py-1 rounded-lg border text-[11px] ${getRankBadgeClass(entry.rank)}">
-                                <div>${rankText} ${scoreText ? `(${scoreText})` : ''}</div>
-                                ${entry.hcp ? `<div class="text-[10px] opacity-80">HCP ${entry.hcp}</div>` : ''}
-                            </div>
+                        <td ${clickAttr} class="px-2 py-2 text-center ${isAdminUnlocked ? 'cursor-pointer hover:bg-amber-50' : ''}">
+                            <span class="inline-block px-2 py-1 rounded-lg text-[11px] whitespace-nowrap ${badgeCls}">${summary}</span>
                         </td>
                     `;
                 }).join('');
@@ -1451,43 +1855,46 @@
                 `;
             }).join('');
 
-            bodyEl.innerHTML = bodyRows;
-
             const breakdownsEl = document.getElementById('champ-year-breakdowns');
-            breakdownsEl.innerHTML = [...yearsAsc].reverse().map(y => {
-                const loc = state.tourLocations?.[y] || '';
+            breakdownsEl.innerHTML = yearsAsc.map(y => {
                 const yearMap = state.championshipResults?.[y] || {};
-                const rows = Object.entries(yearMap)
-                    .map(([gId, d]) => ({ golfer: getGolferById(gId), ...d }))
+                const entries = Object.entries(yearMap)
+                    .map(([gId, data]) => ({ golfer: getGolferById(gId), ...data }))
                     .filter(item => item.golfer)
-                    .sort((a, b) => compareAlpha(a.golfer.name, b.golfer.name));
+                    .sort((a, b) => {
+                        const ra = parseInt(String(a.rank || '999').replace(/\D/g, ''), 10) || 999;
+                        const rb = parseInt(String(b.rank || '999').replace(/\D/g, ''), 10) || 999;
+                        if (ra !== rb) return ra - rb;
+                        return compareAlpha(a.golfer.name, b.golfer.name);
+                    });
 
-                const rowsHtml = rows.length > 0
-                    ? rows.map(r => `
-                        <div class="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-none text-xs">
-                            <span class="font-semibold text-lga-navy">${r.golfer.name}</span>
-                            <span class="font-mono text-lga-slate">
-                                ${r.rank ? `Pos ${r.rank}` : ''}${r.score ? ` • ${r.score} pts/str` : ''}${r.hcp ? ` • HCP ${r.hcp}` : ''}
-                            </span>
-                        </div>
-                    `).join('')
-                    : `<div class="text-xs text-slate-400 py-2">No entries recorded.</div>`;
+                const locLabel = state.tourLocations?.[y] || yearMap[Object.keys(yearMap)[0]]?.venue || '';
 
                 return `
-                    <div class="rounded-xl border border-lga-gold/30 bg-lga-cream/50 p-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="font-serif text-lg font-bold text-lga-navy">${y}</h4>
-                            ${loc ? `<span class="text-xs font-semibold text-lga-goldDark">${loc}</span>` : ''}
+                    <div class="p-4 rounded-xl border border-lga-gold/30 bg-lga-cream/50 space-y-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy">${y} Pidgeon Cup</h4>
+                            <span class="text-xs font-semibold text-lga-goldDark truncate">${locLabel}</span>
                         </div>
-                        <div>${rowsHtml}</div>
+                        ${entries.length === 0
+                            ? `<div class="text-xs text-lga-slate">No recorded entries for ${y}.</div>`
+                            : `<div class="space-y-1.5">
+                                ${entries.map(item => `
+                                    <div class="flex items-center justify-between text-xs bg-white px-3 py-2 rounded-lg border border-slate-200/80 gap-2">
+                                        <span class="font-semibold text-lga-navy truncate">${item.golfer.name}</span>
+                                        <span class="font-mono font-bold text-lga-goldDark shrink-0">${formatChampCellSummary(item)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>`
+                        }
                     </div>
                 `;
             }).join('');
         }
 
-        function openChampCellModal(golferId, year) {
+        function openChampCellModal(year, golferId) {
             if (!isAdminUnlocked) return;
-            editingChampCell = { golferId, year };
+            editingChampCell = { year, golferId };
             const golfer = getGolferById(golferId);
             const existing = state.championshipResults?.[year]?.[golferId] || {};
             document.getElementById('champ-modal-title').textContent = `${golfer?.name || golferId} — ${year}`;
@@ -1495,8 +1902,7 @@
             document.getElementById('champ-edit-score').value = existing.score || '';
             document.getElementById('champ-edit-day1').value = existing.day1 || '';
             document.getElementById('champ-edit-day2').value = existing.day2 || '';
-            document.getElementById('champ-edit-format').value = existing.format || '';
-            document.getElementById('champ-edit-hcp').value = existing.hcp || '';
+            document.getElementById('champ-edit-format').value = existing.format || 'Stableford';
             document.getElementById('champ-cell-modal').classList.remove('hidden');
         }
 
@@ -1507,36 +1913,36 @@
 
         function saveChampCell() {
             if (!isAdminUnlocked || !editingChampCell) return;
-            const { golferId, year } = editingChampCell;
+            const { year, golferId } = editingChampCell;
             if (!state.championshipResults[year]) state.championshipResults[year] = {};
             state.championshipResults[year][golferId] = {
+                ...(state.championshipResults[year][golferId] || {}),
                 rank: document.getElementById('champ-edit-rank').value.trim(),
                 score: document.getElementById('champ-edit-score').value.trim(),
                 day1: document.getElementById('champ-edit-day1').value.trim(),
                 day2: document.getElementById('champ-edit-day2').value.trim(),
-                format: document.getElementById('champ-edit-format').value.trim(),
-                hcp: document.getElementById('champ-edit-hcp').value.trim(),
-                venue: state.tourLocations?.[year] || ''
+                format: document.getElementById('champ-edit-format').value.trim() || 'Stableford',
+                venue: state.tourLocations?.[year] || (state.championshipResults[year][golferId]?.venue || '')
             };
             persistState();
             closeChampCellModal();
             renderAll();
-            showToast('Championship entry saved.', 'success');
+            showToast('Championship result updated.', 'success');
         }
 
         function clearChampCell() {
             if (!isAdminUnlocked || !editingChampCell) return;
-            const { golferId, year } = editingChampCell;
+            const { year, golferId } = editingChampCell;
             if (state.championshipResults?.[year]) {
                 delete state.championshipResults[year][golferId];
             }
             persistState();
             closeChampCellModal();
             renderAll();
-            showToast('Championship entry cleared.');
+            showToast('Championship cell cleared.');
         }
 
-        // Admin-Only Handicap Editing
+        // Yearly Handicap Record (Admin-Locked Editing + 36.0 Cap & Downward Redistribution + TBC)
         function openHandicapEditModal(golferId, yearOrBaseline) {
             if (!isAdminUnlocked) {
                 showToast('Unlock Admin mode to edit handicaps.', 'error');
@@ -1544,19 +1950,20 @@
             }
             editingHandicapCell = { golferId, yearOrBaseline };
             const golfer = getGolferById(golferId);
-            const label = yearOrBaseline === 'baseline' ? 'Baseline WHS' : `${yearOrBaseline} Handicap`;
-            document.getElementById('hcp-modal-title').textContent = `${golfer?.name || golferId} — ${label}`;
+            const titleEl = document.getElementById('hcp-modal-title');
+            const inputEl = document.getElementById('hcp-edit-value');
 
-            let currentVal = '';
             if (yearOrBaseline === 'baseline') {
-                currentVal = golfer?.baselineWhs ?? '';
+                titleEl.textContent = `${golfer?.name} — Current Handicap`;
+                const stats = computeGolferWhs(golferId);
+                inputEl.value = stats.isTbc ? '' : String(stats.whsIndex);
             } else {
-                const raw = state.yearlyHandicaps?.[golferId]?.[yearOrBaseline];
-                currentVal = raw !== undefined && raw !== null ? raw : '';
+                titleEl.textContent = `${golfer?.name} — ${yearOrBaseline} Handicap`;
+                const existing = state.yearlyHandicaps?.[golferId]?.[yearOrBaseline];
+                inputEl.value = (existing !== undefined && existing !== null && existing !== '') ? String(existing) : '';
             }
-            document.getElementById('hcp-edit-value').value = currentVal;
+
             document.getElementById('hcp-edit-modal').classList.remove('hidden');
-            document.getElementById('hcp-edit-value').focus();
         }
 
         function closeHandicapEditModal() {
@@ -1567,45 +1974,50 @@
         function saveHandicapEntry() {
             if (!isAdminUnlocked || !editingHandicapCell) return;
             const { golferId, yearOrBaseline } = editingHandicapCell;
-            const rawInput = document.getElementById('hcp-edit-value').value.trim();
+            const rawStr = document.getElementById('hcp-edit-value').value.trim();
 
-            if (rawInput === '') {
+            if (rawStr === '') {
                 clearHandicapEntry();
                 return;
             }
 
-            const num = Number(rawInput);
-            if (Number.isNaN(num) || num < 0) {
-                showToast('Enter a valid handicap number.', 'error');
+            const numVal = Number(rawStr);
+            if (Number.isNaN(numVal) || numVal < 0) {
+                showToast('Please enter a valid handicap number.', 'error');
                 return;
             }
 
-            const clamped = Math.min(MAX_HANDICAP, Number(num.toFixed(1)));
-            const excess = Math.max(0, Number((num - MAX_HANDICAP).toFixed(1)));
+            const cappedVal = Math.min(MAX_HANDICAP, Number(numVal.toFixed(1)));
+            const excess = Math.max(0, Number((numVal - MAX_HANDICAP).toFixed(1)));
+
+            if (!state.yearlyHandicaps[golferId]) state.yearlyHandicaps[golferId] = {};
+            const golfer = getGolferById(golferId);
 
             if (yearOrBaseline === 'baseline') {
-                const g = getGolferById(golferId);
-                if (g) {
-                    g.baselineWhs = clamped;
-                    if (Number(g.lowCap12m) > clamped) g.lowCap12m = clamped;
+                if (golfer) {
+                    golfer.baselineWhs = cappedVal;
+                    if (golfer.lowCap12m === null || golfer.lowCap12m === undefined || Number(golfer.lowCap12m) > cappedVal) {
+                        golfer.lowCap12m = cappedVal;
+                    }
                 }
             } else {
-                if (!state.yearlyHandicaps[golferId]) state.yearlyHandicaps[golferId] = {};
-                state.yearlyHandicaps[golferId][yearOrBaseline] = clamped;
-                const g = getGolferById(golferId);
-                if (g) {
-                    g.baselineWhs = clamped;
-                    if (Number(g.lowCap12m) > clamped) g.lowCap12m = clamped;
+                state.yearlyHandicaps[golferId][yearOrBaseline] = cappedVal;
+                const latestYr = getLatestRecordedYearHandicap(golferId);
+                if (golfer && latestYr.year === Number(yearOrBaseline)) {
+                    golfer.baselineWhs = cappedVal;
+                    if (golfer.lowCap12m === null || golfer.lowCap12m === undefined || Number(golfer.lowCap12m) > cappedVal) {
+                        golfer.lowCap12m = cappedVal;
+                    }
                 }
             }
 
             if (excess > 0) {
-                const others = state.golfers.filter(other => other.id !== golferId && Number(other.baselineWhs) > 0);
+                const others = state.golfers.filter(other => other.id !== golferId && other.baselineWhs !== null && Number(other.baselineWhs) > 0);
                 if (others.length > 0) {
                     const share = excess / others.length;
                     others.forEach(other => {
                         other.baselineWhs = Math.max(0, Number((Number(other.baselineWhs) - share).toFixed(1)));
-                        if (Number(other.lowCap12m) > other.baselineWhs) {
+                        if (other.lowCap12m !== null && Number(other.lowCap12m) > other.baselineWhs) {
                             other.lowCap12m = other.baselineWhs;
                         }
                     });
@@ -1621,13 +2033,19 @@
         function clearHandicapEntry() {
             if (!isAdminUnlocked || !editingHandicapCell) return;
             const { golferId, yearOrBaseline } = editingHandicapCell;
-            if (yearOrBaseline !== 'baseline' && state.yearlyHandicaps?.[golferId]) {
+            if (yearOrBaseline === 'baseline') {
+                const g = getGolferById(golferId);
+                if (g) {
+                    g.baselineWhs = null;
+                    g.lowCap12m = null;
+                }
+            } else if (state.yearlyHandicaps?.[golferId]) {
                 delete state.yearlyHandicaps[golferId][yearOrBaseline];
             }
             persistState();
             closeHandicapEditModal();
             renderAll();
-            showToast('Handicap entry cleared.');
+            showToast('Handicap set to TBC.');
         }
 
         function renderHandicapHistory() {
@@ -1637,9 +2055,9 @@
 
             headEl.innerHTML = `
                 <tr>
-                    <th class="px-3 py-3 sticky left-0 bg-lga-navy z-10 min-w-[180px]">Golfer</th>
-                    <th class="px-3 py-3 text-center min-w-[95px]">Baseline</th>
-                    ${yearsAsc.map(y => `<th class="px-3 py-3 text-center min-w-[75px]">${y}</th>`).join('')}
+                    <th class="px-3 py-2.5 sticky left-0 bg-lga-navy z-10 min-w-[155px] sm:min-w-[180px]">Golfer</th>
+                    <th class="px-3 py-2.5 text-center min-w-[85px]">Current</th>
+                    ${yearsAsc.map(y => `<th class="px-2.5 py-2.5 text-center min-w-[70px]">${y}</th>`).join('')}
                 </tr>
             `;
 
@@ -1656,10 +2074,10 @@
                     const isLatest = latestYrInfo.year === y;
                     const cellClick = isAdminUnlocked ? `onclick="openHandicapEditModal('${g.id}', ${y})"` : '';
                     return `
-                        <td ${cellClick} class="px-2.5 py-2 text-center font-mono text-xs ${editCursor} ${
-                            isLatest ? 'bg-amber-50 font-extrabold text-lga-navy' : hasVal ? 'text-lga-navy font-semibold' : 'text-slate-300'
+                        <td ${cellClick} class="px-2 py-2 text-center font-mono text-xs ${editCursor} ${
+                            isLatest ? 'bg-amber-50 font-extrabold text-lga-navy' : hasVal ? 'text-lga-navy font-semibold' : 'text-slate-400'
                         }">
-                            ${hasVal ? Number(val) : '—'}
+                            ${hasVal ? Number(val) : 'TBC'}
                         </td>
                     `;
                 }).join('');
@@ -1667,7 +2085,7 @@
                 return `
                     <tr>
                         <td class="px-3 py-2.5 font-semibold text-lga-navy sticky left-0 bg-white border-r border-slate-100">${g.name}</td>
-                        <td ${baseClick} class="px-3 py-2.5 text-center font-mono font-bold text-lga-goldDark bg-lga-cream/60 ${editCursor}">${stats.whsIndex.toFixed(1)}</td>
+                        <td ${baseClick} class="px-3 py-2.5 text-center font-mono font-bold ${stats.isTbc ? 'text-slate-400' : 'text-lga-goldDark'} bg-lga-cream/60 ${editCursor}">${stats.isTbc ? 'TBC' : stats.whsIndex.toFixed(1)}</td>
                         ${yearCells}
                     </tr>
                 `;
@@ -1687,15 +2105,15 @@
             );
 
             document.getElementById('courses-grid').innerHTML = filtered.map(c => {
-                const daily = calcCourseDailyHandicap(stats.whsIndex, c);
+                const daily = stats.isTbc ? null : calcCourseDailyHandicap(stats.whsIndex, c);
                 return `
                     <div class="p-4 rounded-2xl border border-lga-gold/35 bg-white flex flex-col justify-between gap-3">
                         <div>
                             <div class="flex items-center justify-between gap-2">
-                                <span class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">${c.region || 'Tour Venue'} • ${c.tee}</span>
-                                <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-lga-navy text-lga-gold">Daily ${daily !== null ? daily : '—'}</span>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark truncate">${c.region || 'Tour Venue'} • ${c.tee}</span>
+                                <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-lga-navy text-lga-gold shrink-0">Daily ${daily !== null ? daily : 'TBC'}</span>
                             </div>
-                            <h4 class="font-serif text-lg font-bold text-lga-navy mt-1">${formatCourseDisplayName(c)}</h4>
+                            <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy mt-1">${formatCourseDisplayName(c)}</h4>
                         </div>
                         <div class="grid grid-cols-3 gap-2 text-center bg-lga-cream rounded-xl p-2 border border-lga-gold/25 text-xs">
                             <div><span class="block text-[10px] text-lga-slate">PAR</span><span class="font-mono font-bold text-lga-navy">${c.par}</span></div>
@@ -1745,19 +2163,19 @@
             document.getElementById('lineup-grid').innerHTML = sortGolfersAlphabetically(state.golfers).map(g => {
                 const stats = computeGolferWhs(g.id);
                 const latestYr = getLatestRecordedYearHandicap(g.id);
-                const wins = Object.values(state.championshipResults || {}).filter(ym => String(ym?.[g.id]?.rank || '').startsWith('1')).length;
+                const wins = countGolferWins(g.id);
                 const badgeAction = isAdminUnlocked ? `onclick="openHandicapEditModal('${g.id}', 'baseline')"` : '';
                 const badgeStyle = isAdminUnlocked ? 'cursor-pointer ring-1 ring-lga-gold/60' : '';
 
                 return `
                     <div class="p-4 rounded-2xl border border-lga-gold/35 bg-white space-y-3">
                         <div class="flex items-start justify-between gap-2">
-                            <div>
+                            <div class="min-w-0">
                                 <div class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">${g.role}</div>
-                                <h4 class="font-serif text-lg font-bold text-lga-navy">${g.name}</h4>
-                                <div class="text-xs text-lga-slate">${g.homeClub}</div>
+                                <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy truncate">${g.name}</h4>
+                                <div class="text-xs text-lga-slate truncate">${g.homeClub}</div>
                             </div>
-                            <span ${badgeAction} class="px-2.5 py-1 rounded-lg bg-lga-navy text-lga-gold font-mono text-xs font-bold ${badgeStyle}">WHS ${stats.whsIndex.toFixed(1)}</span>
+                            <span ${badgeAction} class="px-2.5 py-1 rounded-lg bg-lga-navy text-lga-gold font-mono text-xs font-bold shrink-0 ${badgeStyle}">${stats.isTbc ? 'HCP TBC' : `WHS ${stats.whsIndex.toFixed(1)}`}</span>
                         </div>
                         <div class="grid grid-cols-3 gap-2 text-center bg-lga-cream rounded-xl p-2 border border-lga-gold/25 text-xs">
                             <div><span class="block text-[10px] text-lga-slate">LATEST YR</span><span class="font-mono font-bold text-lga-navy">${latestYr.year || '—'}</span></div>
@@ -1783,7 +2201,10 @@
             const name = document.getElementById('new-golfer-name').value.trim();
             if (!name) return;
             const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || `golfer-${Date.now()}`;
-            const whs = isAdminUnlocked ? Math.min(MAX_HANDICAP, Math.max(0, Number(document.getElementById('new-golfer-whs').value) || 20.0)) : 20.0;
+            const rawWhs = document.getElementById('new-golfer-whs').value.trim();
+            const whs = isAdminUnlocked && rawWhs !== ''
+                ? Math.min(MAX_HANDICAP, Math.max(0, Number(rawWhs)))
+                : null;
 
             state.golfers.push({
                 id,
@@ -1804,13 +2225,13 @@
         function renderTourLocations() {
             if (!isAdminUnlocked) return;
             const grid = document.getElementById('tour-locations-grid');
-            grid.innerHTML = [...TOUR_YEARS].sort((a, b) => b - a).map(y => {
+            grid.innerHTML = [...TOUR_YEARS].sort((a, b) => a - b).map(y => {
                 const val = state.tourLocations?.[y] || '';
                 return `
                     <div class="p-4 rounded-xl border border-lga-gold/30 bg-lga-cream/60 space-y-2">
                         <label for="tour-loc-${y}" class="block text-xs font-bold text-lga-navy">${y} Tour Location</label>
                         <div class="flex gap-2">
-                            <input type="text" id="tour-loc-${y}" value="${val}" placeholder="Leave blank if unknown" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-lga-navy">
+                            <input type="text" id="tour-loc-${y}" value="${val}" placeholder="Leave blank if unknown" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-lga-navy">
                             <button type="button" onclick="saveTourLocation(${y})" class="px-3.5 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold cursor-pointer">Save</button>
                         </div>
                     </div>
@@ -1882,6 +2303,7 @@
             populateSelects();
             updateAdminUi();
             renderDashboard();
+            renderHoleScorecard();
             updateLogRoundCalc();
             renderRoundsFeed();
             renderChampionshipHistory();
