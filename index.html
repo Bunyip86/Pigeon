@@ -2189,12 +2189,10 @@
                         <div class="p-3.5 rounded-xl border border-lga-gold/40 bg-lga-sand/60 space-y-1">
                             <div class="flex items-center justify-between gap-2">
                                 <span class="font-bold text-xs sm:text-sm text-lga-navy truncate">${golfer?.name || r.golferId}</span>
-                                <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-lga-gold text-lga-navy shrink-0">${r.year} Champ${r.rank ? ` #${r.rank}` : ''}</span>
                             </div>
                             <div class="text-xs text-lga-slate truncate">${r.courseName} • ${r.format}</div>
                             <div class="flex items-center justify-between text-xs font-mono text-lga-navy pt-1">
                                 <span>${r.scoreLabel}${r.daySplit ? ` (${r.daySplit})` : ''}</span>
-                                <span class="text-lga-goldDark font-sans font-semibold truncate max-w-[150px]">Logged as Champ Round</span>
                             </div>
                         </div>
                     `;
