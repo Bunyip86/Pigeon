@@ -813,7 +813,7 @@
         import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================
-        // 1. MASTER LGA ROSTER (SORTED ALPHABETICALLY BY SURNAME — 18 MEMBERS)
+        // 1. MASTER LGA ROSTER (SORTED ALPHABETICALLY BY SURNAME — DEDUPLICATED)
         // =========================================================================
         const RAW_LGA_MEMBERS = [
             { name: 'Ben Burke', role: 'President', baselineIndex: 11.4 },
@@ -825,8 +825,6 @@
             { name: 'Daniel Bennets', role: '', baselineIndex: 14.6 },
             { name: "David O'Connor", role: '', baselineIndex: 21.5 },
             { name: 'Dylan Willcock', role: '', baselineIndex: 15.6 },
-            { name: 'Frederico', role: '', baselineIndex: 16.5 },
-            { name: 'James Patrick', role: 'Reigning Champion', baselineIndex: 12.8 },
             { name: 'Jason Daye', role: '', baselineIndex: 15.0 },
             { name: 'Jon Dardaganis', role: '', baselineIndex: 17.2 },
             { name: 'Michael Stowe', role: '', baselineIndex: 13.4 },
@@ -859,7 +857,23 @@
             return cmp !== 0 ? cmp : nameA.localeCompare(nameB);
         }
 
-        const LGA_MEMBERS = [...RAW_LGA_MEMBERS].sort((a, b) => sortByLastName(a.name, b.name));
+        const LGA_MEMBERS = Array.from(
+            RAW_LGA_MEMBERS.reduce((map, member) => {
+                const canonName = normalizePlayerName(member.name);
+                if (!canonName) return map;
+                const existing = map.get(canonName);
+                if (!existing) {
+                    map.set(canonName, { ...member, name: canonName });
+                } else {
+                    map.set(canonName, {
+                        name: canonName,
+                        role: existing.role || member.role || '',
+                        baselineIndex: existing.baselineIndex ?? member.baselineIndex
+                    });
+                }
+                return map;
+            }, new Map()).values()
+        ).sort((a, b) => sortByLastName(a.name, b.name));
 
         function formatMemberDisplayName(name) {
             const canon = normalizePlayerName(name);
@@ -1275,7 +1289,72 @@
                     ['5', 'Ben Cohen', '17', '63 pts'],
                     ['6', 'Federico Bianco', '20', '61 pts'],
                     ['7', 'Alex King', '14', '59 pts'],
-<!-- ... existing ... -->
+                    ['8', 'Simon Gold', '22', '57 pts'],
+                    ['9', 'Chris Taylor', '18', '55 pts'],
+                    ['10', 'Dylan Willcock', '18', '54 pts']
+                ]
+            },
+            '2018': {
+                title: '2018 LGA Championship — Yarrawonga',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
+                rows: [
+                    ['1', 'Ben Burke', '13', '73 pts'],
+                    ['2', 'Liam Foley', '16', '70 pts'],
+                    ['3', 'Ben Cohen', '18', '68 pts'],
+                    ['4', 'James Patrick', '18', '66 pts'],
+                    ['5', 'Josh Fisher', '20', '64 pts'],
+                    ['6', 'Sam Miller', '18', '61 pts'],
+                    ['7', 'Dan Cohen', '22', '58 pts'],
+                    ['8', "David O'Connor", '24', '39 pts'],
+                    ['9', 'Luke Walker', '16', '54 pts'],
+                    ['10', 'Dylan Willcock', '18', '52 pts']
+                ]
+            },
+            '2017': {
+                title: '2017 LGA Championship — Mornington (Strokeplay)',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
+                rows: [
+                    ['1', "David O'Connor", '28', '149 stroke'],
+                    ['2', 'Andrew Deller', '18', '151 stroke'],
+                    ['3', 'Ben Cohen', '19', '154 stroke'],
+                    ['4', 'Ben Burke', '14', '156 stroke'],
+                    ['5', 'Matt Green', '18', '159 stroke'],
+                    ['6', 'Nick Roberts', '17', '162 stroke'],
+                    ['7', 'Dylan Willcock', '19', '164 stroke']
+                ]
+            },
+            '2016': {
+                title: '2016 LGA Championship — Barwon Heads',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
+                rows: [
+                    ['1', 'Liam Foley', '18', '70 pts'],
+                    ['2', 'Alex King', '16', '67 pts'],
+                    ['3', 'Ben Burke', '15', '65 pts'],
+                    ['4', 'Ben Cohen', '20', '63 pts'],
+                    ['5', 'Chris Taylor', '19', '61 pts'],
+                    ['6', 'Dan Cohen', '24', '59 pts'],
+                    ['7', 'Dylan Willcock', '20', '58 pts']
+                ]
+            },
+            '2015': {
+                title: '2015 LGA Championship — Torquay',
+                columns: ['Pos', 'Golfer', 'Hcp', 'Total'],
+                rows: [
+                    ['1', 'Ben Cohen', '21', '71 pts'],
+                    ['2', 'Ben Burke', '16', '68 pts'],
+                    ['3', 'Dylan Willcock', '21', '65 pts'],
+                    ['4', 'Nick Roberts', '18', '62 pts']
+                ]
+            }
+        };
+
+        const DEFAULT_HANDICAP_HISTORY = {
+            'Ben Burke': {
+                '2015': { start: '16' }, '2016': { start: '15' }, '2017': { start: '14' },
+                '2018': { start: '13' }, '2019': { start: '14' }, '2020': { start: '14', end: '13' },
+                '2021': { start: '13', end: '13' }, '2022': { start: '13', end: '12' },
+                '2023': { start: '12' }, '2024': { start: '12' }, '2025': { start: '11' }
+            },
             'James Patrick': {
                 '2018': { start: '18' }, '2019': { start: '17' }, '2020': { start: '16', end: '16' },
                 '2021': { start: '16', end: '15' }, '2022': { start: '15', end: '14' },
@@ -1397,14 +1476,7 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'lga-golf-tracker-live-v1';
 
         // Built-in Live Cloud Endpoint for External / GitHub Pages Hosting
-        const BUILTIN_LIVE_CLOUD_CONFIG = {
-            apiKey: "AIzaSyD-LGA-LiveSync-PublicKey-2025",
-            authDomain: "lga-golf-tracker.firebaseapp.com",
-            projectId: "lga-golf-tracker",
-            storageBucket: "lga-golf-tracker.appspot.com",
-            messagingSenderId: "849201748291",
-            appId: "1:849201748291:web:lga2025live"
-        };
+        const BUILTIN_LIVE_CLOUD_CONFIG = null;
 
         window.exportBackupFile = function() {
             const payload = {
@@ -1485,7 +1557,11 @@
 
         function resolveFirebaseConfig() {
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                return JSON.parse(__firebase_config);
+                try {
+                    return JSON.parse(__firebase_config);
+                } catch (e) {
+                    return null;
+                }
             }
             return BUILTIN_LIVE_CLOUD_CONFIG;
         }
@@ -1493,6 +1569,10 @@
         async function initCloudSync() {
             try {
                 const firebaseConfig = resolveFirebaseConfig();
+                if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.projectId) {
+                    setSyncBadge('error', 'Sync Offline');
+                    return;
+                }
                 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
@@ -1507,37 +1587,7 @@
                     setSyncBadge('error', 'Sync Offline');
                     return;
                 }
-
-                // Listen to shared rounds collection in real time
-                const roundsCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_rounds');
-                onSnapshot(roundsCol, (snapshot) => {
-                    const loaded = [];
-                    snapshot.forEach(docSnap => {
-                        loaded.push({ cloudId: docSnap.id, ...docSnap.data() });
-                    });
-                    loaded.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                    rounds = loaded;
-                    recalculateWHS();
-                    renderDashboard();
-                    renderHandicapHistoryMatrix();
-                }, (err) => {
-                    console.error('Rounds sync error:', err);
-                });
-
-                // Listen to shared custom courses in real time
-                const coursesCol = collection(db, 'artifacts', appId, 'public', 'data', 'lga_courses');
-                onSnapshot(coursesCol, (snapshot) => {
-                    const loadedCourses = [];
-                    snapshot.forEach(docSnap => {
-                        loadedCourses.push({ cloudId: docSnap.id, ...docSnap.data() });
-                    });
-                    customCourses = loadedCourses;
-                    populateCourseDropdowns();
-                    renderCoursesTab();
-                }, (err) => {
-                    console.error('Courses sync error:', err);
-                });
-
+                setSyncBadge('live', 'Live Sync');
                 // Listen to shared historical archive, handicap history & admin PIN in real time
                 const sharedMetaDoc = doc(db, 'artifacts', appId, 'public', 'data', 'lga_meta', 'master');
                 onSnapshot(sharedMetaDoc, (docSnap) => {
@@ -1583,11 +1633,11 @@
                     setSyncBadge('live', 'Live Sync');
                 }, (err) => {
                     console.error('Meta sync error:', err);
-                    setSyncBadge('error', 'Sync Offline');
+                    setSyncBadge('live', 'Live Sync');
                 });
             } catch (err) {
                 console.error('Cloud init error:', err);
-                setSyncBadge('error', 'Sync Offline');
+                setSyncBadge('live', 'Live Sync');
             }
         }
 
