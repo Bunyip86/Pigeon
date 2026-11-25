@@ -1198,7 +1198,7 @@
                 };
             });
         }
-
+        // Method: sanitizeState
         function sanitizeState() {
             state.includeDailyHandicapInCalcs = Boolean(state.includeDailyHandicapInCalcs);
             state.golfers = sortGolfersAlphabetically((Array.isArray(state.golfers) ? state.golfers : []).map(g => ({
@@ -1262,15 +1262,15 @@
                     ...defaultYears,
                     ...(state.yearlyHandicaps[gId] || {})
                 };
-                if (defaultYears[2019] !== undefined && state.yearlyHandicaps[gId][2019] === undefined) {
+                if (defaultYears[2019] !== undefined) {
                     state.yearlyHandicaps[gId][2019] = defaultYears[2019];
                 }
             }
 
             state.championshipResults = { ...DEFAULT_CHAMPIONSHIP_RESULTS, ...(state.championshipResults || {}) };
             state.championshipResults[2019] = {
-                ...(DEFAULT_CHAMPIONSHIP_RESULTS[2019] || {}),
-                ...(state.championshipResults[2019] || {})
+                ...(state.championshipResults[2019] || {}),
+                ...(DEFAULT_CHAMPIONSHIP_RESULTS[2019] || {})
             };
 
             // First 3 years (2015, 2016, 2017) were Stroke play
