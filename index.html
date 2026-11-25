@@ -883,7 +883,7 @@
                 'michael-stowe': { rank: '5', day1: '86', day2: '70', score: '156', format: 'Stroke', venue: 'Peninsula' },
                 'craig-tubb': { rank: '6', day1: '85', day2: '76', score: '161', format: 'Stroke', venue: 'Peninsula' },
                 'james-patrick': { rank: '7', day1: '101', day2: '101', score: '202', format: 'Stroke', venue: 'Peninsula' },
-                'marcus-harbour': { rank: '', day1: '83', day2: '', score: '83', format: 'Stroke', venue: 'Peninsula' }
+                'marcus-harbour': { rank: '1', day1: '83', day2: '', score: '83', format: 'Stroke', venue: 'Peninsula' }
             },
             2018: {
                 'ben-cohen': { rank: '1', score: '69', format: 'Stableford', venue: 'Melbourne' },
@@ -1227,7 +1227,7 @@
             }
             if (state.championshipResults?.[2017] && !state.championshipResults[2017]['marcus-harbour']) {
                 state.championshipResults[2017]['marcus-harbour'] = {
-                    rank: '',
+                    rank: '1',
                     score: '83',
                     format: 'Stroke',
                     venue: state.tourLocations?.[2017] || 'Peninsula'
@@ -1255,7 +1255,21 @@
             }, {});
 
             state.yearlyHandicaps = { ...DEFAULT_YEARLY_HANDICAPS, ...(state.yearlyHandicaps || {}) };
+            for (const [gId, defaultYears] of Object.entries(DEFAULT_YEARLY_HANDICAPS)) {
+                state.yearlyHandicaps[gId] = {
+                    ...defaultYears,
+                    ...(state.yearlyHandicaps[gId] || {})
+                };
+                if (defaultYears[2019] !== undefined && state.yearlyHandicaps[gId][2019] === undefined) {
+                    state.yearlyHandicaps[gId][2019] = defaultYears[2019];
+                }
+            }
+
             state.championshipResults = { ...DEFAULT_CHAMPIONSHIP_RESULTS, ...(state.championshipResults || {}) };
+            state.championshipResults[2019] = {
+                ...(DEFAULT_CHAMPIONSHIP_RESULTS[2019] || {}),
+                ...(state.championshipResults[2019] || {})
+            };
 
             // First 3 years (2015, 2016, 2017) were Stroke play
             for (const strokeYear of [2015, 2016, 2017]) {
@@ -2201,9 +2215,52 @@
             return pts;
         }
 
-        function formatChampCellSummary(entry, bonusPts = 0) {
+        // Compute Stroke play places from lowest numeric score when explicit rank is omitted
+        function computeStrokeRanksForYear(yearMap) {
+            const derivedRanks = {};
+            if (!yearMap || typeof yearMap !== 'object') return derivedRanks;
+
+            const strokeEntries = [];
+            for (const [golferId, entry] of Object.entries(yearMap)) {
+                if (!entry || entry.format !== 'Stroke') continue;
+                const explicitRank = String(entry.rank || '').trim();
+                const scoreNum = Number(String(entry.score ?? '').trim());
+                if (explicitRank !== '') {
+                    derivedRanks[golferId] = explicitRank;
+                } else if (String(entry.score ?? '').trim() !== '' && !Number.isNaN(scoreNum)) {
+                    strokeEntries.push({ golferId, scoreNum });
+                }
+            }
+
+            strokeEntries.sort((a, b) => a.scoreNum - b.scoreNum);
+            let idx = 0;
+            while (idx < strokeEntries.length) {
+                const currentScore = strokeEntries[idx].scoreNum;
+                let endIdx = idx;
+                while (endIdx + 1 < strokeEntries.length && strokeEntries[endIdx + 1].scoreNum === currentScore) {
+                    endIdx++;
+                }
+                const place = idx + 1;
+                const isTie = endIdx > idx;
+                for (let j = idx; j <= endIdx; j++) {
+                    derivedRanks[strokeEntries[j].golferId] = isTie ? `${place}=` : String(place);
+                }
+                idx = endIdx + 1;
+            }
+
+            return derivedRanks;
+        }
+
+        function getEffectiveEntryRank(entry, derivedStrokeRank = '') {
+            const explicitRank = String(entry?.rank || '').trim();
+            if (explicitRank) return explicitRank;
+            if (entry?.format === 'Stroke' && derivedStrokeRank) return derivedStrokeRank;
+            return '';
+        }
+
+        function formatChampCellSummary(entry, bonusPts = 0, derivedStrokeRank = '') {
             if (!entry) return '—';
-            const rankStr = String(entry.rank || '').trim();
+            const rankStr = getEffectiveEntryRank(entry, derivedStrokeRank);
             const rawScoreStr = String(entry.score || '').trim();
             if (!rankStr && !rawScoreStr) return 'TBC';
             const isStroke = entry.format === 'Stroke';
@@ -2223,9 +2280,9 @@
                 : `${adjustedScoreStr}${isStroke ? '' : ' pts'}${bonusTag}`;
         }
 
-        function getChampCellBadgeClass(entry) {
+        function getChampCellBadgeClass(entry, derivedStrokeRank = '') {
             if (!entry) return 'text-slate-300';
-            const r = String(entry.rank || '').trim();
+            const r = getEffectiveEntryRank(entry, derivedStrokeRank);
             if (r === '1' || r === '1=') return 'bg-amber-100 text-amber-950 border border-amber-300 font-extrabold';
             if (r === '2' || r === '2=') return 'bg-slate-100 text-slate-900 border border-slate-300 font-bold';
             if (r === '3' || r === '3=') return 'bg-orange-100 text-orange-950 border border-orange-300 font-bold';
@@ -2236,6 +2293,10 @@
             const yearsAsc = [...TOUR_YEARS].sort((a, b) => a - b);
             const headEl = document.getElementById('champ-matrix-head');
             const bodyEl = document.getElementById('champ-matrix-body');
+            const strokeRanksByYear = yearsAsc.reduce((acc, yr) => {
+                acc[yr] = computeStrokeRanksForYear(state.championshipResults?.[yr]);
+                return acc;
+            }, {});
 
             headEl.innerHTML = `
                 <tr>
@@ -2258,8 +2319,9 @@
                 const cells = yearsAsc.map(y => {
                     const entry = state.championshipResults?.[y]?.[g.id] || null;
                     const bonusPts = getGolferBonusPointsForYear(y, g.id);
-                    const summary = formatChampCellSummary(entry, bonusPts);
-                    const badgeCls = getChampCellBadgeClass(entry);
+                    const derivedStrokeRank = strokeRanksByYear[y]?.[g.id] || '';
+                    const summary = formatChampCellSummary(entry, bonusPts, derivedStrokeRank);
+                    const badgeCls = getChampCellBadgeClass(entry, derivedStrokeRank);
                     const clickAttr = isAdminUnlocked ? `onclick="openChampCellModal(${y}, '${g.id}')"` : '';
                     return `
                         <td ${clickAttr} class="px-2 py-2 text-center ${isAdminUnlocked ? 'cursor-pointer hover:bg-amber-50' : ''}">
@@ -2287,12 +2349,22 @@
             breakdownsEl.innerHTML = yearsAsc.map(y => {
                 const yearMap = state.championshipResults?.[y] || {};
                 const awards = state.yearlyBonusAwards?.[y] || {};
+                const strokeRanks = strokeRanksByYear[y] || {};
                 const entries = Object.entries(yearMap)
-                    .map(([gId, data]) => ({ golfer: getGolferById(gId), bonusPts: getGolferBonusPointsForYear(y, gId), ...data }))
+                    .map(([gId, data]) => {
+                        const effectiveRank = getEffectiveEntryRank(data, strokeRanks[gId] || '');
+                        return {
+                            golfer: getGolferById(gId),
+                            bonusPts: getGolferBonusPointsForYear(y, gId),
+                            derivedStrokeRank: strokeRanks[gId] || '',
+                            effectiveRank,
+                            ...data
+                        };
+                    })
                     .filter(item => item.golfer)
                     .sort((a, b) => {
-                        const ra = parseInt(String(a.rank || '999').replace(/\D/g, ''), 10) || 999;
-                        const rb = parseInt(String(b.rank || '999').replace(/\D/g, ''), 10) || 999;
+                        const ra = parseInt(String(a.effectiveRank || '999').replace(/\D/g, ''), 10) || 999;
+                        const rb = parseInt(String(b.effectiveRank || '999').replace(/\D/g, ''), 10) || 999;
                         if (ra !== rb) return ra - rb;
                         return compareAlpha(a.golfer.name, b.golfer.name);
                     });
@@ -2361,7 +2433,7 @@
                                 ${entries.map(item => `
                                     <div class="flex items-center justify-between text-xs bg-white px-3 py-2 rounded-lg border border-slate-200/80 gap-2">
                                         <span class="font-semibold text-lga-navy truncate">${item.golfer.name}</span>
-                                        <span class="font-mono font-bold text-lga-goldDark shrink-0">${formatChampCellSummary(item, item.bonusPts || 0)}</span>
+                                        <span class="font-mono font-bold text-lga-goldDark shrink-0">${formatChampCellSummary(item, item.bonusPts || 0, item.derivedStrokeRank)}</span>
                                     </div>
                                 `).join('')}
                             </div>`
