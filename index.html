@@ -255,6 +255,28 @@
                         <!-- Allocated Closest to Pin & Longest Drive Hole Flags Strip -->
                         <div id="scorecard-hole-flags-banner" class="flex flex-wrap items-center gap-1.5 text-[11px]"></div>
 
+                        <!-- Admin Per-Hole Longest Drive & Closest to Pin Allocation -->
+                        <div id="admin-hole-allocation-panel" class="hidden rounded-xl border border-lga-gold/40 bg-lga-sand/75 p-2.5 sm:p-3 space-y-2 text-xs">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">Admin Hole Allocation (Closest to Pin &amp; Longest Drive)</span>
+                                <span id="admin-hole-alloc-year-badge" class="text-[11px] font-semibold text-lga-navy"></span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <label class="flex items-center justify-between gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                    <span class="font-semibold text-lga-navy shrink-0">Closest to Pin #1</span>
+                                    <select id="hole-alloc-ctp1" onchange="onAdminHoleAwardChange('ctp1', this.value)" class="rounded border border-slate-300 bg-lga-cream px-2 py-1 text-xs font-semibold text-lga-navy"></select>
+                                </label>
+                                <label class="flex items-center justify-between gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                    <span class="font-semibold text-lga-navy shrink-0">Closest to Pin #2</span>
+                                    <select id="hole-alloc-ctp2" onchange="onAdminHoleAwardChange('ctp2', this.value)" class="rounded border border-slate-300 bg-lga-cream px-2 py-1 text-xs font-semibold text-lga-navy"></select>
+                                </label>
+                                <label class="flex items-center justify-between gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                    <span class="font-semibold text-lga-navy shrink-0">Longest Drive</span>
+                                    <select id="hole-alloc-ld" onchange="onAdminHoleAwardChange('ld', this.value)" class="rounded border border-slate-300 bg-lga-cream px-2 py-1 text-xs font-semibold text-lga-navy"></select>
+                                </label>
+                            </div>
+                        </div>
+
                         <!-- Front 9 -->
                         <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
                             <table class="min-w-[540px] w-full text-center border-collapse text-xs">
@@ -1719,6 +1741,104 @@
             return { year, flagsByHole, items };
         }
 
+        function syncAdminHoleAllocationControls(year) {
+            const panel = document.getElementById('admin-hole-allocation-panel');
+            if (!panel) return;
+            panel.classList.toggle('hidden', !isAdminUnlocked);
+            if (!isAdminUnlocked) return;
+
+            const yearBadge = document.getElementById('admin-hole-alloc-year-badge');
+            if (yearBadge) {
+                yearBadge.textContent = `${year} Season • +1 pt each`;
+            }
+
+            if (!state.yearlyBonusAwards) state.yearlyBonusAwards = createDefaultYearlyBonusAwards();
+            if (!state.yearlyBonusAwards[year]) {
+                state.yearlyBonusAwards[year] = {
+                    ctp1GolferId: '',
+                    ctp1Hole: '',
+                    ctp2GolferId: '',
+                    ctp2Hole: '',
+                    longestDriveGolferId: '',
+                    longestDriveHole: ''
+                };
+            }
+            const awards = state.yearlyBonusAwards[year];
+            const holeOptions = '<option value="">— None —</option>' +
+                Array.from({ length: 18 }, (_, idx) => `<option value="${idx + 1}">Hole ${idx + 1}</option>`).join('');
+
+            const ctp1Sel = document.getElementById('hole-alloc-ctp1');
+            const ctp2Sel = document.getElementById('hole-alloc-ctp2');
+            const ldSel = document.getElementById('hole-alloc-ld');
+
+            const cleanHole = (val) => {
+                const n = parseInt(String(val || '').replace(/\D/g, ''), 10);
+                return (!Number.isNaN(n) && n >= 1 && n <= 18) ? String(n) : '';
+            };
+
+            if (ctp1Sel) {
+                ctp1Sel.innerHTML = holeOptions;
+                ctp1Sel.value = cleanHole(awards.ctp1Hole);
+            }
+            if (ctp2Sel) {
+                ctp2Sel.innerHTML = holeOptions;
+                ctp2Sel.value = cleanHole(awards.ctp2Hole);
+            }
+            if (ldSel) {
+                ldSel.innerHTML = holeOptions;
+                ldSel.value = cleanHole(awards.longestDriveHole);
+            }
+        }
+
+        function onAdminHoleAwardChange(kind, holeValue) {
+            if (!isAdminUnlocked) return;
+            const dateVal = document.getElementById('log-date')?.value || new Date().toISOString().slice(0, 10);
+            const year = dateVal && /^\d{4}/.test(dateVal) ? Number(dateVal.slice(0, 4)) : 2025;
+            const golferId = document.getElementById('log-golfer')?.value || state.activeGolferId || '';
+
+            if (!state.yearlyBonusAwards) state.yearlyBonusAwards = createDefaultYearlyBonusAwards();
+            if (!state.yearlyBonusAwards[year]) {
+                state.yearlyBonusAwards[year] = {
+                    ctp1GolferId: '',
+                    ctp1Hole: '',
+                    ctp2GolferId: '',
+                    ctp2Hole: '',
+                    longestDriveGolferId: '',
+                    longestDriveHole: ''
+                };
+            }
+
+            const awards = state.yearlyBonusAwards[year];
+            const cleanedHole = holeValue ? String(holeValue) : '';
+
+            if (kind === 'ctp1') {
+                awards.ctp1Hole = cleanedHole;
+                if (cleanedHole && !awards.ctp1GolferId && golferId) {
+                    awards.ctp1GolferId = golferId;
+                } else if (!cleanedHole) {
+                    awards.ctp1GolferId = '';
+                }
+            } else if (kind === 'ctp2') {
+                awards.ctp2Hole = cleanedHole;
+                if (cleanedHole && !awards.ctp2GolferId && golferId) {
+                    awards.ctp2GolferId = golferId;
+                } else if (!cleanedHole) {
+                    awards.ctp2GolferId = '';
+                }
+            } else if (kind === 'ld') {
+                awards.longestDriveHole = cleanedHole;
+                if (cleanedHole && !awards.longestDriveGolferId && golferId) {
+                    awards.longestDriveGolferId = golferId;
+                } else if (!cleanedHole) {
+                    awards.longestDriveGolferId = '';
+                }
+            }
+
+            persistState();
+            renderAll();
+            showToast(`Updated ${year} hole allocation.`, 'success');
+        }
+
         function onLogCourseChange() {
             holeGrossScores = Array(18).fill('');
             const grossInput = document.getElementById('log-gross');
@@ -1753,6 +1873,7 @@
             const course = getCourseById(document.getElementById('log-course')?.value);
             const dateVal = document.getElementById('log-date')?.value || new Date().toISOString().slice(0, 10);
             const { year, flagsByHole, items } = getAllocatedHoleFlagsForDate(dateVal);
+            syncAdminHoleAllocationControls(year);
 
             const bannerEl = document.getElementById('scorecard-hole-flags-banner');
             if (bannerEl) {
