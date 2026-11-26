@@ -1516,19 +1516,44 @@
         }
 
         // Save state to local storage and push to cloud sync if connected
-        function persistState() {
+        // Timestamps of saves this device has pushed to the shared database (used to ignore our own echoes)
+        const ownPushStamps = new Set();
+
+        // localOnly = true for per-device view changes (tab, selected golfer) that must not be shared
+        function persistState(localOnly = false) {
             state.updatedAt = new Date().toISOString();
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
             } catch (err) {
                 console.warn('Local storage persist warning:', err);
             }
-            if (!isApplyingRemoteState && cloudDb && cloudDocRef && typeof window.__lgaSetDoc === 'function') {
+            if (!localOnly && !isApplyingRemoteState && cloudDb && cloudDocRef && typeof window.__lgaSetDoc === 'function') {
+                ownPushStamps.add(state.updatedAt);
                 window.__lgaSetDoc(cloudDocRef, {
                     payload: JSON.stringify(state),
                     updatedAt: state.updatedAt
                 }).catch((err) => console.warn('Cloud push error:', err));
             }
+        }
+
+        // Replace local data with the shared copy from the database. The shared copy always wins;
+        // only this device's open tab and selected golfer are kept.
+        function applyRemoteStatePayload(payload, remoteStamp) {
+            if (remoteStamp && ownPushStamps.has(remoteStamp)) return false;
+            const remoteState = JSON.parse(payload);
+            if (!remoteState || typeof remoteState !== 'object') return false;
+            const keepTab = state.activeTab;
+            const keepGolfer = state.activeGolferId;
+            isApplyingRemoteState = true;
+            try {
+                state = { ...createInitialState(), ...remoteState, activeTab: keepTab, activeGolferId: keepGolfer };
+                sanitizeState();
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+                renderAll();
+            } finally {
+                isApplyingRemoteState = false;
+            }
+            return true;
         }
 
         // Hydrate state from local storage or fall back to initial defaults
@@ -1682,7 +1707,7 @@
                 showToast('Unlock Admin mode to view Tour Locations.', 'error');
             }
             state.activeTab = tabName;
-            persistState();
+            persistState(true);
 
             document.querySelectorAll('.tab-panel').forEach(panel => {
                 panel.classList.toggle('hidden', panel.id !== `tab-${tabName}`);
@@ -1891,7 +1916,7 @@
             state.activeGolferId = golferId;
             const logGolfer = document.getElementById('log-golfer');
             if (logGolfer) logGolfer.value = golferId;
-            persistState();
+            persistState(true);
             renderAll();
         }
 
@@ -3380,24 +3405,14 @@
                         const remote = snapshot.data();
                         if (!remote?.payload) return;
                         try {
-                            const remoteState = JSON.parse(remote.payload);
-                            const localTime = Date.parse(state.updatedAt || 0) || 0;
-                            const remoteTime = Date.parse(remote.updatedAt || remoteState.updatedAt || 0) || 0;
-                            if (remoteTime > localTime) {
-                                isApplyingRemoteState = true;
-                                state = { ...createInitialState(), ...remoteState };
-                                sanitizeState();
-                                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                                renderAll();
+                            const wasFirst = !window.__lgaSyncedOnce;
+                            window.__lgaSyncedOnce = true;
+                            if (applyRemoteStatePayload(remote.payload, remote.updatedAt) && !wasFirst) {
                                 showToast('Live update received from another golfer.');
-                            } else if (localTime > remoteTime) {
-                                persistState();
                             }
                             setLiveSyncStatus('Live Multi-User Sync', true);
                         } catch (err) {
                             console.warn('Remote state parse error:', err);
-                        } finally {
-                            isApplyingRemoteState = false;
                         }
                     },
                     (err) => {
