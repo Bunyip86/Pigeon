@@ -448,7 +448,7 @@
                     <div>
                         <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Pidgeon Cup Archive</div>
                         <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Championship Results Matrix</h2>
-                        <p class="text-xs text-lga-slate mt-0.5">2015–2025 left to right. Unlock Admin mode to edit any cell.</p>
+                        <p class="text-xs text-lga-slate mt-0.5">Newest year on the left, oldest on the right. Unlock Admin mode to edit any cell.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
                         <span class="px-2 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">1st</span>
@@ -583,7 +583,7 @@
             <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4">
                 <div>
                     <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Admin Control</div>
-                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Tour Locations (2015–2025)</h2>
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Tour Locations (2015–2026)</h2>
                     <p class="text-xs sm:text-sm text-lga-slate">Blank when unknown; saving updates championship breakdowns and synced state.</p>
                 </div>
                 <div id="tour-locations-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
@@ -759,7 +759,13 @@
         const STORAGE_KEY = 'lga_tracker_state_v14';
         const ADMIN_PASSCODE = '1986';
         const MAX_HANDICAP = 36.0;
-        const TOUR_YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
+        const TOUR_YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
+        // The next Pidgeon Cup is flagged "Upcoming" until results are entered for it
+        const UPCOMING_YEAR = 2026;
+        function isUpcomingYear(y) {
+            return Number(y) === UPCOMING_YEAR && Object.keys(state?.championshipResults?.[y] || {}).length === 0;
+        }
+        const UPCOMING_TAG_HTML = '<span class="ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider bg-lga-gold text-lga-navy align-middle">UPCOMING</span>';
         const DEFAULT_HOLE_PARS = [4, 4, 3, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 3, 4, 5, 4];
         const DEFAULT_HOLE_SI = [7, 1, 15, 3, 9, 11, 17, 5, 13, 6, 16, 10, 2, 8, 18, 12, 4, 14];
         const APP_ID = typeof __app_id !== 'undefined' && __app_id ? __app_id : 'lga-pidgeon-cup-tracker';
@@ -897,7 +903,8 @@
             2022: '',
             2023: '',
             2024: '',
-            2025: 'Port Fairy'
+            2025: 'Port Fairy',
+            2026: ''
         };
 
         // Build default bonus award entries across all recorded tour years
@@ -2407,7 +2414,7 @@
 
         // Render the 2015-2025 championship matrix and per-year result cards
         function renderChampionshipHistory() {
-            const yearsAsc = [...TOUR_YEARS].sort((a, b) => a - b);
+            const yearsAsc = [...TOUR_YEARS].sort((a, b) => b - a); // newest first (left to right = newest to oldest)
             const headEl = document.getElementById('champ-matrix-head');
             const bodyEl = document.getElementById('champ-matrix-body');
             const strokeRanksByYear = yearsAsc.reduce((acc, yr) => {
@@ -2420,7 +2427,7 @@
                     <th class="px-3 py-2.5 sticky left-0 bg-lga-navy z-10 min-w-[155px] sm:min-w-[180px]">Golfer</th>
                     ${yearsAsc.map(y => `
                         <th class="px-2.5 py-2.5 text-center min-w-[100px]">
-                            <div>${y}</div>
+                            <div>${y}</div>${isUpcomingYear(y) ? `<div class="mt-0.5">${UPCOMING_TAG_HTML}</div>` : ''}
                         </th>
                     `).join('')}
                 </tr>
@@ -2541,11 +2548,11 @@
                 return `
                     <div class="p-4 rounded-xl border border-lga-gold/30 bg-lga-cream/50 space-y-2.5">
                         <div class="flex items-center justify-between gap-2">
-                            <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy">${y} Pidgeon Cup</h4>
+                            <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy">${y} Pidgeon Cup${isUpcomingYear(y) ? UPCOMING_TAG_HTML : ''}</h4>
                             <span class="text-xs font-semibold text-lga-goldDark truncate">${locLabel}</span>
                         </div>
                         ${entries.length === 0
-                            ? `<div class="text-xs text-lga-slate">No recorded entries for ${y}.</div>`
+                            ? `<div class="text-xs text-lga-slate">${isUpcomingYear(y) ? `Upcoming — results will appear here once the ${y} round is played.` : `No recorded entries for ${y}.`}</div>`
                             : `<div class="space-y-1.5">
                                 ${entries.map(item => `
                                     <div class="flex items-center justify-between text-xs bg-white px-3 py-2 rounded-lg border border-slate-200/80 gap-2">
@@ -2743,7 +2750,7 @@
 
         // Render the yearly handicap progression table across all tour years
         function renderHandicapHistory() {
-            const yearsAsc = [...TOUR_YEARS].sort((a, b) => a - b);
+            const yearsAsc = [...TOUR_YEARS].sort((a, b) => b - a); // newest first (left to right = newest to oldest)
             const headEl = document.getElementById('hcp-history-head');
             const bodyEl = document.getElementById('hcp-history-body');
 
@@ -2751,7 +2758,7 @@
                 <tr>
                     <th class="px-3 py-2.5 sticky left-0 bg-lga-navy z-10 min-w-[155px] sm:min-w-[180px]">Golfer</th>
                     <th class="px-3 py-2.5 text-center min-w-[85px]">Current</th>
-                    ${yearsAsc.map(y => `<th class="px-2.5 py-2.5 text-center min-w-[70px]">${y}</th>`).join('')}
+                    ${yearsAsc.map(y => `<th class="px-2.5 py-2.5 text-center min-w-[70px]">${y}${isUpcomingYear(y) ? `<div class="mt-0.5">${UPCOMING_TAG_HTML}</div>` : ''}</th>`).join('')}
                 </tr>
             `;
 
@@ -2766,12 +2773,15 @@
                     const val = state.yearlyHandicaps?.[g.id]?.[y];
                     const hasVal = val !== undefined && val !== null && val !== '';
                     const isLatest = latestYrInfo.year === y;
+                    const champEntry = state.championshipResults?.[y]?.[g.id];
+                    const hasMatrixEntry = !!champEntry && [champEntry.rank, champEntry.score, champEntry.day1, champEntry.day2]
+                        .some(v => String(v ?? '').trim() !== '');
                     const cellClick = isAdminUnlocked ? `onclick="openHandicapEditModal('${g.id}', ${y})"` : '';
                     return `
                         <td ${cellClick} class="px-2 py-2 text-center font-mono text-xs ${editCursor} ${
                             isLatest ? 'bg-amber-50 font-extrabold text-lga-navy' : hasVal ? 'text-lga-navy font-semibold' : 'text-slate-400'
                         }">
-                            ${hasVal ? Number(val) : 'TBC'}
+                            ${hasVal ? Number(val) : (hasMatrixEntry ? 'TBC' : '')}
                         </td>
                     `;
                 }).join('');
@@ -2934,7 +2944,7 @@
                 const val = state.tourLocations?.[y] || '';
                 return `
                     <div class="p-4 rounded-xl border border-lga-gold/30 bg-lga-cream/60 space-y-2">
-                        <label for="tour-loc-${y}" class="block text-xs font-bold text-lga-navy">${y} Tour Location</label>
+                        <label for="tour-loc-${y}" class="block text-xs font-bold text-lga-navy">${y} Tour Location${isUpcomingYear(y) ? UPCOMING_TAG_HTML : ''}</label>
                         <div class="flex gap-2">
                             <input type="text" id="tour-loc-${y}" value="${val}" placeholder="Blank if unknown" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-lga-navy">
                             <button type="button" onclick="saveTourLocation(${y})" class="px-3.5 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold cursor-pointer">Save</button>
