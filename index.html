@@ -448,7 +448,6 @@
                     <div>
                         <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Pidgeon Cup Archive</div>
                         <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Championship Results Matrix</h2>
-                        <p class="text-xs text-lga-slate mt-0.5">Newest year on the left, oldest on the right. Unlock Admin mode to edit any cell.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
                         <span class="px-2 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">1st</span>
@@ -470,7 +469,6 @@
                 <div>
                     <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Player Breakdown &amp; Bonus Awards</div>
                     <h3 class="font-serif text-lg sm:text-xl font-bold text-lga-navy">Annual Championship Entries</h3>
-                    <p class="text-xs text-lga-slate mt-0.5">Unlock Admin mode to assign Closest to Pin (2 holes) and Longest Drive for any year.</p>
                 </div>
                 <div id="champ-year-breakdowns" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"></div>
             </div>
@@ -483,7 +481,6 @@
                     <div>
                         <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Annual Handicap Progression</div>
                         <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Yearly Handicap Record</h2>
-                        <p id="hcp-history-subtitle" class="text-xs text-lga-slate mt-0.5">Single recorded handicap per year (max 36.0) or <strong>TBC</strong>.</p>
                     </div>
                     <span id="hcp-admin-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-lga-slate border border-slate-300 self-start sm:self-auto">
                         Handicaps Locked (Admin Only)
@@ -873,7 +870,19 @@
             { id: 'torquay-sands', name: 'The Sands Torquay', state: 'VIC', region: 'Surf Coast, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 130 },
             { id: 'heritage-henley', name: 'The Heritage Golf & CC (Henley)', state: 'VIC', region: 'Yarra Valley, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 135 },
             { id: 'heritage-st-johns', name: "The Heritage Golf & CC (St John's)", state: 'VIC', region: 'Yarra Valley, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 132 },
-            { id: 'racv-healesville', name: 'RACV Healesville Country Club', state: 'VIC', region: 'Yarra Valley, VIC', tee: 'Blue', par: 72, rating: 71.5, slope: 126 },
+            { id: 'racv-healesville', name: 'RACV Healesville Country Club', state: 'VIC', region: 'Healesville, Yarra Valley, VIC', tee: 'Blue', par: 68, rating: 65.9, slope: 120 },
+            { id: 'eagle-ridge', name: 'Eagle Ridge Golf Club', state: 'VIC', region: 'Mornington Peninsula, VIC', tee: 'Blue', par: 72, rating: 73.4, slope: 137 },
+            { id: 'queenscliff-gc', name: 'Queenscliff Golf Club', state: 'VIC', region: 'Bellarine Peninsula, VIC', tee: 'Blue', par: 72, rating: 70.1, slope: 131 },
+            { id: 'patterson-river', name: 'Patterson River Golf Club', state: 'VIC', region: 'Bonbeach / Patterson Lakes, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 131 },
+            { id: 'cranbourne-gc', name: 'Cranbourne Golf Club', state: 'VIC', region: 'Cranbourne North, VIC', tee: 'Blue', par: 72, rating: 71.6, slope: 127 },
+            { id: 'lang-lang-gc', name: 'Lang Lang Golf Club', state: 'VIC', region: 'Gippsland / South East, VIC', tee: 'Blue', par: 70, rating: 71.5, slope: 123 },
+            { id: 'cardinia-beaconhills', name: 'Cardinia Beaconhills Golf Links', state: 'VIC', region: 'Upper Beaconsfield, VIC', tee: 'Blue', par: 71, rating: 70.1, slope: 117 },
+            { id: 'bright-country', name: 'Bright Country Golf Club', state: 'VIC', region: 'High Country / Victorian Alps, VIC', tee: 'Blue', par: 72, rating: 71.6, slope: 123 },
+            { id: 'mount-beauty-gc', name: 'Mount Beauty Golf Club', state: 'VIC', region: 'Kiewa Valley, VIC', tee: 'Blue', par: 72, rating: 72.4, slope: 119 },
+            { id: 'foster-gc', name: 'Foster Golf Club', state: 'VIC', region: 'Foster, South Gippsland, VIC', tee: 'Blue', par: 72, rating: 71.0, slope: 121 },
+            { id: 'leongatha-gc', name: 'Leongatha Golf Club', state: 'VIC', region: 'Leongatha South, South Gippsland, VIC', tee: 'Blue', par: 70, rating: 70.6, slope: 122 },
+            { id: 'yering-meadows', name: 'Yering Meadows Golf Club', state: 'VIC', region: 'Yering, Yarra Valley, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 136 },
+            { id: 'yarra-bend-golf', name: 'Yarra Bend Golf', state: 'VIC', region: 'Fairfield, Melbourne, VIC', tee: 'Blue', par: 70, rating: 67.6, slope: 119 },
             { id: 'black-bull', name: 'Black Bull Golf Club', state: 'VIC', region: 'Yarrawonga, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 133 },
             { id: 'rich-river-east', name: 'Rich River Golf Club (East)', state: 'VIC', region: 'Echuca Moama, VIC/NSW', tee: 'Blue', par: 72, rating: 72.0, slope: 125 },
             { id: 'ballarat-gc', name: 'Ballarat Golf Club', state: 'VIC', region: 'Ballarat, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 126 },
@@ -1069,6 +1078,7 @@
                 includeDailyHandicapInCalcs: false,
                 golfers: structuredClone(DEFAULT_GOLFERS),
                 courses: structuredClone(DEFAULT_COURSES),
+                clearedChampCells: {},
                 yearlyCourses: {},
                 rounds: [],
                 tourLocations: structuredClone(DEFAULT_TOUR_LOCATIONS),
@@ -1108,7 +1118,7 @@
             if (!state.championshipResults[2015]) {
                 state.championshipResults[2015] = {};
             }
-            if (!state.championshipResults[2015][id]) {
+            if (!state.championshipResults[2015][id] && !state.clearedChampCells?.[2015]?.[id]) {
                 state.championshipResults[2015][id] = {
                     rank: '',
                     score: '',
@@ -1311,7 +1321,7 @@
             if (state.championshipResults?.[2015]?.['marcus-harbour']) {
                 delete state.championshipResults[2015]['marcus-harbour'];
             }
-            if (state.championshipResults?.[2017] && !state.championshipResults[2017]['marcus-harbour']) {
+            if (state.championshipResults?.[2017] && !state.championshipResults[2017]['marcus-harbour'] && !state.clearedChampCells?.[2017]?.['marcus-harbour']) {
                 state.championshipResults[2017]['marcus-harbour'] = {
                     rank: '8',
                     score: '83',
@@ -1323,7 +1333,15 @@
             }
             state.golfers = sortGolfersAlphabetically(state.golfers);
 
-            const rawCourses = Array.isArray(state.courses) && state.courses.length > 0 ? state.courses : structuredClone(DEFAULT_COURSES);
+            const savedCourses = (Array.isArray(state.courses) ? state.courses : []).map(c => {
+                // Migrate RACV Healesville to its corrected rating details
+                if (c.id === 'racv-healesville' && Number(c.par) === 72 && Number(c.rating) === 71.5 && Number(c.slope) === 126) {
+                    return { ...c, region: 'Healesville, Yarra Valley, VIC', par: 68, rating: 65.9, slope: 120 };
+                }
+                return c;
+            });
+            const savedCourseIds = new Set(savedCourses.map(c => c.id));
+            const rawCourses = [...savedCourses, ...DEFAULT_COURSES.filter(c => !savedCourseIds.has(c.id)).map(c => structuredClone(c))];
             state.courses = sortCoursesAlphabetically(rawCourses.map(c => {
                 const match = String(c.name || '').match(/\((VIC|NSW|QLD|SA|WA|TAS|ACT|NT)\)\s*$/i);
                 const inferredState = (c.state || (match ? match[1] : '') || '').toUpperCase();
@@ -1355,10 +1373,13 @@
             }
 
             state.championshipResults = { ...DEFAULT_CHAMPIONSHIP_RESULTS, ...(state.championshipResults || {}) };
-            state.championshipResults[2019] = {
-                ...(state.championshipResults[2019] || {}),
-                ...(DEFAULT_CHAMPIONSHIP_RESULTS[2019] || {})
-            };
+            // Add any missing built-in 2019 entries (never overwrite edits, never restore cleared cells)
+            for (const [gId, defEntry] of Object.entries(DEFAULT_CHAMPIONSHIP_RESULTS[2019] || {})) {
+                if (!state.championshipResults[2019]) state.championshipResults[2019] = {};
+                if (!state.championshipResults[2019][gId] && !state.clearedChampCells?.[2019]?.[gId]) {
+                    state.championshipResults[2019][gId] = structuredClone(defEntry);
+                }
+            }
 
             // First 3 years (2015, 2016, 2017) were Stroke play
             for (const strokeYear of [2015, 2016, 2017]) {
@@ -2469,11 +2490,7 @@
                 </tr>
             `;
 
-            const activeGolfers = sortGolfersAlphabetically(state.golfers).filter(g => {
-                const hasYearHcp = Object.values(state.yearlyHandicaps?.[g.id] || {}).some(v => v !== '' && v !== null && v !== undefined);
-                const hasChamp = yearsAsc.some(y => Boolean(state.championshipResults?.[y]?.[g.id]));
-                return hasYearHcp || hasChamp;
-            });
+            const activeGolfers = sortGolfersAlphabetically(state.golfers);
 
             bodyEl.innerHTML = activeGolfers.map(g => {
                 const cells = yearsAsc.map(y => {
@@ -2663,6 +2680,7 @@
                 format: document.getElementById('champ-edit-format').value.trim() || 'Stableford',
                 venue: state.tourLocations?.[year] || (state.championshipResults[year][golferId]?.venue || '')
             };
+            if (state.clearedChampCells?.[year]) delete state.clearedChampCells[year][golferId];
             persistState();
             closeChampCellModal();
             renderAll();
@@ -2676,6 +2694,9 @@
             if (state.championshipResults?.[year]) {
                 delete state.championshipResults[year][golferId];
             }
+            if (!state.clearedChampCells) state.clearedChampCells = {};
+            if (!state.clearedChampCells[year]) state.clearedChampCells[year] = {};
+            state.clearedChampCells[year][golferId] = true;
             persistState();
             closeChampCellModal();
             renderAll();
