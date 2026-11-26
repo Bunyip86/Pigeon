@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Legends Golfing Association — WHS &amp; Pidgeon Cup Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
@@ -95,7 +95,7 @@
 
                     <span id="live-sync-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 rounded-full text-[11px] sm:text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 shrink-0">
                         <span id="live-sync-dot" class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400"></span>
-                        <span id="live-sync-text">Live Sync Active</span>
+                        <span id="live-sync-text">Connecting…</span>
                     </span>
                 </div>
 
@@ -2990,39 +2990,42 @@
     <!-- Live Multi-User Cloud Sync (Firestore) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Connect to Firestore when environment config is present and subscribe to live updates
+        // ============================================================
+        // PASTE YOUR FIREBASE WEB CONFIG HERE (see README.md, step 2).
+        // Leave apiKey empty to run in "saved on this device" mode.
+        // ============================================================
+        const FIREBASE_CONFIG = {
+            apiKey: "",
+            authDomain: "",
+            projectId: "",
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: ""
+        };
+
         async function initLiveCloudSync() {
-            if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-                setLiveSyncStatus('Live Sync Active', true);
+            if (!FIREBASE_CONFIG.apiKey) {
+                setLiveSyncStatus('Saved on this device', false);
                 return;
             }
             try {
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
+                const app = initializeApp(FIREBASE_CONFIG);
                 const auth = getAuth(app);
                 const db = getFirestore(app);
+                await signInAnonymously(auth);
 
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                if (!auth.currentUser) return;
-
-                const docRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'lga_tracker_live_state');
+                const docRef = doc(db, 'lga', 'state');
                 cloudDb = db;
                 cloudDocRef = docRef;
                 window.__lgaSetDoc = (ref, data) => setDoc(ref, data, { merge: true });
 
                 const snap = await getDoc(docRef);
                 if (!snap.exists()) {
-                    await setDoc(docRef, { payload: JSON.stringify(state), updatedAt: state.updatedAt || new Date().toISOString() }, { merge: true });
+                    await setDoc(docRef, { payload: JSON.stringify(state), updatedAt: state.updatedAt || new Date().toISOString() });
                 }
-
                 setLiveSyncStatus('Live Multi-User Sync', true);
 
                 if (cloudUnsubscribe) cloudUnsubscribe();
@@ -3043,6 +3046,8 @@
                                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                                 renderAll();
                                 showToast('Live update received from another golfer.');
+                            } else if (localTime > remoteTime) {
+                                persistState();
                             }
                             setLiveSyncStatus('Live Multi-User Sync', true);
                         } catch (err) {
@@ -3057,7 +3062,7 @@
                     }
                 );
             } catch (err) {
-                console.warn('Cloud sync unavailable, using fallback sync:', err);
+                console.warn('Cloud sync unavailable, using local storage only:', err);
                 setLiveSyncStatus('Sync Stand-By', false);
             }
         }
