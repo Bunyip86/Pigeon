@@ -1069,6 +1069,7 @@
                 includeDailyHandicapInCalcs: false,
                 golfers: structuredClone(DEFAULT_GOLFERS),
                 courses: structuredClone(DEFAULT_COURSES),
+                yearlyCourses: {},
                 rounds: [],
                 tourLocations: structuredClone(DEFAULT_TOUR_LOCATIONS),
                 yearlyBonusAwards: structuredClone(DEFAULT_YEARLY_BONUS_AWARDS),
@@ -1331,6 +1332,7 @@
             }));
 
             state.tourLocations = { ...DEFAULT_TOUR_LOCATIONS, ...(state.tourLocations || {}) };
+            state.yearlyCourses = { ...((state.yearlyCourses && typeof state.yearlyCourses === 'object') ? state.yearlyCourses : {}) };
             if (!state.tourLocations[2019] || state.tourLocations[2019] === 'Queenscliff') {
                 state.tourLocations[2019] = 'Queenscliff & Portsea';
             }
@@ -2380,9 +2382,32 @@
         }
 
         // Format a compact rank and score string for matrix cells and annual breakdowns
-        function formatChampCellSummary(entry, bonusPts = 0, derivedStrokeRank = '') {
+        // Golfers who share the same (displayed) score with someone else in a year get an "=" after their place.
+        // If the stored places for a same-score group differ (e.g. a deliberate play-off/tie-break), it is left alone.
+        function computeTiedGolfersForYear(year, yearMap, derivedRanks = {}) {
+            const tied = new Set();
+            if (!yearMap || typeof yearMap !== 'object') return tied;
+            const groups = {};
+            for (const [golferId, entry] of Object.entries(yearMap)) {
+                const rawScoreStr = String(entry?.score ?? '').trim();
+                const num = Number(rawScoreStr);
+                if (!entry || rawScoreStr === '' || Number.isNaN(num)) continue;
+                const isStroke = entry.format === 'Stroke';
+                const adjusted = isStroke ? num : num + getGolferBonusPointsForYear(year, golferId);
+                const key = `${isStroke ? 'S' : 'P'}|${adjusted}`;
+                (groups[key] = groups[key] || []).push(golferId);
+            }
+            for (const ids of Object.values(groups)) {
+                if (ids.length < 2) continue;
+                const places = new Set(ids.map(id => getEffectiveEntryRank(yearMap[id], derivedRanks[id] || '')));
+                if (places.size <= 1) ids.forEach(id => tied.add(id));
+            }
+            return tied;
+        }
+
+        function formatChampCellSummary(entry, bonusPts = 0, derivedStrokeRank = '', isTie = false) {
             if (!entry) return '—';
-            const rankStr = getEffectiveEntryRank(entry, derivedStrokeRank);
+            const rankStr = getEffectiveEntryRank(entry, derivedStrokeRank) ? `${getEffectiveEntryRank(entry, derivedStrokeRank)}${isTie ? '=' : ''}` : '';
             const rawScoreStr = String(entry.score || '').trim();
             if (!rankStr && !rawScoreStr) return 'TBC';
             const isStroke = entry.format === 'Stroke';
@@ -2412,11 +2437,22 @@
             return 'bg-lga-cream text-lga-navy border border-lga-gold/25 font-semibold';
         }
 
+        // Course name recorded for a Pidgeon Cup year's round 1 / round 2 (18 holes each)
+        function getYearCourseName(year, key) {
+            const id = state.yearlyCourses?.[year]?.[key];
+            const course = id ? state.courses.find(c => c.id === id) : null;
+            return course ? formatCourseDisplayName(course) : '';
+        }
+
         // Render the 2015-2025 championship matrix and per-year result cards
         function renderChampionshipHistory() {
             const yearsAsc = [...TOUR_YEARS].sort((a, b) => b - a); // newest first (left to right = newest to oldest)
             const headEl = document.getElementById('champ-matrix-head');
             const bodyEl = document.getElementById('champ-matrix-body');
+            const tiesByYear = {};
+            for (const yr of yearsAsc) {
+                tiesByYear[yr] = computeTiedGolfersForYear(yr, state.championshipResults?.[yr], computeStrokeRanksForYear(state.championshipResults?.[yr]));
+            }
             const strokeRanksByYear = yearsAsc.reduce((acc, yr) => {
                 acc[yr] = computeStrokeRanksForYear(state.championshipResults?.[yr]);
                 return acc;
@@ -2444,7 +2480,7 @@
                     const entry = state.championshipResults?.[y]?.[g.id] || null;
                     const bonusPts = getGolferBonusPointsForYear(y, g.id);
                     const derivedStrokeRank = strokeRanksByYear[y]?.[g.id] || '';
-                    const summary = formatChampCellSummary(entry, bonusPts, derivedStrokeRank);
+                    const summary = formatChampCellSummary(entry, bonusPts, derivedStrokeRank, tiesByYear[y]?.has(g.id) || false);
                     const badgeCls = getChampCellBadgeClass(entry, derivedStrokeRank);
                     const clickAttr = isAdminUnlocked ? `onclick="openChampCellModal(${y}, '${g.id}')"` : '';
                     return `
@@ -2480,6 +2516,7 @@
                         return {
                             golfer: getGolferById(gId),
                             bonusPts: getGolferBonusPointsForYear(y, gId),
+                            isTie: tiesByYear[y]?.has(gId) || false,
                             derivedStrokeRank: strokeRanks[gId] || '',
                             effectiveRank,
                             ...data
@@ -2494,6 +2531,11 @@
                     });
 
                 const locLabel = state.tourLocations?.[y] || yearMap[Object.keys(yearMap)[0]]?.venue || '';
+                const round1Course = getYearCourseName(y, 'round1CourseId');
+                const round2Course = getYearCourseName(y, 'round2CourseId');
+                const courseLineHtml = (round1Course || round2Course)
+                    ? `<div class="text-[11px] text-lga-slate space-y-0.5">${round1Course ? `<div><span class="font-bold text-lga-navy">Round 1:</span> ${round1Course}</div>` : ''}${round2Course ? `<div><span class="font-bold text-lga-navy">Round 2:</span> ${round2Course}</div>` : ''}</div>`
+                    : '';
 
                 const ctp1Name = awards.ctp1GolferId ? (getGolferById(awards.ctp1GolferId)?.name || '') : '';
                 const ctp1HoleLabel = awards.ctp1Hole ? ` (Hole ${awards.ctp1Hole})` : '';
@@ -2551,13 +2593,14 @@
                             <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy">${y} Pidgeon Cup${isUpcomingYear(y) ? UPCOMING_TAG_HTML : ''}</h4>
                             <span class="text-xs font-semibold text-lga-goldDark truncate">${locLabel}</span>
                         </div>
+                        ${courseLineHtml}
                         ${entries.length === 0
                             ? `<div class="text-xs text-lga-slate">${isUpcomingYear(y) ? `Upcoming — results will appear here once the ${y} round is played.` : `No recorded entries for ${y}.`}</div>`
                             : `<div class="space-y-1.5">
                                 ${entries.map(item => `
                                     <div class="flex items-center justify-between text-xs bg-white px-3 py-2 rounded-lg border border-slate-200/80 gap-2">
                                         <span class="font-semibold text-lga-navy truncate">${item.golfer.name}</span>
-                                        <span class="font-mono font-bold text-lga-goldDark shrink-0">${formatChampCellSummary(item, item.bonusPts || 0, item.derivedStrokeRank)}</span>
+                                        <span class="font-mono font-bold text-lga-goldDark shrink-0">${formatChampCellSummary(item, item.bonusPts || 0, item.derivedStrokeRank, item.isTie)}</span>
                                     </div>
                                 `).join('')}
                             </div>`
@@ -2937,6 +2980,13 @@
         }
 
         // Render editable location fields for each championship year when admin is unlocked
+        // <option> list of all courses for the round 1 / round 2 pickers
+        function courseOptionsHtml(selectedId) {
+            return '<option value="">— Not set —</option>' + sortCoursesAlphabetically(state.courses)
+                .map(c => `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${formatCourseDisplayName(c)}</option>`)
+                .join('');
+        }
+
         function renderTourLocations() {
             if (!isAdminUnlocked) return;
             const grid = document.getElementById('tour-locations-grid');
@@ -2949,6 +2999,14 @@
                             <input type="text" id="tour-loc-${y}" value="${val}" placeholder="Blank if unknown" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-lga-navy">
                             <button type="button" onclick="saveTourLocation(${y})" class="px-3.5 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold cursor-pointer">Save</button>
                         </div>
+                        <div class="grid grid-cols-1 gap-2 pt-1">
+                            <label class="block text-[11px] font-semibold text-lga-slate">Round 1 course (18 holes)
+                                <select id="tour-r1-${y}" class="mt-0.5 w-full rounded-xl border border-slate-300 bg-white px-2.5 py-2 text-xs text-lga-navy">${courseOptionsHtml(state.yearlyCourses?.[y]?.round1CourseId)}</select>
+                            </label>
+                            <label class="block text-[11px] font-semibold text-lga-slate">Round 2 course (18 holes)
+                                <select id="tour-r2-${y}" class="mt-0.5 w-full rounded-xl border border-slate-300 bg-white px-2.5 py-2 text-xs text-lga-navy">${courseOptionsHtml(state.yearlyCourses?.[y]?.round2CourseId)}</select>
+                            </label>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -2959,9 +3017,14 @@
             if (!isAdminUnlocked) return;
             const input = document.getElementById(`tour-loc-${year}`);
             state.tourLocations[year] = (input?.value || '').trim();
+            if (!state.yearlyCourses) state.yearlyCourses = {};
+            state.yearlyCourses[year] = {
+                round1CourseId: document.getElementById(`tour-r1-${year}`)?.value || '',
+                round2CourseId: document.getElementById(`tour-r2-${year}`)?.value || ''
+            };
             persistState();
             renderAll();
-            showToast(`${year} tour location updated.`, 'success');
+            showToast(`${year} tour location and courses updated.`, 'success');
         }
 
         // Populate golfer and course dropdown menus while preserving current selections
