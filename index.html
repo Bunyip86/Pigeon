@@ -1764,7 +1764,6 @@
                 const rawScoreStr = String(entry.score || '').trim();
                 const day1Str = String(entry.day1 || '').trim();
                 const day2Str = String(entry.day2 || '').trim();
-                if (!rawScoreStr && !day1Str && !day2Str) continue;
 
                 const isStroke = entry.format === 'Stroke';
                 const bonusPts = getGolferBonusPointsForYear(yr, golferId);
@@ -1785,7 +1784,9 @@
                     date: `${yr} Pidgeon Cup`,
                     rank: rankStr,
                     format: entry.format || 'Stableford',
-                    scoreLabel: isStroke
+                    scoreLabel: !rawScoreStr
+                        ? 'Round played (score TBC)'
+                        : isStroke
                         ? `Gross ${finalScore}`
                         : `${finalScore} pts${!isStroke && hasNumericScore && bonusPts > 0 ? ` (+${bonusPts} bonus)` : ''}`,
                     daySplit: (day1Str || day2Str) ? `D1 ${day1Str || '—'} / D2 ${day2Str || '—'}` : '',
@@ -2501,13 +2502,14 @@
                 ? String(numericScore + bonusPts)
                 : rawScoreStr;
             const bonusTag = (!isStroke && bonusPts > 0) ? ` (+${bonusPts})` : '';
+            const rankLabel = /^\d/.test(rankStr) ? `#${rankStr}` : rankStr;
 
             if (rankStr && adjustedScoreStr) {
                 const suffix = isStroke ? '' : ' pts';
-                return `#${rankStr} (${adjustedScoreStr}${suffix}${bonusTag})`;
+                return `${rankLabel} (${adjustedScoreStr}${suffix}${bonusTag})`;
             }
             return rankStr
-                ? `#${rankStr}${bonusTag}`
+                ? `${rankLabel}${bonusTag}`
                 : `${adjustedScoreStr}${isStroke ? '' : ' pts'}${bonusTag}`;
         }
 
