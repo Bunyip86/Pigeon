@@ -739,6 +739,34 @@
         </form>
     </div>
 
+    <!-- Edit Golfer Modal (Admin Only) -->
+    <div id="edit-golfer-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <form onsubmit="saveEditedGolfer(event)" class="bg-white rounded-2xl border border-lga-gold/40 max-w-md w-full p-5 sm:p-6 shadow-xl space-y-4">
+            <h3 class="font-serif text-xl font-bold text-lga-navy">Edit Golfer Details</h3>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-lga-slate mb-1">Full Name</label>
+                    <input type="text" id="edit-golfer-name" required class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-lga-slate mb-1">Role</label>
+                        <input type="text" id="edit-golfer-role" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-lga-slate mb-1">Home Club</label>
+                        <input type="text" id="edit-golfer-club" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2 text-lga-navy">
+                    </div>
+                </div>
+                <p class="text-[11px] text-lga-slate">Results, handicaps and rounds stay linked to the golfer when the name changes.</p>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeEditGolferModal()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
+                <button type="submit" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
     <!-- Restore JSON Modal (Admin Only) -->
     <div id="restore-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 flex items-end sm:items-center justify-center p-3 sm:p-4">
         <div class="bg-white rounded-2xl border border-lga-gold/40 max-w-lg w-full p-5 sm:p-6 shadow-xl space-y-4">
@@ -1184,8 +1212,6 @@
 
             if (!canonical && legacyGolfers.length > 0) {
                 canonical = { ...legacyGolfers[0], id: canonicalId, name: "David O'Connor" };
-            } else if (canonical) {
-                canonical.name = "David O'Connor";
             }
 
             state.golfers = state.golfers.filter(g => g.id === canonicalId || (!legacyIds.includes(g.id) && !/^dave\s+o'?connor$/i.test(g.name || '')));
@@ -1237,8 +1263,6 @@
 
             if (!canonical && legacyGolfers.length > 0) {
                 canonical = { ...legacyGolfers[0], id: canonicalId, name: 'Andrew Dorrington' };
-            } else if (canonical) {
-                canonical.name = 'Andrew Dorrington';
             }
 
             state.golfers = state.golfers.filter(
@@ -3022,9 +3046,56 @@
                             <div><span class="block text-[10px] text-lga-slate">ROUNDS</span><span class="font-mono font-bold text-lga-navy">${stats.roundsCount}</span></div>
                             <div><span class="block text-[10px] text-lga-slate">WINS</span><span class="font-mono font-bold text-lga-navy">${wins}</span></div>
                         </div>
+                        ${isAdminUnlocked ? `<button type="button" onclick="openEditGolferModal('${g.id}')" class="w-full px-3 py-2 rounded-xl text-xs font-bold bg-lga-sand hover:bg-amber-200/70 text-lga-navy border border-lga-gold/40 cursor-pointer">Edit details</button>` : ''}
                     </div>
                 `;
             }).join('');
+        }
+
+        // Admin: edit an existing golfer's name, role and home club (id stays the same so history stays linked)
+        let editingGolferId = null;
+
+        function openEditGolferModal(golferId) {
+            if (!isAdminUnlocked) {
+                showToast('Unlock Admin mode to edit golfer details.', 'error');
+                return;
+            }
+            const g = state.golfers.find(x => x.id === golferId);
+            if (!g) return;
+            editingGolferId = golferId;
+            document.getElementById('edit-golfer-name').value = g.name || '';
+            document.getElementById('edit-golfer-role').value = g.role || '';
+            document.getElementById('edit-golfer-club').value = g.homeClub || '';
+            document.getElementById('edit-golfer-modal').classList.remove('hidden');
+        }
+
+        function closeEditGolferModal() {
+            editingGolferId = null;
+            document.getElementById('edit-golfer-modal').classList.add('hidden');
+        }
+
+        function saveEditedGolfer(event) {
+            event.preventDefault();
+            if (!isAdminUnlocked || !editingGolferId) return;
+            const g = state.golfers.find(x => x.id === editingGolferId);
+            if (!g) return;
+            const name = document.getElementById('edit-golfer-name').value.trim();
+            if (!name) {
+                showToast('Name cannot be blank.', 'error');
+                return;
+            }
+            if (/^(doz|dave\s+o'?connor)$/i.test(name)) {
+                showToast('That name is reserved for legacy duplicate merging. Please use the full name.', 'error');
+                return;
+            }
+            g.name = name;
+            g.role = document.getElementById('edit-golfer-role').value.trim() || 'Member';
+            g.homeClub = document.getElementById('edit-golfer-club').value.trim() || 'Legends Touring Chapter';
+            state.golfers = sortGolfersAlphabetically(state.golfers);
+            persistState();
+            closeEditGolferModal();
+            renderAll();
+            showToast('Golfer details updated.', 'success');
         }
 
         // Open the modal to add a new golfer to the roster
