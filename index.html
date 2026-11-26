@@ -95,6 +95,8 @@
     </div>
     <script>
         const PIN_STORAGE_KEY = 'lga_pin_saved_v2';
+        // Resolved by the Firebase module once it has loaded (or failed)
+        window.__lgaPinReady = new Promise(res => { window.__lgaResolvePin = res; });
 
         function unlockSite() {
             document.body.classList.remove('pin-locked');
@@ -116,7 +118,13 @@
                 input.disabled = true;
                 const pin = input.value;
                 try {
+                    err.textContent = 'Checking…';
+                    await Promise.race([window.__lgaPinReady, new Promise(r => setTimeout(r, 20000))]);
+                    if (typeof window.__lgaTryPin !== 'function') {
+                        throw new Error(window.__lgaLoadError || 'Could not load Firebase. Check your connection or ad blocker and reload.');
+                    }
                     const ok = await window.__lgaTryPin(pin);
+                    err.textContent = '';
                     if (ok) {
                         try { localStorage.setItem(PIN_STORAGE_KEY, pin); } catch (e) {}
                         unlockSite();
@@ -3051,20 +3059,33 @@
 
     <!-- Live Multi-User Cloud Sync (Firestore) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        let initializeApp, getAuth, signInWithEmailAndPassword, getFirestore, doc, getDoc, setDoc, onSnapshot;
+        try {
+            const base = "https://www.gstatic.com/firebasejs/11.6.1/";
+            const [appMod, authMod, fsMod] = await Promise.all([
+                import(base + "firebase-app.js"),
+                import(base + "firebase-auth.js"),
+                import(base + "firebase-firestore.js")
+            ]);
+            ({ initializeApp } = appMod);
+            ({ getAuth, signInWithEmailAndPassword } = authMod);
+            ({ getFirestore, doc, getDoc, setDoc, onSnapshot } = fsMod);
+        } catch (e) {
+            window.__lgaLoadError = 'Could not load Firebase: ' + ((e && e.message) || e);
+            window.__lgaResolvePin();
+            throw e;
+        }
 
         // ============================================================
         // 1) PASTE YOUR FIREBASE WEB CONFIG HERE (see README.md).
         // ============================================================
-        const firebaseConfig = {
-          apiKey: "AIzaSyBnYleOSwGVGte-8vi8alSFNDQWHzJqZa8",
-          authDomain: "lga-pigeon.firebaseapp.com",
-          projectId: "lga-pigeon",
-          storageBucket: "lga-pigeon.firebasestorage.app",
-          messagingSenderId: "753098492942",
-          appId: "1:753098492942:web:009ccf9060bf719812c05f"
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyBnYleOSwGVGte-8vi8alSFNDQWHzJqZa8",
+            authDomain: "lga-pigeon.firebaseapp.com",
+            projectId: "lga-pigeon",
+            storageBucket: "lga-pigeon.firebasestorage.app",
+            messagingSenderId: "753098492942",
+            appId: "1:753098492942:web:009ccf9060bf719812c05f"
         };
 
         // 2) The shared login. The email must match the user you create in Firebase.
@@ -3077,9 +3098,13 @@
         let syncStarted = false;
 
         if (FIREBASE_CONFIG.apiKey) {
-            const app = initializeApp(FIREBASE_CONFIG);
-            auth = getAuth(app);
-            db = getFirestore(app);
+            try {
+                const app = initializeApp(FIREBASE_CONFIG);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            } catch (e) {
+                window.__lgaLoadError = 'Firebase config problem: ' + ((e && e.message) || e);
+            }
         } else {
             setLiveSyncStatus('Firebase not set up', false);
         }
@@ -3099,6 +3124,8 @@
             startLiveSync();
             return true;
         };
+
+        window.__lgaResolvePin();
 
         async function startLiveSync() {
             if (syncStarted) return;
