@@ -1070,6 +1070,35 @@
             }
         };
 
+        // One-time corrections to recorded Pidgeon Cup results. Each patch is applied once per saved state
+        // (tracked in state.appliedDataPatches), so later admin edits are never overwritten.
+        const RESULT_PATCHES = [
+            {
+                id: '2020-results-v1',
+                year: 2020,
+                entries: {
+                    'ben-burke':        { rank: '1',  day1: '33', day2: '40', score: '77' },
+                    'michael-stowe':    { rank: '2',  day1: '34', day2: '35', score: '69' },
+                    'james-patrick':    { rank: '3',  day1: '33', day2: '31', score: '64' },
+                    'craig-tubb':       { rank: '4',  day1: '29', day2: '29', score: '58' },
+                    'ben-cohen':        { rank: '5',  day1: '25', day2: '28', score: '53' },
+                    'dylan-willcock':   { rank: '6',  day1: '27', day2: '25', score: '52' },
+                    'jason-daye':       { rank: '7',  day1: '23', day2: '24', score: '47' },
+                    'david-oconnor':    { rank: '9',  day1: '18', day2: '24', score: '42' },
+                    'andrew-dorrington':{ rank: '10', day1: '22', day2: '19', score: '41' },
+                    'simon-willcock':   { rank: '11', day1: '22', day2: '14', score: '36' },
+                    'jon-dardaganis':   { rank: '12', day1: '15', day2: '20', score: '35' }
+                }
+            },
+            {
+                id: '2020-tim-v1',
+                year: 2020,
+                entries: {
+                    'tim-unknown': { rank: '8', day1: '17', day2: '29', score: '46' }
+                }
+            }
+        ];
+
         // Construct a fresh default application state object
         function createInitialState() {
             return {
@@ -1079,6 +1108,7 @@
                 golfers: structuredClone(DEFAULT_GOLFERS),
                 courses: structuredClone(DEFAULT_COURSES),
                 clearedChampCells: {},
+                appliedDataPatches: {},
                 yearlyCourses: {},
                 rounds: [],
                 tourLocations: structuredClone(DEFAULT_TOUR_LOCATIONS),
@@ -1126,6 +1156,22 @@
                     venue: state.tourLocations?.[2015] || ''
                 };
             }
+        }
+
+        // Ensure Tim Unknown is on the roster (2020 Pidgeon Cup entrant, handicap TBC)
+        function ensureTimUnknownIncluded() {
+            if (!state.golfers.some(g => g.id === 'tim-unknown')) {
+                state.golfers.push({
+                    id: 'tim-unknown',
+                    name: 'Tim Unknown',
+                    role: 'Member',
+                    homeClub: 'Legends Touring Chapter',
+                    baselineWhs: null,
+                    lowCap12m: null
+                });
+            }
+            if (!state.yearlyHandicaps) state.yearlyHandicaps = {};
+            if (!state.yearlyHandicaps['tim-unknown']) state.yearlyHandicaps['tim-unknown'] = {};
         }
 
         // Merge Dave & David O'Connor into David O'Connor
@@ -1304,6 +1350,7 @@
             mergeDuplicateDavidOConnor();
             mergeDuplicateAndrewDorrington();
             ensureStevenRaphaelIncluded();
+            ensureTimUnknownIncluded();
 
             if (!state.golfers.some(g => g.id === 'marcus-harbour')) {
                 state.golfers.push({
@@ -1379,6 +1426,22 @@
                 if (!state.championshipResults[2019][gId] && !state.clearedChampCells?.[2019]?.[gId]) {
                     state.championshipResults[2019][gId] = structuredClone(defEntry);
                 }
+            }
+
+            // Apply one-time result corrections
+            state.appliedDataPatches = (state.appliedDataPatches && typeof state.appliedDataPatches === 'object') ? state.appliedDataPatches : {};
+            for (const patch of RESULT_PATCHES) {
+                if (state.appliedDataPatches[patch.id]) continue;
+                if (!state.championshipResults[patch.year]) state.championshipResults[patch.year] = {};
+                for (const [gId, entry] of Object.entries(patch.entries)) {
+                    state.championshipResults[patch.year][gId] = {
+                        ...(state.championshipResults[patch.year][gId] || {}),
+                        ...entry,
+                        format: 'Stableford'
+                    };
+                    if (state.clearedChampCells?.[patch.year]) delete state.clearedChampCells[patch.year][gId];
+                }
+                state.appliedDataPatches[patch.id] = true;
             }
 
             // First 3 years (2015, 2016, 2017) were Stroke play
