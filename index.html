@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Legends Golfing Association — WHS &amp; Pidgeon Cup Tracker</title>
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,10 +35,16 @@
         };
     </script>
     <style>
-        body.pin-locked > *:not(#pin-gate) { display: none !important; }
-        #pin-gate.unlocked { display: none; }
-        @keyframes pin-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
-        .pin-shake { animation: pin-shake 0.3s; }
+        .spin-reel { position: relative; width: 72px; height: 80px; overflow: hidden; border-radius: 14px; background: #FFFFFF; border: 3px solid #C5A059; box-shadow: inset 0 0 14px rgba(11,29,51,0.25); }
+        .spin-reel::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(11,29,51,0.35) 0%, rgba(255,255,255,0) 28%, rgba(255,255,255,0) 72%, rgba(11,29,51,0.35) 100%); }
+        .spin-track { display: flex; flex-direction: column; will-change: transform; }
+        .spin-sym { height: 80px; flex: 0 0 80px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', Georgia, serif; font-size: 46px; font-weight: 800; color: #0B1D33; }
+        .spin-sym.dir-down { color: #059669; }
+        .spin-sym.dir-up { color: #E11D48; }
+        .spin-sym.dir-same { color: #64748B; }
+        @keyframes spin-pop { 0% { transform: scale(0.85); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+        .spin-pop { animation: spin-pop 0.45s ease-out; }
+        :root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
         html, body {
             background-color: #FBF9F5;
             color: #0F172A;
@@ -78,73 +84,7 @@
         }
     </style>
 </head>
-<body class="pin-locked min-h-screen flex flex-col w-full max-w-full">
-    <!-- 4-digit PIN gate -->
-    <div id="pin-gate" class="fixed inset-0 z-[100] bg-lga-navy flex items-center justify-center p-4">
-        <div id="pin-card" class="w-full max-w-xs text-center space-y-5">
-            <div class="w-16 h-16 mx-auto rounded-full bg-lga-navyLight border-2 border-lga-gold flex items-center justify-center shadow">
-                <span class="font-serif font-extrabold text-lga-gold tracking-wider">LGA</span>
-            </div>
-            <div>
-                <h1 class="font-serif text-2xl font-bold text-white">Legends Golfing Association</h1>
-                <p class="text-xs text-slate-300 mt-1">Enter the 4-digit PIN to continue</p>
-            </div>
-            <input type="password" id="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••" class="w-full text-center tracking-[0.6em] text-2xl font-mono rounded-xl border border-lga-gold/50 bg-lga-navyLight text-white px-3 py-3 focus:outline-none focus:border-lga-gold">
-            <div id="pin-error" class="h-4 text-xs font-semibold text-rose-300"></div>
-        </div>
-    </div>
-    <script>
-        const PIN_STORAGE_KEY = 'lga_pin_saved_v2';
-        // Resolved by the Firebase module once it has loaded (or failed)
-        window.__lgaPinReady = new Promise(res => { window.__lgaResolvePin = res; });
-
-        function unlockSite() {
-            document.body.classList.remove('pin-locked');
-            const gate = document.getElementById('pin-gate');
-            if (gate) gate.classList.add('unlocked');
-        }
-
-        (function initPinGate() {
-            const input = document.getElementById('pin-input');
-            const err = document.getElementById('pin-error');
-            const card = document.getElementById('pin-card');
-            let busy = false;
-
-            input.addEventListener('input', async () => {
-                input.value = input.value.replace(/\D/g, '').slice(0, 4);
-                err.textContent = '';
-                if (input.value.length !== 4 || busy) return;
-                busy = true;
-                input.disabled = true;
-                const pin = input.value;
-                try {
-                    err.textContent = 'Checking…';
-                    await Promise.race([window.__lgaPinReady, new Promise(r => setTimeout(r, 20000))]);
-                    if (typeof window.__lgaTryPin !== 'function') {
-                        throw new Error(window.__lgaLoadError || 'Could not load Firebase. Check your connection or ad blocker and reload.');
-                    }
-                    const ok = await window.__lgaTryPin(pin);
-                    err.textContent = '';
-                    if (ok) {
-                        try { localStorage.setItem(PIN_STORAGE_KEY, pin); } catch (e) {}
-                        unlockSite();
-                    } else {
-                        err.textContent = 'Incorrect PIN';
-                        card.classList.remove('pin-shake');
-                        void card.offsetWidth;
-                        card.classList.add('pin-shake');
-                    }
-                } catch (e) {
-                    err.textContent = (e && e.message) || 'Could not connect';
-                }
-                input.value = '';
-                input.disabled = false;
-                busy = false;
-                input.focus();
-            });
-            setTimeout(() => input.focus(), 50);
-        })();
-    </script>
+<body class="min-h-screen flex flex-col w-full max-w-full">
     <!-- Top Header & Mobile-Streamlined Navigation -->
     <header class="bg-lga-navy text-white border-b border-lga-gold/30 sticky top-0 z-30 shadow-md w-full">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
@@ -165,7 +105,7 @@
 
                     <span id="live-sync-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 rounded-full text-[11px] sm:text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 shrink-0">
                         <span id="live-sync-dot" class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400"></span>
-                        <span id="live-sync-text">Connecting…</span>
+                        <span id="live-sync-text">Saved on this device</span>
                     </span>
                 </div>
 
@@ -275,6 +215,21 @@
                         <span id="group-member-count-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-lga-sand text-lga-navy border border-lga-gold/30 shrink-0">0 Members</span>
                     </div>
                     <div id="group-whs-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[420px] overflow-y-auto pr-0.5"></div>
+                </div>
+            </div>
+
+            <!-- Fun Facts -->
+            <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Clubhouse Extras</div>
+                        <h2 class="font-serif text-lg sm:text-xl font-bold text-lga-navy">Fun Facts: Pigeons &amp; Golf</h2>
+                    </div>
+                    <button type="button" onclick="nextFunFact()" class="px-3.5 py-2 rounded-xl bg-lga-navy hover:bg-lga-navyLight text-lga-gold text-xs sm:text-sm font-bold transition cursor-pointer shrink-0">Another fact</button>
+                </div>
+                <div class="mt-3 rounded-xl bg-lga-sand/70 border border-lga-gold/30 p-4 sm:p-5 space-y-2.5">
+                    <span id="fun-fact-tag" class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border bg-white text-lga-navy border-lga-gold/40"></span>
+                    <p id="fun-fact-text" class="font-serif text-base sm:text-lg text-lga-navy leading-relaxed"></p>
                 </div>
             </div>
         </section>
@@ -476,6 +431,31 @@
 
         <!-- TAB 4: YEARLY HANDICAP RECORD -->
         <section id="tab-handicap-history" class="tab-panel hidden space-y-4 sm:space-y-6">
+            <!-- Handicap Generator -->
+            <div id="hcp-generator-card" class="bg-lga-navy rounded-2xl border-2 border-lga-gold p-5 sm:p-6 shadow-lg text-center space-y-4">
+                <h3 id="spin-title" class="font-serif text-2xl font-bold text-white"></h3>
+                <label class="inline-flex items-center gap-2 text-xs font-semibold text-lga-goldDark">
+                    <span class="text-lga-goldLight">Golfer</span>
+                    <select id="spin-golfer-select" onchange="onSpinGolferChange(this.value)" class="rounded-lg border border-lga-gold/50 bg-lga-navyLight text-white px-2.5 py-1.5 text-sm font-semibold focus:outline-none"></select>
+                </label>
+                <div class="space-y-1">
+                    <div class="text-xs font-semibold text-lga-goldLight">How good do you think you are? <span id="self-rating-label" class="font-bold text-white"></span></div>
+                    <input id="self-rating-slider" type="range" min="1" max="10" step="1" value="5" oninput="onSelfRatingInput(this.value)" onchange="onSelfRatingChange(this.value)" class="w-full max-w-xs accent-yellow-500 cursor-pointer">
+                    <div class="flex justify-between max-w-xs mx-auto text-[10px] text-slate-400"><span>Hacker</span><span>Tour pro</span></div>
+                </div>
+                <p id="spin-flavour" class="text-xs text-lga-goldLight min-h-[2.5rem] leading-relaxed"></p>
+                <div class="text-xs text-slate-300">Current handicap <span id="spin-prev" class="font-mono font-extrabold text-white text-base"></span></div>
+                <div id="spin-reels" class="flex items-center justify-center gap-2.5 py-1">
+                    <div class="spin-reel"><div id="track-dir" class="spin-track"></div></div>
+                    <div class="spin-reel"><div id="track-tens" class="spin-track"></div></div>
+                    <div class="spin-reel"><div id="track-ones" class="spin-track"></div></div>
+                </div>
+                <div id="spin-result" class="min-h-[3rem] text-sm font-bold text-white flex items-center justify-center"></div>
+                <div class="flex flex-wrap justify-center gap-2">
+                    <button type="button" id="spin-btn" onclick="runHandicapSpin()" class="px-5 py-2.5 rounded-xl bg-lga-gold hover:bg-lga-goldLight text-lga-navy text-sm font-extrabold tracking-wider cursor-pointer">SPIN</button>
+                    <button type="button" id="spin-apply-btn" onclick="applySpinResult()" class="hidden px-4 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-lga-navy text-sm font-bold cursor-pointer"></button>
+                </div>
+            </div>
             <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
@@ -1136,6 +1116,7 @@
                 golfers: structuredClone(DEFAULT_GOLFERS),
                 courses: structuredClone(DEFAULT_COURSES),
                 clearedChampCells: {},
+                handicapGenInputs: {},
                 appliedDataPatches: {},
                 yearlyCourses: {},
                 rounds: [],
@@ -1422,6 +1403,7 @@
 
             state.tourLocations = { ...DEFAULT_TOUR_LOCATIONS, ...(state.tourLocations || {}) };
             state.yearlyCourses = { ...((state.yearlyCourses && typeof state.yearlyCourses === 'object') ? state.yearlyCourses : {}) };
+            state.handicapGenInputs = (state.handicapGenInputs && typeof state.handicapGenInputs === 'object') ? state.handicapGenInputs : {};
             if (!state.tourLocations[2019] || state.tourLocations[2019] === 'Queenscliff') {
                 state.tourLocations[2019] = 'Queenscliff & Portsea';
             }
@@ -2926,6 +2908,314 @@
             showToast('Handicap set to TBC.');
         }
 
+        // ===== Handicap Generator (Yearly Handicap Record tab) =====
+        // Lower handicap = better golfer. Change these numbers to tune how the generator behaves.
+        const HCP_GEN = {
+            neutralRounds: 15,   // rounds played in the year that leave the handicap unchanged
+            perRound: 0.1,       // strokes gained/lost per round above/below neutralRounds
+            maxImprove: 2.5,     // most strokes a very active golfer can lose from their handicap
+            maxWorsen: 2.0,      // most strokes an inactive golfer can add
+            winnerPct: 0.20,     // prior-year winner penalty = this share of their handicap...
+            winnerMin: 3.0,      // ...but never fewer than this many strokes
+            selfWeight: 0.15,    // lean added per stroke of gap between self-rated skill and recorded handicap
+            selfMax: 2.0         // biggest lean the self-rating can add either way
+        };
+        let handicapGenYear = UPCOMING_YEAR;
+
+        // Most recent recorded handicap before the target year (default "previous handicap")
+        function getGenPrevHandicapAuto(golferId, year) {
+            const ym = state.yearlyHandicaps?.[golferId] || {};
+            const years = Object.keys(ym)
+                .map(Number)
+                .filter(y => y < year && ym[y] !== '' && ym[y] !== null && ym[y] !== undefined && !Number.isNaN(Number(ym[y])))
+                .sort((a, b) => b - a);
+            return years.length ? Math.min(MAX_HANDICAP, Number(ym[years[0]])) : null;
+        }
+
+        // Did this golfer finish 1st (including a tied 1st) in the given year's Pidgeon Cup?
+        function didGolferWinYear(golferId, year) {
+            const entry = state.championshipResults?.[year]?.[golferId];
+            return String(entry?.rank || '').replace(/=/g, '').trim() === '1';
+        }
+
+        function computeGeneratedHandicap(golferId, year) {
+            const inp = state.handicapGenInputs?.[year]?.[golferId] || {};
+            const autoPrev = getGenPrevHandicapAuto(golferId, year);
+            const hasPrevInput = inp.prev !== undefined && inp.prev !== null && inp.prev !== '';
+            const prevRaw = hasPrevInput ? Number(inp.prev) : autoPrev;
+            const autoWon = didGolferWinYear(golferId, year - 1);
+            const won = typeof inp.won === 'boolean' ? inp.won : autoWon;
+            const roundsKnown = inp.rounds !== undefined && inp.rounds !== null && inp.rounds !== '' && !Number.isNaN(Number(inp.rounds));
+            const rounds = roundsKnown ? Number(inp.rounds) : null;
+
+            if (prevRaw === null || prevRaw === undefined || Number.isNaN(prevRaw)) {
+                return { prev: null, rounds, won, activityAdj: 0, selfRating: null, selfAdj: 0, winnerPenalty: 0, suggested: null };
+            }
+            const prev = Math.min(MAX_HANDICAP, Math.max(0, prevRaw));
+            let activityAdj = 0;
+            if (roundsKnown) {
+                activityAdj = Math.max(-HCP_GEN.maxImprove, Math.min(HCP_GEN.maxWorsen, (HCP_GEN.neutralRounds - rounds) * HCP_GEN.perRound));
+            }
+            // Self-rating (1-10) maps to an implied handicap (10 = 0, 1 = 36); the gap to their record pulls the wheel
+            const selfRatingRaw = inp.selfRating;
+            const selfRating = (selfRatingRaw !== undefined && selfRatingRaw !== null && selfRatingRaw !== '' && !Number.isNaN(Number(selfRatingRaw))) ? Number(selfRatingRaw) : null;
+            let selfAdj = 0;
+            if (selfRating !== null) {
+                const implied = Math.max(0, Math.min(MAX_HANDICAP, MAX_HANDICAP - (selfRating - 1) * 4));
+                selfAdj = Math.max(-HCP_GEN.selfMax, Math.min(HCP_GEN.selfMax, (implied - prev) * HCP_GEN.selfWeight));
+            }
+            const winnerPenalty = won ? Math.max(HCP_GEN.winnerMin, prev * HCP_GEN.winnerPct) : 0;
+            const suggested = Math.max(0, Math.min(MAX_HANDICAP, Math.round(prev + activityAdj + selfAdj - winnerPenalty)));
+            return { prev, rounds, won, activityAdj, selfRating, selfAdj, winnerPenalty, suggested };
+        }
+
+        // ===== Handicap Roulette (slot-machine spin) =====
+        // Three reels (direction, tens, ones) stop one after another. The wheel is weighted per golfer:
+        // last year's winner is likely to drop strokes, keen golfers lean lower, rusty golfers lean higher.
+        const SPIN_SYMBOLS = { dir: ['▼', '●', '▲'], tens: ['0', '1', '2', '3'], ones: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] };
+        const SPIN_ROW_H = 80;
+        const SPIN_LOOPS = 8;
+        const SPIN_SIGMA = 1.75;     // how wild the wheel is around its lean (bigger = more random)
+        const SPIN_MAX_SWING = 6;    // biggest possible change in strokes either way
+        let spinState = null;
+        let spinToken = 0;
+        let spinReelCurrent = { dir: '●', tens: '0', ones: '0' };
+
+        function pickSpinAdjustment(bias) {
+            const ks = [];
+            const weights = [];
+            for (let k = -SPIN_MAX_SWING; k <= SPIN_MAX_SWING; k++) {
+                ks.push(k);
+                weights.push(Math.exp(-Math.pow(k - bias, 2) / (2 * SPIN_SIGMA * SPIN_SIGMA)));
+            }
+            const total = weights.reduce((a, b) => a + b, 0);
+            let r = Math.random() * total;
+            for (let i = 0; i < ks.length; i++) {
+                r -= weights[i];
+                if (r <= 0) return ks[i];
+            }
+            return 0;
+        }
+
+        function buildSpinTrack(trackId, symbols, isDir) {
+            const el = document.getElementById(trackId);
+            if (!el) return;
+            const cls = (sym) => !isDir ? '' : (sym === '▼' ? 'dir-down' : sym === '▲' ? 'dir-up' : 'dir-same');
+            let html = '';
+            for (let loop = 0; loop < SPIN_LOOPS; loop++) {
+                for (const sym of symbols) html += `<div class="spin-sym ${cls(sym)}">${sym}</div>`;
+            }
+            el.innerHTML = html;
+        }
+
+        function setSpinTrackTo(trackId, symbols, sym, loop) {
+            const el = document.getElementById(trackId);
+            if (!el) return;
+            el.style.transition = 'none';
+            el.style.transform = `translateY(-${(loop * symbols.length + Math.max(0, symbols.indexOf(sym))) * SPIN_ROW_H}px)`;
+        }
+
+        function animateSpinReel(trackId, symbols, targetSym, curSym, durationMs) {
+            const el = document.getElementById(trackId);
+            if (!el) return;
+            setSpinTrackTo(trackId, symbols, curSym, 0);
+            void el.offsetHeight;
+            el.style.transition = `transform ${durationMs}ms cubic-bezier(0.12, 0.65, 0.12, 1)`;
+            el.style.transform = `translateY(-${((SPIN_LOOPS - 1) * symbols.length + symbols.indexOf(targetSym)) * SPIN_ROW_H}px)`;
+        }
+
+        // ----- Self-rating: how good the golfer thinks they are (1-10) -----
+        const SELF_RATING_LABELS = ['', 'Hacker', 'Struggling', 'Weekend wanderer', 'Getting there', 'Solid club golfer', 'Handy', 'Very good', 'Scary good', 'Near scratch', 'Tour pro'];
+
+        function getSelfRating(golferId, year) {
+            const v = state.handicapGenInputs?.[year]?.[golferId]?.selfRating;
+            return (v === undefined || v === null || v === '' || Number.isNaN(Number(v))) ? null : Number(v);
+        }
+
+        function syncSelfRatingUi(golferId) {
+            const slider = document.getElementById('self-rating-slider');
+            const label = document.getElementById('self-rating-label');
+            if (!slider || !label) return;
+            const rating = getSelfRating(golferId, handicapGenYear);
+            slider.value = String(rating !== null ? rating : 5);
+            label.textContent = rating !== null ? `${rating}/10 · ${SELF_RATING_LABELS[rating]}` : '(tap the slider)';
+        }
+
+        function setSelfSliderDisabled(disabled) {
+            const slider = document.getElementById('self-rating-slider');
+            if (slider) slider.disabled = disabled;
+        }
+
+        function onSelfRatingInput(val) {
+            const n = Number(val);
+            const label = document.getElementById('self-rating-label');
+            if (label && n >= 1 && n <= 10) label.textContent = `${n}/10 · ${SELF_RATING_LABELS[n]}`;
+        }
+
+        function onSelfRatingChange(val) {
+            const n = Math.max(1, Math.min(10, Math.round(Number(val)) || 5));
+            const golferId = spinSelectedGolferId;
+            if (!golferId || (spinState && spinState.spinning)) return;
+            const year = handicapGenYear;
+            if (!state.handicapGenInputs) state.handicapGenInputs = {};
+            if (!state.handicapGenInputs[year]) state.handicapGenInputs[year] = {};
+            state.handicapGenInputs[year][golferId] = { ...(state.handicapGenInputs[year][golferId] || {}), selfRating: n };
+            persistState();
+            prepareSpin(golferId);
+        }
+
+        let spinSelectedGolferId = null;
+
+        // Set the slot machine up for a golfer: current handicap on the reels, flavour line, no result yet
+        function prepareSpin(golferId) {
+            const year = handicapGenYear;
+            const golfer = state.golfers.find(g => g.id === golferId);
+            if (!golfer) return;
+            const calc = computeGeneratedHandicap(golferId, year);
+            spinToken += 1;
+            spinState = { golferId, year, newHcp: null, diff: null, spinning: false };
+
+            const reelsEl = document.getElementById('spin-reels');
+            const spinBtn = document.getElementById('spin-btn');
+            const resultEl = document.getElementById('spin-result');
+            document.getElementById('spin-apply-btn').classList.add('hidden');
+            spinBtn.textContent = 'SPIN';
+            setSelfSliderDisabled(false);
+            syncSelfRatingUi(golferId);
+
+            if (calc.prev === null) {
+                reelsEl.classList.add('hidden');
+                document.getElementById('spin-prev').textContent = '—';
+                document.getElementById('spin-flavour').textContent = '';
+                resultEl.textContent = `${golfer.name} has no previous handicap on record yet.`;
+                spinBtn.disabled = true;
+                return;
+            }
+
+            let flavour = '🎲 Fair spin. Anything can happen.';
+            if (calc.won) flavour = '🏆 Reigning champion! The wheel is stacked toward a big cut.';
+            else if (calc.rounds !== null && calc.rounds >= HCP_GEN.neutralRounds + 10) flavour = '⛳ Loads of rounds played. The wheel leans your way.';
+            else if (calc.rounds !== null && calc.rounds <= HCP_GEN.neutralRounds - 8) flavour = '🕸️ Clubs gathering dust. The wheel leans towards a higher number.';
+
+            let selfLine = '';
+            if (calc.selfRating !== null) {
+                selfLine = ` You rate yourself ${calc.selfRating}/10.` + (calc.selfAdj <= -0.5 ? ' Big talk... the wheel is listening.' : calc.selfAdj >= 0.5 ? " Modest, aren't we? The wheel noticed." : ' About right, says the wheel.');
+            }
+            reelsEl.classList.remove('hidden');
+            spinBtn.disabled = false;
+            resultEl.textContent = '';
+            document.getElementById('spin-flavour').textContent = flavour + selfLine;
+            document.getElementById('spin-prev').textContent = String(calc.prev);
+
+            const startHcp = Math.round(calc.prev);
+            spinReelCurrent = { dir: '●', tens: String(Math.floor(startHcp / 10)), ones: String(startHcp % 10) };
+            buildSpinTrack('track-dir', SPIN_SYMBOLS.dir, true);
+            buildSpinTrack('track-tens', SPIN_SYMBOLS.tens, false);
+            buildSpinTrack('track-ones', SPIN_SYMBOLS.ones, false);
+            setSpinTrackTo('track-dir', SPIN_SYMBOLS.dir, spinReelCurrent.dir, 0);
+            setSpinTrackTo('track-tens', SPIN_SYMBOLS.tens, spinReelCurrent.tens, 0);
+            setSpinTrackTo('track-ones', SPIN_SYMBOLS.ones, spinReelCurrent.ones, 0);
+        }
+
+        function onSpinGolferChange(golferId) {
+            spinSelectedGolferId = golferId;
+            prepareSpin(golferId);
+        }
+
+        // Fill the golfer picker and reset the machine (unless a spin or result is on screen)
+        function renderHandicapGenerator() {
+            const select = document.getElementById('spin-golfer-select');
+            if (!select) return;
+            const golfers = sortGolfersAlphabetically(state.golfers);
+            if (!spinSelectedGolferId || !golfers.some(g => g.id === spinSelectedGolferId)) {
+                spinSelectedGolferId = golfers.some(g => g.id === state.activeGolferId) ? state.activeGolferId : (golfers[0]?.id || null);
+            }
+            select.innerHTML = golfers
+                .map(g => `<option value="${g.id}" ${g.id === spinSelectedGolferId ? 'selected' : ''}>${g.name}</option>`)
+                .join('');
+            document.getElementById('spin-title').textContent = `${handicapGenYear} Handicap Roulette`;
+            const busy = spinState && (spinState.spinning || spinState.newHcp !== null) && spinState.golferId === spinSelectedGolferId;
+            if (spinSelectedGolferId && !busy) prepareSpin(spinSelectedGolferId);
+        }
+
+        function runHandicapSpin() {
+            if (!spinState || spinState.spinning) return;
+            const { golferId, year } = spinState;
+            const calc = computeGeneratedHandicap(golferId, year);
+            if (calc.prev === null) return;
+
+            const lean = calc.activityAdj + calc.selfAdj - calc.winnerPenalty;
+            const swing = pickSpinAdjustment(lean);
+            const newHcp = Math.max(0, Math.min(MAX_HANDICAP, Math.round(calc.prev + swing)));
+            const diff = newHcp - Math.round(calc.prev);
+            const dirSym = diff < 0 ? '▼' : diff > 0 ? '▲' : '●';
+            const tensSym = String(Math.floor(newHcp / 10));
+            const onesSym = String(newHcp % 10);
+
+            const token = ++spinToken;
+            spinState.spinning = true;
+            spinState.newHcp = newHcp;
+            spinState.diff = diff;
+            document.getElementById('spin-result').textContent = '';
+            document.getElementById('spin-apply-btn').classList.add('hidden');
+            const spinBtn = document.getElementById('spin-btn');
+            spinBtn.disabled = true;
+            spinBtn.textContent = 'Spinning…';
+            setSelfSliderDisabled(true);
+
+            animateSpinReel('track-dir', SPIN_SYMBOLS.dir, dirSym, spinReelCurrent.dir, 2200);
+            animateSpinReel('track-tens', SPIN_SYMBOLS.tens, tensSym, spinReelCurrent.tens, 3200);
+            animateSpinReel('track-ones', SPIN_SYMBOLS.ones, onesSym, spinReelCurrent.ones, 4200);
+            spinReelCurrent = { dir: dirSym, tens: tensSym, ones: onesSym };
+
+            setTimeout(() => {
+                if (token !== spinToken || !spinState) return;
+                spinState.spinning = false;
+                spinBtn.disabled = false;
+                spinBtn.textContent = 'SPIN AGAIN';
+                setSelfSliderDisabled(false);
+                const resultEl = document.getElementById('spin-result');
+                resultEl.innerHTML = `<span class="spin-pop">${
+                    diff < 0 ? `🎉 Down ${Math.abs(diff)} stroke${Math.abs(diff) === 1 ? '' : 's'}! New handicap ${newHcp}`
+                    : diff > 0 ? `😬 Up ${diff} stroke${diff === 1 ? '' : 's'}. New handicap ${newHcp}`
+                    : `😐 No change. Handicap stays at ${newHcp}`
+                }</span>`;
+                const applyBtn = document.getElementById('spin-apply-btn');
+                if (isAdminUnlocked) {
+                    applyBtn.textContent = `Lock in ${newHcp} for ${year}`;
+                    applyBtn.classList.remove('hidden');
+                }
+            }, 4500);
+        }
+
+        function writeHandicapValue(golferId, year, value) {
+            if (!state.yearlyHandicaps) state.yearlyHandicaps = {};
+            if (!state.yearlyHandicaps[golferId]) state.yearlyHandicaps[golferId] = {};
+            state.yearlyHandicaps[golferId][year] = value;
+            const golfer = state.golfers.find(g => g.id === golferId);
+            const latestYr = getLatestRecordedYearHandicap(golferId);
+            if (golfer && latestYr.year === Number(year)) {
+                golfer.baselineWhs = value;
+                if (golfer.lowCap12m === null || golfer.lowCap12m === undefined || Number(golfer.lowCap12m) > value) {
+                    golfer.lowCap12m = value;
+                }
+            }
+        }
+
+        function applySpinResult() {
+            if (!isAdminUnlocked) {
+                showToast('Only Admin can lock in a handicap.', 'error');
+                return;
+            }
+            if (!spinState || spinState.spinning || spinState.newHcp === null) return;
+            const { golferId, year, newHcp } = spinState;
+            writeHandicapValue(golferId, year, newHcp);
+            persistState();
+            spinState = null;
+            renderAll();
+            showToast(`${year} handicap locked in at ${newHcp}.`, 'success');
+        }
+
         // Render the yearly handicap progression table across all tour years
         function renderHandicapHistory() {
             const yearsAsc = [...TOUR_YEARS].sort((a, b) => b - a); // newest first (left to right = newest to oldest)
@@ -3261,6 +3551,44 @@
             }
         }
 
+        // ===== Fun Facts (Clubhouse tab) =====
+        const FUN_FACTS = [
+            { tag: 'Real crossover', text: 'Golf scores get more birdlike as you play better: birdie is one under par, eagle is two under, and albatross is three under.' },
+            { tag: 'Real crossover', text: 'In betting-game slang, a "pigeon" is an easy target, and golf hustlers have long hunted for one. Nobody wants to be the pigeon in the Pidgeon Cup.' },
+            { tag: 'Real crossover', text: 'Under the Rules of Golf, if a bird or any other animal moves your ball while it is at rest, there is no penalty. Just replace it on its original spot.' },
+            { tag: 'Real crossover', text: 'Pigeons have been domesticated for thousands of years, while the first written mention of golf is a Scottish ban on it in 1457. The pigeons have been waiting a long time for a golf trip.' },
+            { tag: 'Playful link', text: "Pigeon racing ranks birds by speed in metres per minute so birds flying different distances can be compared. Golf's slope and course rating do the same job for golfers playing different courses." },
+            { tag: 'Playful link', text: 'Pigeons bob their heads as they walk to keep their view steady. Golf coaches say the opposite: keep your head still.' },
+            { tag: 'Playful link', text: 'In a 1995 Japanese study, pigeons learned to tell Monet from Picasso. Plenty of golfers still cannot read a green that well.' },
+            { tag: 'Playful link', text: 'Research has found homing pigeons use landmarks, even following roads, to find their way home. A pigeon would have no trouble finding the 19th hole.' },
+            { tag: 'Playful link', text: 'Pigeons can see ultraviolet light, and many white golf balls contain whitening agents that glow under UV, so a pigeon may see your ball very differently from how you do.' },
+            { tag: 'Playful link', text: 'Cher Ami, a World War I homing pigeon, delivered a message that helped save a trapped US battalion despite being wounded. That is the grit you need on the 18th tee after a bad front nine.' },
+            { tag: 'Playful link', text: 'Racing pigeons often fly at around 60 to 90 km/h. A tour pro\'s drive leaves the clubface at well over 250 km/h, about three times faster.' },
+            { tag: 'Playful link', text: 'Trap shooting is named for the traps that once released live pigeons as targets, which is why shotgun targets are called clay pigeons. Golf has traps too, but sand traps only catch golf balls.' }
+        ];
+        let funFactQueue = [];
+        let currentFunFactIndex = -1;
+
+        // Show a random fact, cycling through a shuffled deck so facts do not repeat until all have been seen
+        function nextFunFact() {
+            if (funFactQueue.length === 0) {
+                funFactQueue = FUN_FACTS.map((_, i) => i);
+                for (let i = funFactQueue.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [funFactQueue[i], funFactQueue[j]] = [funFactQueue[j], funFactQueue[i]];
+                }
+                if (funFactQueue.length > 1 && funFactQueue[funFactQueue.length - 1] === currentFunFactIndex) {
+                    funFactQueue.unshift(funFactQueue.pop());
+                }
+            }
+            currentFunFactIndex = funFactQueue.pop();
+            const fact = FUN_FACTS[currentFunFactIndex];
+            const textEl = document.getElementById('fun-fact-text');
+            const tagEl = document.getElementById('fun-fact-tag');
+            if (textEl) textEl.textContent = fact.text;
+            if (tagEl) tagEl.textContent = fact.tag;
+        }
+
         // Re-render all visible panels and form previews
         function renderAll() {
             populateSelects();
@@ -3271,6 +3599,7 @@
             renderRoundsFeed();
             renderChampionshipHistory();
             renderHandicapHistory();
+            renderHandicapGenerator();
             renderCourses();
             renderLineup();
             renderTourLocations();
@@ -3284,7 +3613,7 @@
                     const parsed = JSON.parse(event.newValue);
                     state = { ...createInitialState(), ...parsed };
                     sanitizeState();
-                    setLiveSyncStatus('Live Sync Active', true);
+                    setLiveSyncStatus('Saved on this device', true);
                     renderAll();
                 } catch (err) {
                     console.warn('Storage sync parse error:', err);
@@ -3303,6 +3632,7 @@
             loadState();
             switchTab(state.activeTab || 'dashboard');
             renderAll();
+            nextFunFact();
         }
 
         if (document.readyState === 'loading') {
@@ -3312,130 +3642,58 @@
         }
     </script>
 
-    <!-- Live Multi-User Cloud Sync (Firestore) -->
-    <script type="module">
-        let initializeApp, getAuth, signInWithEmailAndPassword, getFirestore, doc, getDoc, setDoc, onSnapshot;
-        try {
-            const base = "https://www.gstatic.com/firebasejs/11.6.1/";
-            const [appMod, authMod, fsMod] = await Promise.all([
-                import(base + "firebase-app.js"),
-                import(base + "firebase-auth.js"),
-                import(base + "firebase-firestore.js")
-            ]);
-            ({ initializeApp } = appMod);
-            ({ getAuth, signInWithEmailAndPassword } = authMod);
-            ({ getFirestore, doc, getDoc, setDoc, onSnapshot } = fsMod);
-        } catch (e) {
-            window.__lgaLoadError = 'Could not load Firebase: ' + ((e && e.message) || e);
-            window.__lgaResolvePin();
-            throw e;
-        }
+    
 
-        // ============================================================
-        // 1) PASTE YOUR FIREBASE WEB CONFIG HERE (see README.md).
-        // ============================================================
-        const FIREBASE_CONFIG = {
-            apiKey: "AIzaSyBnYleOSwGVGte-8vi8alSFNDQWHzJqZa8",
-            authDomain: "lga-pigeon.firebaseapp.com",
-            projectId: "lga-pigeon",
-            storageBucket: "lga-pigeon.firebasestorage.app",
-            messagingSenderId: "753098492942",
-            appId: "1:753098492942:web:009ccf9060bf719812c05f"
-        };
-
-        // 2) The shared login. The email must match the user you create in Firebase.
-        //    The Firebase password is: <4-digit PIN> + PIN_SUFFIX  (e.g. 1234-lga)
-        const SHARED_EMAIL = 'lga@legends.club';
-        const PIN_SUFFIX = '-lga';
-
-        let auth = null;
-        let db = null;
-        let syncStarted = false;
-
-        if (FIREBASE_CONFIG.apiKey) {
+    <!-- Shared live sync via the artifact database -->
+    <script>
+        (async function initSharedSync() {
             try {
-                const app = initializeApp(FIREBASE_CONFIG);
-                auth = getAuth(app);
-                db = getFirestore(app);
-            } catch (e) {
-                window.__lgaLoadError = 'Firebase config problem: ' + ((e && e.message) || e);
-            }
-        } else {
-            setLiveSyncStatus('Firebase not set up', false);
-        }
+                if (typeof claude === 'undefined' || !claude.use) return;
+                const db = await claude.use('db');
+                if (!db) return;
+                const ref = db.doc('lga/state');
 
-        // Called by the PIN screen. true = correct PIN, false = wrong PIN, throws on connection problems.
-        window.__lgaTryPin = async (pin) => {
-            if (!auth) throw new Error('Firebase is not set up yet (see README).');
-            try {
-                await signInWithEmailAndPassword(auth, SHARED_EMAIL, pin + PIN_SUFFIX);
-            } catch (e) {
-                const code = String(e && e.code || '');
-                if (code === 'auth/network-request-failed') throw new Error('No connection. Try again.');
-                if (code === 'auth/too-many-requests') throw new Error('Too many attempts. Wait a bit and retry.');
-                if (code.startsWith('auth/')) return false;
-                throw new Error('Could not sign in.');
-            }
-            startLiveSync();
-            return true;
-        };
+                let canWrite = true;
+                try {
+                    const user = await claude.use('user');
+                    const w = user ? await user.can('data.write') : null;
+                    if (w === false) canWrite = false;
+                } catch (e) { /* keep default */ }
 
-        window.__lgaResolvePin();
-
-        async function startLiveSync() {
-            if (syncStarted) return;
-            syncStarted = true;
-            try {
-                const docRef = doc(db, 'lga', 'state');
                 cloudDb = db;
-                cloudDocRef = docRef;
-                window.__lgaSetDoc = (ref, data) => setDoc(ref, data, { merge: true });
+                cloudDocRef = ref;
+                window.__lgaSetDoc = (r, data) => canWrite ? ref.set(data) : Promise.resolve();
 
-                const snap = await getDoc(docRef);
-                if (!snap.exists()) {
-                    await setDoc(docRef, { payload: JSON.stringify(state), updatedAt: state.updatedAt || new Date().toISOString() });
-                }
-                setLiveSyncStatus('Live Multi-User Sync', true);
+                const label = canWrite ? 'Live Multi-User Sync' : 'Live View Only';
+                let gotFirst = false;
+                const timer = setTimeout(() => { if (!gotFirst) setLiveSyncStatus('Saved on this device', false); }, 10000);
 
-                if (cloudUnsubscribe) cloudUnsubscribe();
-                cloudUnsubscribe = onSnapshot(
-                    docRef,
-                    (snapshot) => {
-                        if (!snapshot.exists()) return;
-                        const remote = snapshot.data();
-                        if (!remote?.payload) return;
-                        try {
-                            const wasFirst = !window.__lgaSyncedOnce;
-                            window.__lgaSyncedOnce = true;
-                            if (applyRemoteStatePayload(remote.payload, remote.updatedAt) && !wasFirst) {
-                                showToast('Live update received from another golfer.');
-                            }
-                            setLiveSyncStatus('Live Multi-User Sync', true);
-                        } catch (err) {
-                            console.warn('Remote state parse error:', err);
-                        }
-                    },
-                    (err) => {
-                        console.warn('Firestore snapshot error:', err);
-                        setLiveSyncStatus('Sync Stand-By', false);
+                ref.onSnapshot((snap) => {
+                    gotFirst = true;
+                    clearTimeout(timer);
+                    setLiveSyncStatus(label, true);
+                    const remote = snap.exists ? snap.data() : null;
+                    if (!remote || !remote.payload) {
+                        if (canWrite) persistState();   // seed the shared copy from this device
+                        return;
                     }
-                );
+                    try {
+                        const wasFirst = !window.__lgaSyncedOnce;
+                        window.__lgaSyncedOnce = true;
+                        if (applyRemoteStatePayload(remote.payload, remote.updatedAt) && !wasFirst) {
+                            showToast('Live update received from another golfer.');
+                        }
+                    } catch (err) {
+                        console.warn('Remote state parse error:', err);
+                    }
+                }, (err) => {
+                    console.warn('Shared sync error:', err);
+                    setLiveSyncStatus('Saved on this device', false);
+                });
             } catch (err) {
-                console.warn('Cloud sync unavailable:', err);
-                syncStarted = false;
-                setLiveSyncStatus('Sync Stand-By', false);
+                console.warn('Shared sync unavailable:', err);
+                setLiveSyncStatus('Saved on this device', false);
             }
-        }
-
-        // Auto-unlock on devices that already entered the PIN
-        (async () => {
-            let saved = null;
-            try { saved = localStorage.getItem('lga_pin_saved_v2'); } catch (e) {}
-            if (!saved || !auth) return;
-            try {
-                if (await window.__lgaTryPin(saved)) unlockSite();
-                else { try { localStorage.removeItem('lga_pin_saved_v2'); } catch (e) {} }
-            } catch (e) { /* leave the PIN screen showing */ }
         })();
     </script>
 </body>
