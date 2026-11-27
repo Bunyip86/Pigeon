@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Legends Golfing Association — WHS &amp; Pidgeon Cup Tracker</title>
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,7 +44,10 @@
         .spin-sym.dir-same { color: #64748B; }
         @keyframes spin-pop { 0% { transform: scale(0.85); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
         .spin-pop { animation: spin-pop 0.45s ease-out; }
-        :root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+        body.pin-locked > *:not(#pin-gate) { display: none !important; }
+        #pin-gate.unlocked { display: none; }
+        @keyframes pin-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+        .pin-shake { animation: pin-shake 0.3s; }
         html, body {
             background-color: #FBF9F5;
             color: #0F172A;
@@ -84,7 +87,73 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col w-full max-w-full">
+<body class="pin-locked min-h-screen flex flex-col w-full max-w-full">
+    <!-- 4-digit PIN gate -->
+    <div id="pin-gate" class="fixed inset-0 z-[100] bg-lga-navy flex items-center justify-center p-4">
+        <div id="pin-card" class="w-full max-w-xs text-center space-y-5">
+            <div class="w-16 h-16 mx-auto rounded-full bg-lga-navyLight border-2 border-lga-gold flex items-center justify-center shadow">
+                <span class="font-serif font-extrabold text-lga-gold tracking-wider">LGA</span>
+            </div>
+            <div>
+                <h1 class="font-serif text-2xl font-bold text-white">Legends Golfing Association</h1>
+                <p class="text-xs text-slate-300 mt-1">Enter the 4-digit PIN to continue</p>
+            </div>
+            <input type="password" id="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••" class="w-full text-center tracking-[0.6em] text-2xl font-mono rounded-xl border border-lga-gold/50 bg-lga-navyLight text-white px-3 py-3 focus:outline-none focus:border-lga-gold">
+            <div id="pin-error" class="h-4 text-xs font-semibold text-rose-300"></div>
+        </div>
+    </div>
+    <script>
+        const PIN_STORAGE_KEY = 'lga_pin_saved_v2';
+        // Resolved by the Firebase module once it has loaded (or failed)
+        window.__lgaPinReady = new Promise(res => { window.__lgaResolvePin = res; });
+
+        function unlockSite() {
+            document.body.classList.remove('pin-locked');
+            const gate = document.getElementById('pin-gate');
+            if (gate) gate.classList.add('unlocked');
+        }
+
+        (function initPinGate() {
+            const input = document.getElementById('pin-input');
+            const err = document.getElementById('pin-error');
+            const card = document.getElementById('pin-card');
+            let busy = false;
+
+            input.addEventListener('input', async () => {
+                input.value = input.value.replace(/\D/g, '').slice(0, 4);
+                err.textContent = '';
+                if (input.value.length !== 4 || busy) return;
+                busy = true;
+                input.disabled = true;
+                const pin = input.value;
+                try {
+                    err.textContent = 'Checking…';
+                    await Promise.race([window.__lgaPinReady, new Promise(r => setTimeout(r, 20000))]);
+                    if (typeof window.__lgaTryPin !== 'function') {
+                        throw new Error(window.__lgaLoadError || 'Could not load Firebase. Check your connection or ad blocker and reload.');
+                    }
+                    const ok = await window.__lgaTryPin(pin);
+                    err.textContent = '';
+                    if (ok) {
+                        try { localStorage.setItem(PIN_STORAGE_KEY, pin); } catch (e) {}
+                        unlockSite();
+                    } else {
+                        err.textContent = 'Incorrect PIN';
+                        card.classList.remove('pin-shake');
+                        void card.offsetWidth;
+                        card.classList.add('pin-shake');
+                    }
+                } catch (e) {
+                    err.textContent = (e && e.message) || 'Could not connect';
+                }
+                input.value = '';
+                input.disabled = false;
+                busy = false;
+                input.focus();
+            });
+            setTimeout(() => input.focus(), 50);
+        })();
+    </script>
     <!-- Top Header & Mobile-Streamlined Navigation -->
     <header class="bg-lga-navy text-white border-b border-lga-gold/30 sticky top-0 z-30 shadow-md w-full">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
@@ -105,7 +174,7 @@
 
                     <span id="live-sync-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 rounded-full text-[11px] sm:text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 shrink-0">
                         <span id="live-sync-dot" class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400"></span>
-                        <span id="live-sync-text">Saved on this device</span>
+                        <span id="live-sync-text">Connecting…</span>
                     </span>
                 </div>
 
@@ -408,6 +477,8 @@
                         <span class="px-2 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">1st</span>
                         <span class="px-2 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-300">2nd</span>
                         <span class="px-2 py-1 rounded-lg bg-orange-100 text-orange-900 border border-orange-300">3rd</span>
+                        <span class="px-2 py-1 rounded-lg bg-amber-50 text-lga-goldDark border border-lga-gold/50">Entered</span>
+                        <span class="px-2 py-1 rounded-lg bg-slate-50 text-slate-600 border border-dashed border-slate-400">Played · TBC</span>
                     </div>
                 </div>
 
@@ -611,7 +682,10 @@
                 </div>
             </div>
             <div class="flex justify-between gap-2 pt-2">
-                <button type="button" onclick="clearChampCell()" class="px-3.5 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 cursor-pointer">Clear Cell</button>
+                <div class="flex gap-2">
+                    <button type="button" onclick="clearChampCell()" class="px-3.5 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 cursor-pointer">Clear Cell</button>
+                    <button type="button" onclick="markChampPlayed()" class="px-3.5 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-50 text-slate-600 border border-dashed border-slate-400 cursor-pointer">Played · TBC</button>
+                </div>
                 <div class="flex gap-2">
                     <button type="button" onclick="closeChampCellModal()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 cursor-pointer">Cancel</button>
                     <button type="button" onclick="saveChampCell()" class="px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-lga-navy text-lga-gold cursor-pointer">Save</button>
@@ -1116,6 +1190,7 @@
                 golfers: structuredClone(DEFAULT_GOLFERS),
                 courses: structuredClone(DEFAULT_COURSES),
                 clearedChampCells: {},
+                yearlyEntries: {},
                 handicapGenInputs: {},
                 appliedDataPatches: {},
                 yearlyCourses: {},
@@ -1404,6 +1479,7 @@
             state.tourLocations = { ...DEFAULT_TOUR_LOCATIONS, ...(state.tourLocations || {}) };
             state.yearlyCourses = { ...((state.yearlyCourses && typeof state.yearlyCourses === 'object') ? state.yearlyCourses : {}) };
             state.handicapGenInputs = (state.handicapGenInputs && typeof state.handicapGenInputs === 'object') ? state.handicapGenInputs : {};
+            state.yearlyEntries = (state.yearlyEntries && typeof state.yearlyEntries === 'object') ? state.yearlyEntries : {};
             if (!state.tourLocations[2019] || state.tourLocations[2019] === 'Queenscliff') {
                 state.tourLocations[2019] = 'Queenscliff & Portsea';
             }
@@ -1431,6 +1507,13 @@
                 if (!state.championshipResults[2019]) state.championshipResults[2019] = {};
                 if (!state.championshipResults[2019][gId] && !state.clearedChampCells?.[2019]?.[gId]) {
                     state.championshipResults[2019][gId] = structuredClone(defEntry);
+                }
+            }
+
+            // Tidy "Played"/"TBC" placeholders: an entry with no score or day totals is "played, result TBC"
+            for (const yr of Object.keys(state.championshipResults || {})) {
+                for (const e of Object.values(state.championshipResults[yr] || {})) {
+                    if (e && typeof e === 'object' && isPlayedTbcEntry(e)) e.rank = '';
                 }
             }
 
@@ -2521,8 +2604,17 @@
             return tied;
         }
 
+        // An entry with no place, score or day totals means "played, result not posted yet"
+        function isPlayedTbcEntry(entry) {
+            if (!entry || typeof entry !== 'object') return false;
+            const rank = String(entry.rank ?? '').replace(/=/g, '').trim().toLowerCase();
+            const empty = (v) => String(v ?? '').trim() === '';
+            return (rank === '' || rank === 'played' || rank === 'tbc') && empty(entry.score) && empty(entry.day1) && empty(entry.day2);
+        }
+
         function formatChampCellSummary(entry, bonusPts = 0, derivedStrokeRank = '', isTie = false) {
             if (!entry) return '—';
+            if (isPlayedTbcEntry(entry)) return 'Played · TBC';
             const rankStr = getEffectiveEntryRank(entry, derivedStrokeRank) ? `${getEffectiveEntryRank(entry, derivedStrokeRank)}${isTie ? '=' : ''}` : '';
             const rawScoreStr = String(entry.score || '').trim();
             if (!rankStr && !rawScoreStr) return 'TBC';
@@ -2547,6 +2639,7 @@
         // Select badge styling based on podium rank or default entry state
         function getChampCellBadgeClass(entry, derivedStrokeRank = '') {
             if (!entry) return 'text-slate-300';
+            if (isPlayedTbcEntry(entry)) return 'bg-slate-50 text-slate-500 border border-dashed border-slate-400 font-semibold';
             const r = getEffectiveEntryRank(entry, derivedStrokeRank);
             if (r === '1') return 'bg-amber-100 text-amber-950 border border-amber-300 font-extrabold';
             if (r === '2') return 'bg-slate-100 text-slate-900 border border-slate-300 font-bold';
@@ -2559,6 +2652,89 @@
             const id = state.yearlyCourses?.[year]?.[key];
             const course = id ? state.courses.find(c => c.id === id) : null;
             return course ? formatCourseDisplayName(course) : '';
+        }
+
+        // ===== Yearly entry lists (who is playing in the Pidgeon Cup) =====
+        let pendingEntryYear = null;
+
+        function getYearEntries(year) {
+            const arr = state.yearlyEntries?.[year];
+            return Array.isArray(arr) ? arr : [];
+        }
+
+        function isGolferEntered(year, golferId) {
+            return getYearEntries(year).includes(golferId);
+        }
+
+        function getEnteredNames(year) {
+            return getYearEntries(year)
+                .map(id => state.golfers.find(g => g.id === id))
+                .filter(Boolean)
+                .sort((a, b) => compareAlpha(getSurnameSortKey(a.name), getSurnameSortKey(b.name)))
+                .map(g => g.name);
+        }
+
+        function toggleEntry(year, golferId, checked) {
+            if (!isAdminUnlocked) {
+                showToast('Only Admin can change entries.', 'error');
+                renderAll();
+                return;
+            }
+            if (!state.yearlyEntries) state.yearlyEntries = {};
+            const set = new Set(getYearEntries(year));
+            if (checked) set.add(golferId); else set.delete(golferId);
+            state.yearlyEntries[year] = [...set];
+            persistState();
+            renderAll();
+        }
+
+        // Add everyone who played last year's Pidgeon Cup to this year's entry list (keeps anyone already entered)
+        function copyLastYearEntries(year) {
+            if (!isAdminUnlocked) {
+                showToast('Only Admin can change entries.', 'error');
+                return;
+            }
+            const lastYear = Object.keys(state.championshipResults?.[year - 1] || {})
+                .filter(id => state.golfers.some(g => g.id === id));
+            if (lastYear.length === 0) {
+                showToast(`No ${year - 1} players found to copy.`, 'error');
+                return;
+            }
+            if (!state.yearlyEntries) state.yearlyEntries = {};
+            state.yearlyEntries[year] = [...new Set([...getYearEntries(year), ...lastYear])];
+            persistState();
+            renderAll();
+            showToast(`Copied ${lastYear.length} players from ${year - 1}.`, 'success');
+        }
+
+        function openAddGolferForEntries(year) {
+            if (!isAdminUnlocked) {
+                showToast('Only Admin can change entries.', 'error');
+                return;
+            }
+            pendingEntryYear = year;
+            openAddGolferModal();
+        }
+
+        // Admin panel: tick who is playing, copy last year's players, add a new golfer
+        function entryManagerHtml(year) {
+            const entered = new Set(getYearEntries(year));
+            const rows = sortGolfersAlphabetically(state.golfers).map(g => `
+                <label class="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-lga-navy cursor-pointer">
+                    <input type="checkbox" ${entered.has(g.id) ? 'checked' : ''} onchange="toggleEntry(${year}, '${g.id}', this.checked)" class="rounded border-slate-400 text-lga-navy focus:ring-lga-gold">
+                    <span class="truncate">${g.name}</span>
+                </label>`).join('');
+            return `
+                <div class="mt-3 pt-3 border-t border-lga-gold/25 space-y-2.5 text-xs">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">${year} Entries (${entered.size} entered)</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" onclick="copyLastYearEntries(${year})" class="px-2.5 py-1 rounded-lg bg-lga-sand hover:bg-amber-200/70 text-lga-navy border border-lga-gold/40 font-bold text-[11px] cursor-pointer">Copy ${year - 1} players</button>
+                            <button type="button" onclick="openAddGolferForEntries(${year})" class="px-2.5 py-1 rounded-lg bg-lga-navy text-lga-gold font-bold text-[11px] cursor-pointer">+ Add golfer</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-64 overflow-y-auto">${rows}</div>
+                </div>`;
         }
 
         // Render the 2015-2025 championship matrix and per-year result cards
@@ -2593,8 +2769,9 @@
                     const entry = state.championshipResults?.[y]?.[g.id] || null;
                     const bonusPts = getGolferBonusPointsForYear(y, g.id);
                     const derivedStrokeRank = strokeRanksByYear[y]?.[g.id] || '';
-                    const summary = formatChampCellSummary(entry, bonusPts, derivedStrokeRank, tiesByYear[y]?.has(g.id) || false);
-                    const badgeCls = getChampCellBadgeClass(entry, derivedStrokeRank);
+                    const enteredOnly = !entry && isGolferEntered(y, g.id);
+                    const summary = enteredOnly ? 'Entered' : formatChampCellSummary(entry, bonusPts, derivedStrokeRank, tiesByYear[y]?.has(g.id) || false);
+                    const badgeCls = enteredOnly ? 'bg-amber-50 text-lga-goldDark border border-lga-gold/50 font-bold' : getChampCellBadgeClass(entry, derivedStrokeRank);
                     const clickAttr = isAdminUnlocked ? `onclick="openChampCellModal(${y}, '${g.id}')"` : '';
                     return `
                         <td ${clickAttr} class="px-2 py-2 text-center ${isAdminUnlocked ? 'cursor-pointer hover:bg-amber-50' : ''}">
@@ -2708,7 +2885,9 @@
                         </div>
                         ${courseLineHtml}
                         ${entries.length === 0
-                            ? `<div class="text-xs text-lga-slate">${isUpcomingYear(y) ? `Upcoming — results will appear here once the ${y} round is played.` : `No recorded entries for ${y}.`}</div>`
+                            ? `<div class="text-xs text-lga-slate">${isUpcomingYear(y)
+                                ? `Upcoming — results will appear here once the ${y} round is played.${getYearEntries(y).length ? ` <strong class="text-lga-navy">${getYearEntries(y).length} entered:</strong>` : ''}`
+                                : `No recorded entries for ${y}.`}${isUpcomingYear(y) && getYearEntries(y).length ? `<div class="mt-1.5 flex flex-wrap gap-1">${getEnteredNames(y).map(n => `<span class="px-2 py-0.5 rounded-full bg-white border border-lga-gold/40 text-[11px] font-semibold text-lga-navy">${n}</span>`).join('')}</div>` : ''}</div>`
                             : `<div class="space-y-1.5">
                                 ${entries.map(item => `
                                     <div class="flex items-center justify-between text-xs bg-white px-3 py-2 rounded-lg border border-slate-200/80 gap-2">
@@ -2719,6 +2898,7 @@
                             </div>`
                         }
                         ${bonusSectionHtml}
+                        ${y === UPCOMING_YEAR && isAdminUnlocked ? entryManagerHtml(y) : ''}
                     </div>
                 `;
             }).join('');
@@ -2781,6 +2961,16 @@
             closeChampCellModal();
             renderAll();
             showToast('Championship result updated.', 'success');
+        }
+
+        // Admin: mark a golfer as having played that year with the result still to come
+        function markChampPlayed() {
+            if (!isAdminUnlocked || !editingChampCell) return;
+            for (const id of ['champ-edit-rank', 'champ-edit-score', 'champ-edit-day1', 'champ-edit-day2']) {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            }
+            saveChampCell();
         }
 
         // Remove a golfer's entry for the selected championship year
@@ -3126,7 +3316,9 @@
         function renderHandicapGenerator() {
             const select = document.getElementById('spin-golfer-select');
             if (!select) return;
-            const golfers = sortGolfersAlphabetically(state.golfers);
+            const entrants = getYearEntries(handicapGenYear);
+            const pool = entrants.length ? state.golfers.filter(g => entrants.includes(g.id)) : state.golfers;
+            const golfers = sortGolfersAlphabetically(pool);
             if (!spinSelectedGolferId || !golfers.some(g => g.id === spinSelectedGolferId)) {
                 spinSelectedGolferId = golfers.some(g => g.id === state.activeGolferId) ? state.activeGolferId : (golfers[0]?.id || null);
             }
@@ -3242,8 +3434,8 @@
                     const hasVal = val !== undefined && val !== null && val !== '';
                     const isLatest = latestYrInfo.year === y;
                     const champEntry = state.championshipResults?.[y]?.[g.id];
-                    const hasMatrixEntry = !!champEntry && [champEntry.rank, champEntry.score, champEntry.day1, champEntry.day2]
-                        .some(v => String(v ?? '').trim() !== '');
+                    const hasMatrixEntry = (!!champEntry && [champEntry.rank, champEntry.score, champEntry.day1, champEntry.day2]
+                        .some(v => String(v ?? '').trim() !== '')) || isGolferEntered(y, g.id);
                     const cellClick = isAdminUnlocked ? `onclick="openHandicapEditModal('${g.id}', ${y})"` : '';
                     return `
                         <td ${cellClick} class="px-2 py-2 text-center font-mono text-xs ${editCursor} ${
@@ -3421,6 +3613,7 @@
 
         // Close the add-golfer modal
         function closeAddGolferModal() {
+            pendingEntryYear = null;
             document.getElementById('add-golfer-modal').classList.add('hidden');
         }
 
@@ -3445,6 +3638,10 @@
             });
             state.golfers = sortGolfersAlphabetically(state.golfers);
             state.yearlyHandicaps[id] = {};
+            if (pendingEntryYear) {
+                if (!state.yearlyEntries) state.yearlyEntries = {};
+                state.yearlyEntries[pendingEntryYear] = [...new Set([...getYearEntries(pendingEntryYear), id])];
+            }
             persistState();
             closeAddGolferModal();
             renderAll();
@@ -3479,6 +3676,7 @@
                                 <select id="tour-r2-${y}" class="mt-0.5 w-full rounded-xl border border-slate-300 bg-white px-2.5 py-2 text-xs text-lga-navy">${courseOptionsHtml(state.yearlyCourses?.[y]?.round2CourseId)}</select>
                             </label>
                         </div>
+                        ${y === UPCOMING_YEAR ? entryManagerHtml(y) : ''}
                     </div>
                 `;
             }).join('');
@@ -3613,7 +3811,7 @@
                     const parsed = JSON.parse(event.newValue);
                     state = { ...createInitialState(), ...parsed };
                     sanitizeState();
-                    setLiveSyncStatus('Saved on this device', true);
+                    setLiveSyncStatus('Live Sync Active', true);
                     renderAll();
                 } catch (err) {
                     console.warn('Storage sync parse error:', err);
@@ -3642,58 +3840,143 @@
         }
     </script>
 
-    
-
-    <!-- Shared live sync via the artifact database -->
-    <script>
-        (async function initSharedSync() {
-            try {
-                if (typeof claude === 'undefined' || !claude.use) return;
-                const db = await claude.use('db');
-                if (!db) return;
-                const ref = db.doc('lga/state');
-
-                let canWrite = true;
+    <!-- Live Multi-User Cloud Sync (Firestore) -->
+    <script type="module">
+        let initializeApp, getAuth, signInWithEmailAndPassword, getFirestore, doc, getDoc, setDoc, onSnapshot;
+        {
+            // Try Google's CDN first, then jsDelivr as a backup (some networks and ad blockers block one of them)
+            const v = '11.6.1';
+            const sources = [
+                { name: 'Google', app: `https://www.gstatic.com/firebasejs/${v}/firebase-app.js`, auth: `https://www.gstatic.com/firebasejs/${v}/firebase-auth.js`, fs: `https://www.gstatic.com/firebasejs/${v}/firebase-firestore.js` },
+                { name: 'jsDelivr', app: `https://cdn.jsdelivr.net/npm/firebase@${v}/app/+esm`, auth: `https://cdn.jsdelivr.net/npm/firebase@${v}/auth/+esm`, fs: `https://cdn.jsdelivr.net/npm/firebase@${v}/firestore/+esm` }
+            ];
+            let loaded = false;
+            let lastErr = null;
+            for (const src of sources) {
                 try {
-                    const user = await claude.use('user');
-                    const w = user ? await user.can('data.write') : null;
-                    if (w === false) canWrite = false;
-                } catch (e) { /* keep default */ }
-
-                cloudDb = db;
-                cloudDocRef = ref;
-                window.__lgaSetDoc = (r, data) => canWrite ? ref.set(data) : Promise.resolve();
-
-                const label = canWrite ? 'Live Multi-User Sync' : 'Live View Only';
-                let gotFirst = false;
-                const timer = setTimeout(() => { if (!gotFirst) setLiveSyncStatus('Saved on this device', false); }, 10000);
-
-                ref.onSnapshot((snap) => {
-                    gotFirst = true;
-                    clearTimeout(timer);
-                    setLiveSyncStatus(label, true);
-                    const remote = snap.exists ? snap.data() : null;
-                    if (!remote || !remote.payload) {
-                        if (canWrite) persistState();   // seed the shared copy from this device
-                        return;
-                    }
-                    try {
-                        const wasFirst = !window.__lgaSyncedOnce;
-                        window.__lgaSyncedOnce = true;
-                        if (applyRemoteStatePayload(remote.payload, remote.updatedAt) && !wasFirst) {
-                            showToast('Live update received from another golfer.');
-                        }
-                    } catch (err) {
-                        console.warn('Remote state parse error:', err);
-                    }
-                }, (err) => {
-                    console.warn('Shared sync error:', err);
-                    setLiveSyncStatus('Saved on this device', false);
-                });
-            } catch (err) {
-                console.warn('Shared sync unavailable:', err);
-                setLiveSyncStatus('Saved on this device', false);
+                    const [appMod, authMod, fsMod] = await Promise.all([import(src.app), import(src.auth), import(src.fs)]);
+                    ({ initializeApp } = appMod);
+                    ({ getAuth, signInWithEmailAndPassword } = authMod);
+                    ({ getFirestore, doc, getDoc, setDoc, onSnapshot } = fsMod);
+                    loaded = true;
+                    break;
+                } catch (e) {
+                    lastErr = e;
+                    console.warn(`Firebase load failed from ${src.name}:`, e);
+                }
             }
+            if (!loaded) {
+                window.__lgaLoadError = 'Could not load Firebase. Try turning off ad/tracker blockers or switching network, then reload. (' + ((lastErr && lastErr.message) || lastErr) + ')';
+                window.__lgaResolvePin();
+                throw lastErr;
+            }
+        }
+
+        // ============================================================
+        // 1) PASTE YOUR FIREBASE WEB CONFIG HERE (see README.md).
+        // ============================================================
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyBnYleOSwGVGte-8vi8alSFNDQWHzJqZa8",
+            authDomain: "lga-pigeon.firebaseapp.com",
+            projectId: "lga-pigeon",
+            storageBucket: "lga-pigeon.firebasestorage.app",
+            messagingSenderId: "753098492942",
+            appId: "1:753098492942:web:009ccf9060bf719812c05f"
+        };
+
+        // 2) The shared login. The email must match the user you create in Firebase.
+        //    The Firebase password is: <4-digit PIN> + PIN_SUFFIX  (e.g. 1234-lga)
+        const SHARED_EMAIL = 'lga@legends.club';
+        const PIN_SUFFIX = '-lga';
+
+        let auth = null;
+        let db = null;
+        let syncStarted = false;
+
+        if (FIREBASE_CONFIG.apiKey) {
+            try {
+                const app = initializeApp(FIREBASE_CONFIG);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            } catch (e) {
+                window.__lgaLoadError = 'Firebase config problem: ' + ((e && e.message) || e);
+            }
+        } else {
+            setLiveSyncStatus('Firebase not set up', false);
+        }
+
+        // Called by the PIN screen. true = correct PIN, false = wrong PIN, throws on connection problems.
+        window.__lgaTryPin = async (pin) => {
+            if (!auth) throw new Error('Firebase is not set up yet (see README).');
+            try {
+                await signInWithEmailAndPassword(auth, SHARED_EMAIL, pin + PIN_SUFFIX);
+            } catch (e) {
+                const code = String(e && e.code || '');
+                if (code === 'auth/network-request-failed') throw new Error('No connection. Try again.');
+                if (code === 'auth/too-many-requests') throw new Error('Too many attempts. Wait a bit and retry.');
+                if (code.startsWith('auth/')) return false;
+                throw new Error('Could not sign in.');
+            }
+            startLiveSync();
+            return true;
+        };
+
+        window.__lgaResolvePin();
+
+        async function startLiveSync() {
+            if (syncStarted) return;
+            syncStarted = true;
+            try {
+                const docRef = doc(db, 'lga', 'state');
+                cloudDb = db;
+                cloudDocRef = docRef;
+                window.__lgaSetDoc = (ref, data) => setDoc(ref, data, { merge: true });
+
+                const snap = await getDoc(docRef);
+                if (!snap.exists()) {
+                    await setDoc(docRef, { payload: JSON.stringify(state), updatedAt: state.updatedAt || new Date().toISOString() });
+                }
+                setLiveSyncStatus('Live Multi-User Sync', true);
+
+                if (cloudUnsubscribe) cloudUnsubscribe();
+                cloudUnsubscribe = onSnapshot(
+                    docRef,
+                    (snapshot) => {
+                        if (!snapshot.exists()) return;
+                        const remote = snapshot.data();
+                        if (!remote?.payload) return;
+                        try {
+                            const wasFirst = !window.__lgaSyncedOnce;
+                            window.__lgaSyncedOnce = true;
+                            if (applyRemoteStatePayload(remote.payload, remote.updatedAt) && !wasFirst) {
+                                showToast('Live update received from another golfer.');
+                            }
+                            setLiveSyncStatus('Live Multi-User Sync', true);
+                        } catch (err) {
+                            console.warn('Remote state parse error:', err);
+                        }
+                    },
+                    (err) => {
+                        console.warn('Firestore snapshot error:', err);
+                        setLiveSyncStatus('Sync Stand-By', false);
+                    }
+                );
+            } catch (err) {
+                console.warn('Cloud sync unavailable:', err);
+                syncStarted = false;
+                setLiveSyncStatus('Sync Stand-By', false);
+            }
+        }
+
+        // Auto-unlock on devices that already entered the PIN
+        (async () => {
+            let saved = null;
+            try { saved = localStorage.getItem('lga_pin_saved_v2'); } catch (e) {}
+            if (!saved || !auth) return;
+            try {
+                if (await window.__lgaTryPin(saved)) unlockSite();
+                else { try { localStorage.removeItem('lga_pin_saved_v2'); } catch (e) {} }
+            } catch (e) { /* leave the PIN screen showing */ }
         })();
     </script>
 </body>
