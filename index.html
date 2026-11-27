@@ -42,6 +42,7 @@
         .spin-sym.dir-down { color: #059669; }
         .spin-sym.dir-up { color: #E11D48; }
         .spin-sym.dir-same { color: #64748B; }
+        .spin-sym.dir-new { color: #C5A059; }
         @keyframes spin-pop { 0% { transform: scale(0.85); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
         .spin-pop { animation: spin-pop 0.45s ease-out; }
         body.pin-locked > *:not(#pin-gate) { display: none !important; }
@@ -1973,7 +1974,7 @@
             if (!state.includeDailyHandicapInCalcs) return 0;
             if (whsIndex === null || whsIndex === undefined || Number.isNaN(Number(whsIndex))) return 0;
             const raw = Number(whsIndex) * (Number(course.slope) / 113) + (Number(course.rating) - Number(course.par));
-            return Math.min(45, Math.max(0, Math.round(raw)));
+            return Math.min(MAX_HANDICAP, Math.max(0, Math.round(raw)));
         }
 
         // Change the selected active golfer and re-render dependent views
@@ -3108,7 +3109,9 @@
             winnerPct: 0.20,     // prior-year winner penalty = this share of their handicap...
             winnerMin: 3.0,      // ...but never fewer than this many strokes
             selfWeight: 0.15,    // lean added per stroke of gap between self-rated skill and recorded handicap
-            selfMax: 2.0         // biggest lean the self-rating can add either way
+            selfMax: 2.0,        // biggest lean the self-rating can add either way
+            newGolferStart: 27,  // wheel starting point for golfers with no handicap and no self-rating
+            freshSigma: 4.5      // how wild a brand-new handicap spin is
         };
         let handicapGenYear = UPCOMING_YEAR;
 
@@ -3162,7 +3165,7 @@
         // ===== Handicap Roulette (slot-machine spin) =====
         // Three reels (direction, tens, ones) stop one after another. The wheel is weighted per golfer:
         // last year's winner is likely to drop strokes, keen golfers lean lower, rusty golfers lean higher.
-        const SPIN_SYMBOLS = { dir: ['▼', '●', '▲'], tens: ['0', '1', '2', '3'], ones: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] };
+        const SPIN_SYMBOLS = { dir: ['▼', '●', '▲', '★'], tens: ['0', '1', '2', '3', '?'], ones: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?'] };
         const SPIN_ROW_H = 80;
         const SPIN_LOOPS = 8;
         const SPIN_SIGMA = 1.75;     // how wild the wheel is around its lean (bigger = more random)
@@ -3187,10 +3190,25 @@
             return 0;
         }
 
+        // For golfers with no handicap on record: the wheel picks a brand-new one, centred on a starting point
+        function pickFreshHandicap(centre) {
+            const weights = [];
+            for (let h = 0; h <= MAX_HANDICAP; h++) {
+                weights.push(Math.exp(-Math.pow(h - centre, 2) / (2 * HCP_GEN.freshSigma * HCP_GEN.freshSigma)));
+            }
+            const total = weights.reduce((a, b) => a + b, 0);
+            let r = Math.random() * total;
+            for (let h = 0; h < weights.length; h++) {
+                r -= weights[h];
+                if (r <= 0) return h;
+            }
+            return Math.round(centre);
+        }
+
         function buildSpinTrack(trackId, symbols, isDir) {
             const el = document.getElementById(trackId);
             if (!el) return;
-            const cls = (sym) => !isDir ? '' : (sym === '▼' ? 'dir-down' : sym === '▲' ? 'dir-up' : 'dir-same');
+            const cls = (sym) => !isDir ? '' : (sym === '▼' ? 'dir-down' : sym === '▲' ? 'dir-up' : sym === '★' ? 'dir-new' : 'dir-same');
             let html = '';
             for (let loop = 0; loop < SPIN_LOOPS; loop++) {
                 for (const sym of symbols) html += `<div class="spin-sym ${cls(sym)}">${sym}</div>`;
@@ -3273,32 +3291,29 @@
             setSelfSliderDisabled(false);
             syncSelfRatingUi(golferId);
 
-            if (calc.prev === null) {
-                reelsEl.classList.add('hidden');
-                document.getElementById('spin-prev').textContent = '—';
-                document.getElementById('spin-flavour').textContent = '';
-                resultEl.textContent = `${golfer.name} has no previous handicap on record yet.`;
-                spinBtn.disabled = true;
-                return;
-            }
-
-            let flavour = '🎲 Fair spin. Anything can happen.';
-            if (calc.won) flavour = '🏆 Reigning champion! The wheel is stacked toward a big cut.';
+            const isFresh = calc.prev === null;
+            let flavour = isFresh ? '🆕 No handicap on record yet. The wheel will pick a brand-new one for you.' : '🎲 Fair spin. Anything can happen.';
+            if (isFresh) { /* keep the brand-new message */ } else if (calc.won) flavour = '🏆 Reigning champion! The wheel is stacked toward a big cut.';
             else if (calc.rounds !== null && calc.rounds >= HCP_GEN.neutralRounds + 10) flavour = '⛳ Loads of rounds played. The wheel leans your way.';
             else if (calc.rounds !== null && calc.rounds <= HCP_GEN.neutralRounds - 8) flavour = '🕸️ Clubs gathering dust. The wheel leans towards a higher number.';
 
             let selfLine = '';
-            if (calc.selfRating !== null) {
+            const freshSelf = getSelfRating(golferId, year);
+            if (isFresh) {
+                selfLine = freshSelf !== null ? ` You rate yourself ${freshSelf}/10. The wheel is taking note.` : ' Tell the wheel how good you think you are with the slider.';
+            } else if (calc.selfRating !== null) {
                 selfLine = ` You rate yourself ${calc.selfRating}/10.` + (calc.selfAdj <= -0.5 ? ' Big talk... the wheel is listening.' : calc.selfAdj >= 0.5 ? " Modest, aren't we? The wheel noticed." : ' About right, says the wheel.');
             }
             reelsEl.classList.remove('hidden');
             spinBtn.disabled = false;
             resultEl.textContent = '';
             document.getElementById('spin-flavour').textContent = flavour + selfLine;
-            document.getElementById('spin-prev').textContent = String(calc.prev);
+            document.getElementById('spin-prev').textContent = isFresh ? '—' : String(calc.prev);
 
-            const startHcp = Math.round(calc.prev);
-            spinReelCurrent = { dir: '●', tens: String(Math.floor(startHcp / 10)), ones: String(startHcp % 10) };
+            const startHcp = isFresh ? null : Math.round(calc.prev);
+            spinReelCurrent = isFresh
+                ? { dir: '●', tens: '?', ones: '?' }
+                : { dir: '●', tens: String(Math.floor(startHcp / 10)), ones: String(startHcp % 10) };
             buildSpinTrack('track-dir', SPIN_SYMBOLS.dir, true);
             buildSpinTrack('track-tens', SPIN_SYMBOLS.tens, false);
             buildSpinTrack('track-ones', SPIN_SYMBOLS.ones, false);
@@ -3334,13 +3349,25 @@
             if (!spinState || spinState.spinning) return;
             const { golferId, year } = spinState;
             const calc = computeGeneratedHandicap(golferId, year);
-            if (calc.prev === null) return;
-
-            const lean = calc.activityAdj + calc.selfAdj - calc.winnerPenalty;
-            const swing = pickSpinAdjustment(lean);
-            const newHcp = Math.max(0, Math.min(MAX_HANDICAP, Math.round(calc.prev + swing)));
-            const diff = newHcp - Math.round(calc.prev);
-            const dirSym = diff < 0 ? '▼' : diff > 0 ? '▲' : '●';
+            const isFresh = calc.prev === null;
+            let newHcp;
+            let diff;
+            let dirSym;
+            if (isFresh) {
+                // No handicap on record: pick a brand-new one, centred on what they rate themselves (or a default start)
+                const selfRating = getSelfRating(golferId, year);
+                let centre = selfRating !== null ? Math.max(0, MAX_HANDICAP - (selfRating - 1) * 4) : HCP_GEN.newGolferStart;
+                if (calc.won) centre = Math.max(0, centre - Math.max(HCP_GEN.winnerMin, centre * HCP_GEN.winnerPct));
+                newHcp = pickFreshHandicap(centre);
+                diff = null;
+                dirSym = '★';
+            } else {
+                const lean = calc.activityAdj + calc.selfAdj - calc.winnerPenalty;
+                const swing = pickSpinAdjustment(lean);
+                newHcp = Math.max(0, Math.min(MAX_HANDICAP, Math.round(calc.prev + swing)));
+                diff = newHcp - Math.round(calc.prev);
+                dirSym = diff < 0 ? '▼' : diff > 0 ? '▲' : '●';
+            }
             const tensSym = String(Math.floor(newHcp / 10));
             const onesSym = String(newHcp % 10);
 
@@ -3368,7 +3395,8 @@
                 setSelfSliderDisabled(false);
                 const resultEl = document.getElementById('spin-result');
                 resultEl.innerHTML = `<span class="spin-pop">${
-                    diff < 0 ? `🎉 Down ${Math.abs(diff)} stroke${Math.abs(diff) === 1 ? '' : 's'}! New handicap ${newHcp}`
+                    diff === null ? `🆕 Brand new handicap: ${newHcp}`
+                    : diff < 0 ? `🎉 Down ${Math.abs(diff)} stroke${Math.abs(diff) === 1 ? '' : 's'}! New handicap ${newHcp}`
                     : diff > 0 ? `😬 Up ${diff} stroke${diff === 1 ? '' : 's'}. New handicap ${newHcp}`
                     : `😐 No change. Handicap stays at ${newHcp}`
                 }</span>`;
