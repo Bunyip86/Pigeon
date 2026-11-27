@@ -258,20 +258,20 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                <!-- Course Daily Handicap Calculator -->
-                <div class="bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
+                <!-- Course Daily Handicap Calculator (Compact Preview) -->
+                <div class="bg-white rounded-2xl border border-lga-gold/35 p-3.5 sm:p-4 shadow-sm space-y-2.5 self-start">
                     <div>
-                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Course Handicap Preview</div>
-                        <h2 class="font-serif text-lg sm:text-xl font-bold text-lga-navy">Daily Handicap Calculator</h2>
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-lga-goldDark">Course Handicap Preview</div>
+                        <h2 class="font-serif text-base sm:text-lg font-bold text-lga-navy">Daily Handicap</h2>
                     </div>
-                    <div class="space-y-1.5">
-                        <label for="dash-course-preview" class="block text-xs font-semibold text-lga-slate">Select Course</label>
-                        <select id="dash-course-preview" onchange="updateDashboardDailyPreview()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy focus:outline-none focus:border-lga-gold"></select>
+                    <div class="space-y-1">
+                        <label for="dash-course-preview" class="block text-[11px] font-semibold text-lga-slate">Select Course</label>
+                        <select id="dash-course-preview" onchange="updateDashboardDailyPreview()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-2.5 py-2 text-xs text-lga-navy focus:outline-none focus:border-lga-gold"></select>
                     </div>
-                    <div id="dash-daily-result" class="rounded-xl bg-lga-sand/70 border border-lga-gold/30 p-3.5 sm:p-4 text-center">
-                        <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-slate">Playing Daily Handicap</div>
-                        <div id="dash-daily-value" class="font-serif text-3xl sm:text-4xl font-extrabold text-lga-navy mt-1">Off</div>
-                        <div id="dash-daily-formula" class="text-[11px] sm:text-xs text-lga-slate mt-1">Daily handicap off by default • Admin option</div>
+                    <div id="dash-daily-result" class="rounded-xl bg-lga-sand/70 border border-lga-gold/30 p-2.5 sm:p-3 text-center">
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-lga-slate">Playing Daily Handicap</div>
+                        <div id="dash-daily-value" class="font-serif text-xl sm:text-2xl font-extrabold text-lga-navy mt-0.5">Off</div>
+                        <div id="dash-daily-formula" class="text-[11px] text-lga-slate mt-0.5 leading-snug">Daily handicap off by default • Admin option</div>
                     </div>
                 </div>
 
@@ -304,14 +304,17 @@
             </div>
         </section>
 
-        <!-- TAB 2: LOG ROUND (WITH HOLE-BY-HOLE SCORECARD) -->
+        <!-- TAB 2: LOG ROUND (WITH HOLE-BY-HOLE SCORECARD & AUTO-SAVE DRAFT) -->
         <section id="tab-log-round" class="tab-panel hidden space-y-4 sm:space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <form id="log-round-form" onsubmit="handleLogRoundSubmit(event)" class="lg:col-span-2 bg-white rounded-2xl border border-lga-gold/35 p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
                     <div class="flex flex-wrap items-start justify-between gap-2">
                         <div>
-                            <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Hole-by-Hole Scorecard Entry</div>
-                            <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Log Round &amp; Live WHS Update</h2>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Hole-by-Hole Scorecard Entry</span>
+                                <span id="draft-save-status" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">Auto-saved locally</span>
+                            </div>
+                            <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy mt-0.5">Log Round &amp; Live WHS Update</h2>
                         </div>
                         <div id="admin-daily-hcp-toggle-wrap" class="hidden">
                             <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-lga-sand border border-lga-gold/40 text-xs font-bold text-lga-navy cursor-pointer">
@@ -324,7 +327,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         <div>
                             <label for="log-golfer" class="block text-xs font-semibold text-lga-slate mb-1">Golfer</label>
-                            <select id="log-golfer" onchange="updateLogRoundCalc()" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-medium text-lga-navy"></select>
+                            <select id="log-golfer" onchange="onLogDraftFieldChange()" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-medium text-lga-navy"></select>
                         </div>
                         <div>
                             <label for="log-course" class="block text-xs font-semibold text-lga-slate mb-1">Course</label>
@@ -332,7 +335,7 @@
                         </div>
                         <div>
                             <label for="log-date" class="block text-xs font-semibold text-lga-slate mb-1">Date</label>
-                            <input type="date" id="log-date" onchange="renderHoleScorecard()" required class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
+                            <input type="date" id="log-date" onchange="onLogDraftFieldChange()" required class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                     </div>
 
@@ -341,11 +344,16 @@
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 <div class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">18-Hole Scorecard</div>
-                                <p class="text-[11px] sm:text-xs text-lga-slate">Enter gross strokes per hole or use total Gross below.</p>
+                                <p class="text-[11px] sm:text-xs text-lga-slate">Auto-saves as you type so refreshes keep partial scores until you sync.</p>
                             </div>
-                            <button type="button" onclick="fillParScorecard()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-lga-sand hover:bg-amber-200/70 text-lga-navy border border-lga-gold/40 cursor-pointer">
-                                Fill Par
-                            </button>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="clearScorecardDraft()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 cursor-pointer">
+                                    Clear Draft
+                                </button>
+                                <button type="button" onclick="fillParScorecard()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-lga-sand hover:bg-amber-200/70 text-lga-navy border border-lga-gold/40 cursor-pointer">
+                                    Fill Par
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Allocated Closest to Pin & Longest Drive Hole Flags Strip -->
@@ -429,15 +437,15 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         <div>
                             <label for="log-gross" class="block text-xs font-semibold text-lga-slate mb-1">Gross Score</label>
-                            <input type="number" id="log-gross" min="45" max="180" placeholder="88" oninput="updateLogRoundCalc()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
+                            <input type="number" id="log-gross" min="45" max="180" placeholder="88" oninput="onTotalGrossManualInput(this.value)" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                         <div>
                             <label for="log-stableford" class="block text-xs font-semibold text-lga-slate mb-1">Stableford Points</label>
-                            <input type="number" id="log-stableford" min="0" max="144" placeholder="36" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
+                            <input type="number" id="log-stableford" min="0" max="144" placeholder="36" oninput="saveRoundDraft()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                         <div>
                             <label for="log-notes" class="block text-xs font-semibold text-lga-slate mb-1">Round Notes</label>
-                            <input type="text" id="log-notes" placeholder="Pidgeon Cup Day 1" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
+                            <input type="text" id="log-notes" placeholder="Pidgeon Cup Day 1" oninput="saveRoundDraft()" class="w-full rounded-xl border border-slate-300 bg-lga-cream px-3 py-2.5 text-lga-navy">
                         </div>
                     </div>
 
@@ -447,9 +455,14 @@
                         <div><span class="block text-[11px] text-lga-slate">Differential</span><strong id="calc-differential" class="font-mono text-lga-navy">—</strong></div>
                     </div>
 
-                    <button type="submit" class="w-full sm:w-auto px-5 py-3 sm:py-2.5 rounded-xl bg-lga-navy hover:bg-lga-navyLight text-lga-gold font-bold text-sm shadow transition cursor-pointer">
-                        Save &amp; Sync Round
-                    </button>
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button type="submit" class="w-full sm:w-auto px-5 py-3 sm:py-2.5 rounded-xl bg-lga-navy hover:bg-lga-navyLight text-lga-gold font-bold text-sm shadow transition cursor-pointer">
+                            Sync Round
+                        </button>
+                        <button type="button" onclick="syncNow()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 rounded-xl bg-lga-sand hover:bg-amber-200/70 text-lga-navy border border-lga-gold/40 font-bold text-xs sm:text-sm transition cursor-pointer">
+                            Sync Now
+                        </button>
+                    </div>
                 </form>
 
                 <!-- Recent Rounds Feed -->
@@ -516,7 +529,7 @@
                     <div class="flex justify-between max-w-xs mx-auto text-[10px] text-slate-400"><span>Hacker</span><span>Tour pro</span></div>
                 </div>
                 <p id="spin-flavour" class="text-xs text-lga-goldLight min-h-[2.5rem] leading-relaxed"></p>
-                <div class="text-xs text-slate-300">Current handicap <span id="spin-prev" class="font-mono font-extrabold text-white text-base"></span></div>
+                <div class="text-xs text-slate-300">Last known <span id="spin-prev" class="font-mono font-extrabold text-white text-base"></span></div>
                 <div id="spin-reels" class="flex items-center justify-center gap-2.5 py-1">
                     <div class="spin-reel"><div id="track-dir" class="spin-track"></div></div>
                     <div class="spin-reel"><div id="track-tens" class="spin-track"></div></div>
@@ -633,7 +646,7 @@
                 <div>
                     <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lga-goldDark">Admin Control</div>
                     <h2 class="font-serif text-xl sm:text-2xl font-bold text-lga-navy">Tour Locations (2015–2026)</h2>
-                    <p class="text-xs sm:text-sm text-lga-slate">Blank when unknown; saving updates championship breakdowns and synced state.</p>
+                    <p class="text-xs sm:text-sm text-lga-slate">Set competition location and course per year (including 2026); saving updates championship breakdowns and synced state.</p>
                 </div>
                 <div id="tour-locations-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
             </div>
@@ -837,6 +850,7 @@
     <script>
         // Storage, Handicap Cap & Admin Constants
         const STORAGE_KEY = 'lga_tracker_state_v14';
+        const ROUND_DRAFT_KEY = 'lga_round_draft_v1';
         const ADMIN_PASSCODE = '1986';
         const MAX_HANDICAP = 36.0;
         const TOUR_YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
@@ -915,73 +929,116 @@
             { id: 'steven-raphael', name: 'Steven Raphael', role: 'Member', homeClub: 'Legends Touring Chapter', baselineWhs: null, lowCap12m: null }
         ]);
 
-        // 52 Golf & Links Courses (Victorian & Interstate Australian) with State Codes
+        // Verified Golf & Links Courses (Victorian & Interstate Australian) with State Codes
         const DEFAULT_COURSES = sortCoursesAlphabetically([
-            { id: 'port-fairy', name: 'Port Fairy Golf Links', state: 'VIC', region: 'South West, VIC', tee: 'Blue', par: 72, rating: 71.5, slope: 126 },
+            { id: 'port-fairy', name: 'Port Fairy Golf Links', state: 'VIC', region: 'South West, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 124 },
             { id: 'peninsula-north', name: 'The Peninsula Golf Club (North)', state: 'VIC', region: 'Mornington Peninsula, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 132 },
             { id: 'peninsula-south', name: 'The Peninsula Golf Club (South)', state: 'VIC', region: 'Mornington Peninsula, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 134 },
-            { id: 'barwon-heads', name: 'Barwon Heads Golf Club', state: 'VIC', region: 'Bellarine Peninsula, VIC', tee: 'Blue', par: 71, rating: 71.0, slope: 125 },
-            { id: 'yarrawonga-murray', name: 'Yarrawonga Mulwala (Murray)', state: 'VIC', region: 'Murray River, VIC/NSW', tee: 'Blue', par: 72, rating: 72.0, slope: 124 },
-            { id: 'yarrawonga-lake', name: 'Yarrawonga Mulwala (Lake)', state: 'VIC', region: 'Murray River, VIC/NSW', tee: 'Blue', par: 72, rating: 71.5, slope: 121 },
+            { id: 'barwon-heads', name: 'Barwon Heads Golf Club', state: 'VIC', region: 'Bellarine Peninsula, VIC', tee: 'Blue', par: 70, rating: 70.0, slope: 120 },
+            { id: 'yarrawonga-murray', name: 'Yarrawonga Mulwala (Murray)', state: 'VIC', region: 'Murray River, VIC/NSW', tee: 'Blue', par: 72, rating: 72.0, slope: 126 },
+            { id: 'yarrawonga-lake', name: 'Yarrawonga Mulwala (Lake)', state: 'VIC', region: 'Murray River, VIC/NSW', tee: 'Blue', par: 72, rating: 71.5, slope: 126 },
             { id: 'royal-melbourne-west', name: 'Royal Melbourne Golf Club (West)', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 74.0, slope: 141 },
             { id: 'royal-melbourne-east', name: 'Royal Melbourne Golf Club (East)', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 71, rating: 72.5, slope: 135 },
-            { id: 'kingston-heath', name: 'Kingston Heath Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 73.5, slope: 139 },
-            { id: 'victoria-gc', name: 'Victoria Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 73.5, slope: 138 },
-            { id: 'metropolitan-gc', name: 'The Metropolitan Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 136 },
-            { id: 'yara-yara', name: 'Yarra Yarra Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 133 },
-            { id: 'commonwealth-gc', name: 'Commonwealth Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 134 },
-            { id: 'huntingdale-gc', name: 'Huntingdale Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 135 },
+            { id: 'kingston-heath', name: 'Kingston Heath Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 73.4, slope: 133 },
+            { id: 'victoria-gc', name: 'Victoria Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 73.5, slope: 135 },
+            { id: 'metropolitan-gc', name: 'The Metropolitan Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 131 },
+            { id: 'yara-yara', name: 'Yarra Yarra Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 71, rating: 72.0, slope: 128 },
+            { id: 'commonwealth-gc', name: 'Commonwealth Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 73, rating: 72.5, slope: 131 },
+            { id: 'huntingdale-gc', name: 'Huntingdale Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 138 },
             { id: 'woodlands-gc', name: 'Woodlands Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 131 },
-            { id: 'spring-valley', name: 'Spring Valley Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 130 },
-            { id: 'riversdale-gc', name: 'Riversdale Golf Club', state: 'VIC', region: 'Melbourne, VIC', tee: 'Blue', par: 71, rating: 72.0, slope: 131 },
+            { id: 'spring-valley', name: 'Spring Valley Golf Club', state: 'VIC', region: 'Melbourne Sandbelt, VIC', tee: 'Blue', par: 71, rating: 73.1, slope: 132 },
+            { id: 'riversdale-gc', name: 'Riversdale Golf Club', state: 'VIC', region: 'Mount Waverley, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 129 },
             { id: 'national-moonah', name: 'The National Golf Club (Moonah)', state: 'VIC', region: 'Cape Schanck, VIC', tee: 'Blue', par: 72, rating: 74.0, slope: 140 },
             { id: 'national-gunnamatta', name: 'The National Golf Club (Gunnamatta)', state: 'VIC', region: 'Fingal, VIC', tee: 'Blue', par: 72, rating: 73.5, slope: 138 },
             { id: 'national-old', name: 'The National Golf Club (Old)', state: 'VIC', region: 'Cape Schanck, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 133 },
-            { id: 'st-andrews-beach', name: 'St Andrews Beach Golf Course', state: 'VIC', region: 'Mornington Peninsula, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 137 },
-            { id: 'dunbar-links', name: 'The Dunes Golf Links', state: 'VIC', region: 'Rye, VIC', tee: 'Blue', par: 72, rating: 71.5, slope: 128 },
-            { id: 'racv-cape-schanck', name: 'RACV Cape Schanck Resort', state: 'VIC', region: 'Cape Schanck, VIC', tee: 'Blue', par: 70, rating: 69.5, slope: 124 },
-            { id: 'flinders-gc', name: 'Flinders Golf Club', state: 'VIC', region: 'Flinders, VIC', tee: 'Blue', par: 70, rating: 69.0, slope: 122 },
-            { id: 'portsea-gc', name: 'Portsea Golf Club', state: 'VIC', region: 'Portsea, VIC', tee: 'Blue', par: 70, rating: 69.5, slope: 125 },
+            { id: 'st-andrews-beach', name: 'St Andrews Beach Golf Course', state: 'VIC', region: 'Fingal, VIC', tee: 'Blue', par: 70, rating: 73.6, slope: 139 },
+            { id: 'dunbar-links', name: 'The Dunes Golf Links', state: 'VIC', region: 'Rye, VIC', tee: 'Blue', par: 72, rating: 71.5, slope: 135 },
+            { id: 'racv-cape-schanck', name: 'RACV Cape Schanck Resort', state: 'VIC', region: 'Cape Schanck, VIC', tee: 'Blue', par: 70, rating: 70.0, slope: 124 },
+            { id: 'flinders-gc', name: 'Flinders Golf Club', state: 'VIC', region: 'Flinders, VIC', tee: 'Blue', par: 69, rating: 69.0, slope: 125 },
+            { id: 'portsea-gc', name: 'Portsea Golf Club', state: 'VIC', region: 'Portsea, VIC', tee: 'Blue', par: 71, rating: 71.4, slope: 135 },
             { id: 'sorrento-gc', name: 'Sorrento Golf Club', state: 'VIC', region: 'Sorrento, VIC', tee: 'Blue', par: 70, rating: 70.0, slope: 127 },
-            { id: 'thirteenth-beach-creek', name: '13th Beach Golf Links (Creek)', state: 'VIC', region: 'Bellarine Peninsula, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 131 },
+            { id: 'thirteenth-beach-creek', name: '13th Beach Golf Links (Creek)', state: 'VIC', region: 'Bellarine Peninsula, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 139 },
             { id: 'thirteenth-beach-beach', name: '13th Beach Golf Links (Beach)', state: 'VIC', region: 'Bellarine Peninsula, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 134 },
-            { id: 'lonsdale-links', name: 'Lonsdale Golf Club', state: 'VIC', region: 'Point Lonsdale, VIC', tee: 'Blue', par: 71, rating: 70.5, slope: 126 },
-            { id: 'curlewis-gc', name: 'Curlewis Golf Club', state: 'VIC', region: 'Clifton Springs, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 127 },
-            { id: 'anglesea-gc', name: 'Anglesea Golf Club', state: 'VIC', region: 'Surf Coast, VIC', tee: 'Blue', par: 71, rating: 70.5, slope: 125 },
+            { id: 'lonsdale-links', name: 'Lonsdale Golf Club', state: 'VIC', region: 'Point Lonsdale, VIC', tee: 'Blue', par: 70, rating: 70.5, slope: 125 },
+            { id: 'curlewis-gc', name: 'Curlewis Golf Club', state: 'VIC', region: 'Bellarine Peninsula, VIC', tee: 'Blue', par: 71, rating: 72.9, slope: 130 },
+            { id: 'anglesea-gc', name: 'Anglesea Golf Club', state: 'VIC', region: 'Surf Coast, VIC', tee: 'Blue', par: 73, rating: 73.0, slope: 131 },
             { id: 'lorne-country-club', name: 'Lorne Country Club', state: 'VIC', region: 'Great Ocean Road, VIC', tee: 'Blue', par: 69, rating: 67.5, slope: 118 },
-            { id: 'warrnambool-gc', name: 'Warrnambool Golf Club', state: 'VIC', region: 'South West, VIC', tee: 'Blue', par: 71, rating: 71.0, slope: 123 },
-            { id: 'torquay-sands', name: 'The Sands Torquay', state: 'VIC', region: 'Surf Coast, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 130 },
+            { id: 'warrnambool-gc', name: 'Warrnambool Golf Club', state: 'VIC', region: 'South West, VIC', tee: 'Blue', par: 72, rating: 71.0, slope: 123 },
+            { id: 'torquay-sands', name: 'The Sands Torquay', state: 'VIC', region: 'Surf Coast, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 128 },
             { id: 'heritage-henley', name: 'The Heritage Golf & CC (Henley)', state: 'VIC', region: 'Yarra Valley, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 135 },
             { id: 'heritage-st-johns', name: "The Heritage Golf & CC (St John's)", state: 'VIC', region: 'Yarra Valley, VIC', tee: 'Blue', par: 72, rating: 72.5, slope: 132 },
             { id: 'racv-healesville', name: 'RACV Healesville Country Club', state: 'VIC', region: 'Healesville, Yarra Valley, VIC', tee: 'Blue', par: 68, rating: 65.9, slope: 120 },
             { id: 'eagle-ridge', name: 'Eagle Ridge Golf Club', state: 'VIC', region: 'Mornington Peninsula, VIC', tee: 'Blue', par: 72, rating: 73.4, slope: 137 },
-            { id: 'queenscliff-gc', name: 'Queenscliff Golf Club', state: 'VIC', region: 'Bellarine Peninsula, VIC', tee: 'Blue', par: 72, rating: 70.1, slope: 131 },
+            { id: 'queenscliff-gc', name: 'Queenscliff Golf Club', state: 'VIC', region: 'Swan Island, Bellarine Peninsula, VIC', tee: 'Blue', par: 72, rating: 70.1, slope: 131 },
             { id: 'patterson-river', name: 'Patterson River Golf Club', state: 'VIC', region: 'Bonbeach / Patterson Lakes, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 131 },
             { id: 'cranbourne-gc', name: 'Cranbourne Golf Club', state: 'VIC', region: 'Cranbourne North, VIC', tee: 'Blue', par: 72, rating: 71.6, slope: 127 },
             { id: 'lang-lang-gc', name: 'Lang Lang Golf Club', state: 'VIC', region: 'Gippsland / South East, VIC', tee: 'Blue', par: 70, rating: 71.5, slope: 123 },
-            { id: 'cardinia-beaconhills', name: 'Cardinia Beaconhills Golf Links', state: 'VIC', region: 'Upper Beaconsfield, VIC', tee: 'Blue', par: 71, rating: 70.1, slope: 117 },
-            { id: 'bright-country', name: 'Bright Country Golf Club', state: 'VIC', region: 'High Country / Victorian Alps, VIC', tee: 'Blue', par: 72, rating: 71.6, slope: 123 },
+            { id: 'cardinia-beaconhills', name: 'Cardinia Beaconhills Golf Links', state: 'VIC', region: 'Upper Beaconsfield, VIC', tee: 'Blue', par: 69, rating: 70.1, slope: 117 },
+            { id: 'bright-country', name: 'Bright Country Golf Club', state: 'VIC', region: 'High Country / Victorian Alps, VIC', tee: 'Blue', par: 72, rating: 71.6, slope: 119 },
             { id: 'mount-beauty-gc', name: 'Mount Beauty Golf Club', state: 'VIC', region: 'Kiewa Valley, VIC', tee: 'Blue', par: 72, rating: 72.4, slope: 119 },
             { id: 'foster-gc', name: 'Foster Golf Club', state: 'VIC', region: 'Foster, South Gippsland, VIC', tee: 'Blue', par: 72, rating: 71.0, slope: 121 },
             { id: 'leongatha-gc', name: 'Leongatha Golf Club', state: 'VIC', region: 'Leongatha South, South Gippsland, VIC', tee: 'Blue', par: 70, rating: 70.6, slope: 122 },
             { id: 'yering-meadows', name: 'Yering Meadows Golf Club', state: 'VIC', region: 'Yering, Yarra Valley, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 136 },
             { id: 'yarra-bend-golf', name: 'Yarra Bend Golf', state: 'VIC', region: 'Fairfield, Melbourne, VIC', tee: 'Blue', par: 70, rating: 67.6, slope: 119 },
             { id: 'black-bull', name: 'Black Bull Golf Club', state: 'VIC', region: 'Yarrawonga, VIC', tee: 'Blue', par: 72, rating: 73.0, slope: 133 },
-            { id: 'rich-river-east', name: 'Rich River Golf Club (East)', state: 'VIC', region: 'Echuca Moama, VIC/NSW', tee: 'Blue', par: 72, rating: 72.0, slope: 125 },
-            { id: 'ballarat-gc', name: 'Ballarat Golf Club', state: 'VIC', region: 'Ballarat, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 126 },
-            { id: 'bendigo-gc', name: 'Bendigo Golf Club', state: 'VIC', region: 'Bendigo, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 127 },
+            { id: 'rich-river-east', name: 'Rich River Golf Club (East)', state: 'NSW', region: 'Moama, Murray River, NSW', tee: 'Blue', par: 72, rating: 72.0, slope: 122 },
+            { id: 'ballarat-gc', name: 'Ballarat Golf Club', state: 'VIC', region: 'Alfredton, Ballarat, VIC', tee: 'Blue', par: 72, rating: 72.0, slope: 132 },
+            { id: 'bendigo-gc', name: 'Bendigo Golf Club', state: 'VIC', region: 'Epsom, Bendigo, VIC', tee: 'Blue', par: 72, rating: 71.4, slope: 128 },
             { id: 'new-south-wales-gc', name: 'New South Wales Golf Club', state: 'NSW', region: 'La Perouse, NSW', tee: 'Blue', par: 72, rating: 74.0, slope: 139 },
-            { id: 'bonville-gc', name: 'Bonville Golf Resort', state: 'NSW', region: 'Coffs Coast, NSW', tee: 'Blue', par: 72, rating: 73.5, slope: 136 },
-            { id: 'magenta-shores', name: 'Magenta Shores Golf & CC', state: 'NSW', region: 'Central Coast, NSW', tee: 'Blue', par: 72, rating: 72.5, slope: 132 },
-            { id: 'nelson-bay-gc', name: 'Nelson Bay Golf Club', state: 'NSW', region: 'Port Stephens, NSW', tee: 'Blue', par: 72, rating: 71.5, slope: 125 },
-            { id: 'royal-adelaide', name: 'The Royal Adelaide Golf Club', state: 'SA', region: 'Seaton, SA', tee: 'Blue', par: 73, rating: 73.5, slope: 135 },
-            { id: 'kooyonga-gc', name: 'Kooyonga Golf Club', state: 'SA', region: 'Lockleys, SA', tee: 'Blue', par: 72, rating: 73.0, slope: 134 },
-            { id: 'glenelg-gc', name: 'Glenelg Golf Club', state: 'SA', region: 'Novar Gardens, SA', tee: 'Blue', par: 72, rating: 72.5, slope: 132 },
+            { id: 'bonville-gc', name: 'Bonville Golf Resort', state: 'NSW', region: 'Coffs Coast, NSW', tee: 'Blue', par: 72, rating: 73.5, slope: 137 },
+            { id: 'magenta-shores', name: 'Magenta Shores Golf & CC', state: 'NSW', region: 'Central Coast, NSW', tee: 'Blue', par: 72, rating: 72.5, slope: 138 },
+            { id: 'nelson-bay-gc', name: 'Nelson Bay Golf Club', state: 'NSW', region: 'Port Stephens, NSW', tee: 'Blue', par: 72, rating: 71.5, slope: 131 },
+            { id: 'royal-adelaide', name: 'The Royal Adelaide Golf Club', state: 'SA', region: 'Seaton, SA', tee: 'Blue', par: 72, rating: 74.0, slope: 135 },
+            { id: 'kooyonga-gc', name: 'Kooyonga Golf Club', state: 'SA', region: 'Lockleys, SA', tee: 'Blue', par: 72, rating: 73.0, slope: 136 },
+            { id: 'glenelg-gc', name: 'Glenelg Golf Club', state: 'SA', region: 'Adelaide, SA', tee: 'Blue', par: 71, rating: 73.0, slope: 138 },
             { id: 'barnbougle-dunes', name: 'Barnbougle Dunes', state: 'TAS', region: 'Bridport, TAS', tee: 'Blue', par: 71, rating: 72.5, slope: 132 },
-            { id: 'barnbougle-lost-farm', name: 'Barnbougle Lost Farm', state: 'TAS', region: 'Bridport, TAS', tee: 'Blue', par: 71, rating: 72.0, slope: 130 },
-            { id: 'cape-wickham', name: 'Cape Wickham Links', state: 'TAS', region: 'King Island, TAS', tee: 'Blue', par: 72, rating: 73.5, slope: 137 },
-            { id: 'ocean-dunes', name: 'Ocean Dunes Golf Course', state: 'TAS', region: 'King Island, TAS', tee: 'Blue', par: 71, rating: 71.5, slope: 128 }
+            { id: 'barnbougle-lost-farm', name: 'Barnbougle Lost Farm', state: 'TAS', region: 'Bridport, TAS', tee: 'Blue', par: 72, rating: 67.0, slope: 118 },
+            { id: 'cape-wickham', name: 'Cape Wickham Links', state: 'TAS', region: 'King Island, TAS', tee: 'Blue', par: 72, rating: 73.1, slope: 123 },
+            { id: 'ocean-dunes', name: 'Ocean Dunes Golf Course', state: 'TAS', region: 'King Island, TAS', tee: 'Blue', par: 72, rating: 71.5, slope: 132 }
         ]);
+
+        // Reference course updates so existing saved states also get verified ratings
+        const VERIFIED_COURSE_UPDATES = {
+            'port-fairy': { rating: 72.0, slope: 124 },
+            'barwon-heads': { par: 70, rating: 70.0, slope: 120 },
+            'yarrawonga-murray': { slope: 126 },
+            'yarrawonga-lake': { slope: 126 },
+            'kingston-heath': { rating: 73.4, slope: 133 },
+            'victoria-gc': { slope: 135 },
+            'metropolitan-gc': { slope: 131 },
+            'yara-yara': { par: 71, rating: 72.0, slope: 128 },
+            'commonwealth-gc': { par: 73, slope: 131 },
+            'huntingdale-gc': { slope: 138 },
+            'spring-valley': { par: 71, rating: 73.1, slope: 132 },
+            'riversdale-gc': { par: 72, region: 'Mount Waverley, VIC', slope: 129 },
+            'st-andrews-beach': { par: 70, rating: 73.6, slope: 139, region: 'Fingal, VIC' },
+            'dunbar-links': { slope: 135 },
+            'racv-cape-schanck': { rating: 70.0, slope: 124 },
+            'flinders-gc': { par: 69, slope: 125 },
+            'portsea-gc': { par: 71, rating: 71.4, slope: 135 },
+            'sorrento-gc': { slope: 127 },
+            'thirteenth-beach-creek': { slope: 139 },
+            'lonsdale-links': { par: 70, slope: 125 },
+            'curlewis-gc': { par: 71, rating: 72.9, slope: 130 },
+            'anglesea-gc': { par: 73, rating: 73.0, slope: 131 },
+            'warrnambool-gc': { par: 72, rating: 71.0, slope: 123 },
+            'torquay-sands': { slope: 128 },
+            'racv-healesville': { par: 68, rating: 65.9, slope: 120, region: 'Healesville, Yarra Valley, VIC' },
+            'queenscliff-gc': { region: 'Swan Island, Bellarine Peninsula, VIC' },
+            'cardinia-beaconhills': { par: 69 },
+            'bright-country': { slope: 119 },
+            'rich-river-east': { state: 'NSW', region: 'Moama, Murray River, NSW', slope: 122 },
+            'ballarat-gc': { region: 'Alfredton, Ballarat, VIC', slope: 132 },
+            'bendigo-gc': { region: 'Epsom, Bendigo, VIC', rating: 71.4, slope: 128 },
+            'magenta-shores': { slope: 138 },
+            'nelson-bay-gc': { slope: 131 },
+            'royal-adelaide': { par: 72, rating: 74.0, slope: 135 },
+            'kooyonga-gc': { slope: 136 },
+            'glenelg-gc': { par: 71, rating: 73.0, slope: 138 },
+            'barnbougle-dunes': { par: 71 },
+            'barnbougle-lost-farm': { rating: 67.0, slope: 118 },
+            'cape-wickham': { rating: 73.1, slope: 123 }
+        };
 
         // Tour Locations default to blank unless recorded
         const DEFAULT_TOUR_LOCATIONS = {
@@ -1462,11 +1519,8 @@
             state.golfers = sortGolfersAlphabetically(state.golfers);
 
             const savedCourses = (Array.isArray(state.courses) ? state.courses : []).map(c => {
-                // Migrate RACV Healesville to its corrected rating details
-                if (c.id === 'racv-healesville' && Number(c.par) === 72 && Number(c.rating) === 71.5 && Number(c.slope) === 126) {
-                    return { ...c, region: 'Healesville, Yarra Valley, VIC', par: 68, rating: 65.9, slope: 120 };
-                }
-                return c;
+                const patch = VERIFIED_COURSE_UPDATES[c.id];
+                return patch ? { ...c, ...patch } : c;
             });
             const savedCourseIds = new Set(savedCourses.map(c => c.id));
             const rawCourses = [...savedCourses, ...DEFAULT_COURSES.filter(c => !savedCourseIds.has(c.id)).map(c => structuredClone(c))];
@@ -1600,6 +1654,13 @@
                     updatedAt: state.updatedAt
                 }).catch((err) => console.warn('Cloud push error:', err));
             }
+        }
+
+        // Explicit sync action for in-progress round drafts or manual cloud sync
+        function syncNow() {
+            saveRoundDraft();
+            persistState(false);
+            showToast('Synced latest state.', 'success');
         }
 
         // Replace local data with the shared copy from the database. The shared copy always wins;
@@ -2074,6 +2135,118 @@
             document.getElementById('dash-daily-formula').textContent = `${stats.whsIndex.toFixed(1)} × (${course.slope} ÷ 113) + (${course.rating} − ${course.par}) • ${formatCourseDisplayName(course)}`;
         }
 
+        // Auto-save partial scorecard and round inputs locally so page refreshes never lose work
+        function saveRoundDraft() {
+            try {
+                const draft = {
+                    golferId: document.getElementById('log-golfer')?.value || state.activeGolferId,
+                    courseId: document.getElementById('log-course')?.value || '',
+                    date: document.getElementById('log-date')?.value || '',
+                    holeGrossScores: [...holeGrossScores],
+                    gross: document.getElementById('log-gross')?.value || '',
+                    stableford: document.getElementById('log-stableford')?.value || '',
+                    notes: document.getElementById('log-notes')?.value || '',
+                    savedAt: new Date().toISOString()
+                };
+                localStorage.setItem(ROUND_DRAFT_KEY, JSON.stringify(draft));
+                const statusEl = document.getElementById('draft-save-status');
+                if (statusEl) {
+                    const count = draft.holeGrossScores.filter(v => v !== '' && v !== null && v !== undefined).length;
+                    statusEl.textContent = count > 0 ? `Auto-saved (${count}/18 holes)` : 'Auto-saved draft';
+                }
+            } catch (err) {
+                console.warn('Round draft save warning:', err);
+            }
+        }
+
+        // Restore saved round draft into the Log Round form if available
+        function restoreRoundDraft() {
+            try {
+                const raw = localStorage.getItem(ROUND_DRAFT_KEY);
+                if (!raw) return false;
+                const draft = JSON.parse(raw);
+                if (!draft || typeof draft !== 'object') return false;
+
+                const golferSel = document.getElementById('log-golfer');
+                const courseSel = document.getElementById('log-course');
+                const dateInp = document.getElementById('log-date');
+                const grossInp = document.getElementById('log-gross');
+                const stblInp = document.getElementById('log-stableford');
+                const notesInp = document.getElementById('log-notes');
+
+                if (draft.golferId && golferSel && state.golfers.some(g => g.id === draft.golferId)) {
+                    golferSel.value = draft.golferId;
+                }
+                if (draft.courseId && courseSel && state.courses.some(c => c.id === draft.courseId)) {
+                    courseSel.value = draft.courseId;
+                }
+                if (draft.date && dateInp) {
+                    dateInp.value = draft.date;
+                }
+                if (Array.isArray(draft.holeGrossScores) && draft.holeGrossScores.length === 18) {
+                    holeGrossScores = draft.holeGrossScores.map(v => (v === '' || v === null || v === undefined ? '' : Number(v)));
+                }
+                if (grossInp && draft.gross !== undefined) grossInp.value = draft.gross;
+                if (stblInp && draft.stableford !== undefined) stblInp.value = draft.stableford;
+                if (notesInp && draft.notes !== undefined) notesInp.value = draft.notes;
+
+                const statusEl = document.getElementById('draft-save-status');
+                if (statusEl) {
+                    const count = holeGrossScores.filter(v => v !== '').length;
+                    statusEl.textContent = count > 0 ? `Draft restored (${count}/18 holes)` : 'Auto-saved draft';
+                }
+                return true;
+            } catch (err) {
+                console.warn('Round draft restore warning:', err);
+                return false;
+            }
+        }
+
+        // Clear any saved in-progress round draft
+        function clearScorecardDraft() {
+            try {
+                localStorage.removeItem(ROUND_DRAFT_KEY);
+            } catch (err) {}
+            holeGrossScores = Array(18).fill('');
+            const grossInp = document.getElementById('log-gross');
+            const stblInp = document.getElementById('log-stableford');
+            const notesInp = document.getElementById('log-notes');
+            if (grossInp) grossInp.value = '';
+            if (stblInp) stblInp.value = '';
+            if (notesInp) notesInp.value = '';
+            const statusEl = document.getElementById('draft-save-status');
+            if (statusEl) statusEl.textContent = 'Draft cleared';
+            renderHoleScorecard();
+            updateLogRoundCalc();
+        }
+
+        // Handle changes to golfer or date on the Log Round form and persist draft
+        function onLogDraftFieldChange() {
+            renderHoleScorecard();
+            updateLogRoundCalc();
+            saveRoundDraft();
+        }
+
+        // Allow direct total gross entry when hole-by-hole boxes are blank while auto-saving draft
+        function onTotalGrossManualInput(rawVal) {
+            const hasAnyHole = holeGrossScores.some(v => v !== '' && v !== null && v !== undefined);
+            if (!hasAnyHole) {
+                const course = getCourseById(document.getElementById('log-course')?.value);
+                const golferId = document.getElementById('log-golfer')?.value || state.activeGolferId;
+                const stats = computeGolferWhs(golferId);
+                const daily = (!state.includeDailyHandicapInCalcs || stats.isTbc) ? 0 : calcCourseDailyHandicap(stats.whsIndex, course);
+                const grossNum = Number(rawVal);
+                const stblInp = document.getElementById('log-stableford');
+                if (stblInp && rawVal !== '' && !Number.isNaN(grossNum) && grossNum > 0 && course) {
+                    stblInp.value = String(Math.max(0, 36 + daily - (grossNum - Number(course.par))));
+                } else if (stblInp && rawVal === '') {
+                    stblInp.value = '';
+                }
+            }
+            updateLogRoundCalc();
+            saveRoundDraft();
+        }
+
         // Hole-by-Hole Scorecard Logic (Log Round Tab)
         function calcHoleStableford(grossVal, parVal, dailyHcp, siVal) {
             const gross = Number(grossVal);
@@ -2089,7 +2262,7 @@
 
         // Gather Closest to Pin and Longest Drive hole allocations for a round's date year
         function getAllocatedHoleFlagsForDate(dateStr) {
-            const year = dateStr && /^\d{4}/.test(dateStr) ? Number(dateStr.slice(0, 4)) : 2025;
+            const year = dateStr && /^\d{4}/.test(dateStr) ? Number(dateStr.slice(0, 4)) : 2026;
             const awards = state.yearlyBonusAwards?.[year] || {};
             const parseHole = (val) => {
                 const n = parseInt(String(val || '').replace(/\D/g, ''), 10);
@@ -2180,7 +2353,7 @@
         function onAdminHoleAwardChange(kind, holeValue) {
             if (!isAdminUnlocked) return;
             const dateVal = document.getElementById('log-date')?.value || new Date().toISOString().slice(0, 10);
-            const year = dateVal && /^\d{4}/.test(dateVal) ? Number(dateVal.slice(0, 4)) : 2025;
+            const year = dateVal && /^\d{4}/.test(dateVal) ? Number(dateVal.slice(0, 4)) : 2026;
             const golferId = document.getElementById('log-golfer')?.value || state.activeGolferId || '';
 
             if (!state.yearlyBonusAwards) state.yearlyBonusAwards = createDefaultYearlyBonusAwards();
@@ -2235,6 +2408,7 @@
             if (stblInput) stblInput.value = '';
             renderHoleScorecard();
             updateLogRoundCalc();
+            saveRoundDraft();
         }
 
         // Populate each hole's gross score with par adjusted to the selected course par
@@ -2248,6 +2422,7 @@
             });
             renderHoleScorecard();
             updateLogRoundCalc();
+            saveRoundDraft();
         }
 
         // Update an individual hole's gross score and recalculate totals
@@ -2256,6 +2431,7 @@
             holeGrossScores[holeIdx] = cleaned;
             renderHoleScorecard();
             updateLogRoundCalc();
+            saveRoundDraft();
         }
 
         // Render front-nine and back-nine scorecard rows, subtotals, and bonus hole markers
@@ -2376,7 +2552,6 @@
 
         // Recompute preview gross and handicap differential for the round entry form
         function updateLogRoundCalc() {
-            renderHoleScorecard();
             const golferId = document.getElementById('log-golfer')?.value || state.activeGolferId;
             const course = getCourseById(document.getElementById('log-course')?.value);
             const grossVal = Number(document.getElementById('log-gross')?.value);
@@ -2462,10 +2637,13 @@
             document.getElementById('log-gross').value = '';
             document.getElementById('log-stableford').value = '';
             document.getElementById('log-notes').value = '';
+            try { localStorage.removeItem(ROUND_DRAFT_KEY); } catch (err) {}
+            const statusEl = document.getElementById('draft-save-status');
+            if (statusEl) statusEl.textContent = 'Synced round';
 
             persistState();
             renderAll();
-            showToast('Round and scorecard saved & synced.', 'success');
+            showToast('Round and scorecard synced.', 'success');
         }
 
         // Render logged rounds and historical championship scores in the sidebar feed
@@ -2522,7 +2700,7 @@
             }).join('');
         }
 
-        // Championship Results Matrix (Rank & Score Only, 2015 -> 2025 Left to Right)
+        // Championship Results Matrix (Rank & Score Only, 2026 -> 2015 Left to Right)
         function getGolferBonusPointsForYear(year, golferId) {
             const awards = state.yearlyBonusAwards?.[year] || {};
             if (!golferId) return 0;
@@ -2582,8 +2760,6 @@
         }
 
         // Format a compact rank and score string for matrix cells and annual breakdowns
-        // Golfers who share the same (displayed) score with someone else in a year get an "=" after their place.
-        // If the stored places for a same-score group differ (e.g. a deliberate play-off/tie-break), it is left alone.
         function computeTiedGolfersForYear(year, yearMap, derivedRanks = {}) {
             const tied = new Set();
             if (!yearMap || typeof yearMap !== 'object') return tied;
@@ -2738,7 +2914,7 @@
                 </div>`;
         }
 
-        // Render the 2015-2025 championship matrix and per-year result cards
+        // Render the 2026-2015 championship matrix and per-year result cards
         function renderChampionshipHistory() {
             const yearsAsc = [...TOUR_YEARS].sort((a, b) => b - a); // newest first (left to right = newest to oldest)
             const headEl = document.getElementById('champ-matrix-head');
@@ -2797,6 +2973,12 @@
                     .map(g => `<option value="${g.id}" ${g.id === selectedId ? 'selected' : ''}>${g.name}</option>`)
                     .join('');
 
+            const courseOptionHtml = (selectedId) =>
+                `<option value="">— Select Course —</option>` +
+                sortCoursesAlphabetically(state.courses)
+                    .map(c => `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${formatCourseDisplayName(c)}</option>`)
+                    .join('');
+
             breakdownsEl.innerHTML = yearsAsc.map(y => {
                 const yearMap = state.championshipResults?.[y] || {};
                 const awards = state.yearlyBonusAwards?.[y] || {};
@@ -2818,113 +3000,191 @@
                         const ra = parseInt(normalizeRankLabel(a.effectiveRank || '999').replace(/\D/g, ''), 10) || 999;
                         const rb = parseInt(normalizeRankLabel(b.effectiveRank || '999').replace(/\D/g, ''), 10) || 999;
                         if (ra !== rb) return ra - rb;
-                        return compareAlpha(a.golfer.name, b.golfer.name);
+                        const sa = Number(a.score);
+                        const sb = Number(b.score);
+                        if (!Number.isNaN(sa) && !Number.isNaN(sb) && sa !== sb) {
+                            return a.format === 'Stroke' ? sa - sb : sb - sa;
+                        }
+                        return compareAlpha(getSurnameSortKey(a.golfer.name), getSurnameSortKey(b.golfer.name));
                     });
 
-                const locLabel = state.tourLocations?.[y] || yearMap[Object.keys(yearMap)[0]]?.venue || '';
-                const round1Course = getYearCourseName(y, 'round1CourseId');
-                const round2Course = getYearCourseName(y, 'round2CourseId');
-                const courseLineHtml = (round1Course || round2Course)
-                    ? `<div class="text-[11px] text-lga-slate space-y-0.5">${round1Course ? `<div><span class="font-bold text-lga-navy">Round 1:</span> ${round1Course}</div>` : ''}${round2Course ? `<div><span class="font-bold text-lga-navy">Round 2:</span> ${round2Course}</div>` : ''}</div>`
-                    : '';
+                const defaultFormat = entries[0]?.format || ([2015, 2016, 2017].includes(y) ? 'Stroke' : 'Stableford');
+                const locationLabel = (state.tourLocations?.[y] || '').trim() || (isUpcomingYear(y) ? 'Location TBC' : 'Venue TBC');
+                const r1Course = getYearCourseName(y, 'r1');
+                const r2Course = getYearCourseName(y, 'r2');
+                const courseSummary = [r1Course ? `R1: ${r1Course}` : '', r2Course ? `R2: ${r2Course}` : ''].filter(Boolean).join(' • ');
 
-                const ctp1Name = awards.ctp1GolferId ? (getGolferById(awards.ctp1GolferId)?.name || '') : '';
-                const ctp1HoleLabel = awards.ctp1Hole ? ` (Hole ${awards.ctp1Hole})` : '';
-                const ctp2Name = awards.ctp2GolferId ? (getGolferById(awards.ctp2GolferId)?.name || '') : '';
-                const ctp2HoleLabel = awards.ctp2Hole ? ` (Hole ${awards.ctp2Hole})` : '';
-                const ldName = awards.longestDriveGolferId ? (getGolferById(awards.longestDriveGolferId)?.name || '') : '';
-                const ldHoleLabel = awards.longestDriveHole ? ` (Hole ${awards.longestDriveHole})` : '';
-
-                const bonusSectionHtml = isAdminUnlocked
+                const adminYearSetupHtml = isAdminUnlocked
                     ? `
-                        <div class="mt-3 pt-3 border-t border-lga-gold/25 space-y-2.5 text-xs">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">Admin Bonus Awards (+1 pt each)</span>
-                                <button type="button" onclick="saveYearlyBonusAwards(${y})" class="px-2.5 py-1 rounded-lg bg-lga-navy text-lga-gold font-bold text-[11px] cursor-pointer">Save Awards</button>
-                            </div>
+                        <div class="mb-3 p-2.5 rounded-xl bg-lga-sand/70 border border-lga-gold/30 space-y-2 text-xs">
+                            <div class="text-[10px] font-bold uppercase tracking-wider text-lga-goldDark">${y} Location &amp; Courses (Admin)</div>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                <div class="bg-white p-2 rounded-lg border border-slate-200 space-y-1">
-                                    <label for="award-ctp1-golfer-${y}" class="block font-semibold text-lga-slate text-[11px]">Closest to Pin #1</label>
-                                    <select id="award-ctp1-golfer-${y}" class="w-full rounded border border-slate-300 bg-lga-cream px-2 py-1 text-lga-navy text-xs">${golferOptionHtml(awards.ctp1GolferId)}</select>
-                                    <input type="text" id="award-ctp1-hole-${y}" value="${awards.ctp1Hole || ''}" placeholder="Hole 3" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
-                                </div>
-                                <div class="bg-white p-2 rounded-lg border border-slate-200 space-y-1">
-                                    <label for="award-ctp2-golfer-${y}" class="block font-semibold text-lga-slate text-[11px]">Closest to Pin #2</label>
-                                    <select id="award-ctp2-golfer-${y}" class="w-full rounded border border-slate-300 bg-lga-cream px-2 py-1 text-lga-navy text-xs">${golferOptionHtml(awards.ctp2GolferId)}</select>
-                                    <input type="text" id="award-ctp2-hole-${y}" value="${awards.ctp2Hole || ''}" placeholder="Hole 15" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
-                                </div>
-                                <div class="bg-white p-2 rounded-lg border border-slate-200 space-y-1">
-                                    <label for="award-ld-golfer-${y}" class="block font-semibold text-lga-slate text-[11px]">Longest Drive</label>
-                                    <select id="award-ld-golfer-${y}" class="w-full rounded border border-slate-300 bg-lga-cream px-2 py-1 text-lga-navy text-xs">${golferOptionHtml(awards.longestDriveGolferId)}</select>
-                                    <input type="text" id="award-ld-hole-${y}" value="${awards.longestDriveHole || ''}" placeholder="Hole 10" class="w-full rounded border border-slate-300 bg-white px-2 py-1 text-lga-navy text-xs">
-                                </div>
+                                <input type="text" value="${String(state.tourLocations?.[y] || '').replace(/"/g, '&quot;')}" placeholder="Location (e.g. Mornington)" onchange="onAdminYearLocationChange(${y}, this.value)" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-lga-navy">
+                                <select onchange="onAdminYearCourseChange(${y}, 'r1', this.value)" class="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-semibold text-lga-navy">
+                                    ${courseOptionHtml(state.yearlyCourses?.[y]?.r1 || '')}
+                                </select>
+                                <select onchange="onAdminYearCourseChange(${y}, 'r2', this.value)" class="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-semibold text-lga-navy">
+                                    ${courseOptionHtml(state.yearlyCourses?.[y]?.r2 || '')}
+                                </select>
                             </div>
                         </div>
                     `
-                    : `
-                        <div class="mt-2.5 pt-2.5 border-t border-lga-gold/25 grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px]">
-                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80 min-h-[42px]">
-                                <span class="text-lga-slate block">Closest to Pin #1${ctp1HoleLabel} (+1 pt)</span>
-                                <strong class="text-lga-navy">${ctp1Name}</strong>
+                    : '';
+
+                const bonusHtml = defaultFormat === 'Stroke'
+                    ? ''
+                    : isAdminUnlocked
+                        ? `
+                            <div class="mt-3 pt-3 border-t border-lga-gold/25 space-y-2 text-xs">
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-lga-goldDark">Bonus Awards (+1 pt each)</div>
+                                <div class="grid grid-cols-1 gap-1.5">
+                                    <div class="flex items-center justify-between gap-2 bg-lga-cream/70 px-2.5 py-1.5 rounded-lg">
+                                        <span class="font-semibold text-lga-navy shrink-0">Closest to Pin #1</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <select onchange="updateBonusAward(${y}, 'ctp1GolferId', this.value)" class="rounded border border-slate-300 bg-white px-2 py-1 text-xs text-lga-navy">
+                                                ${golferOptionHtml(awards.ctp1GolferId)}
+                                            </select>
+                                            <input type="text" value="${awards.ctp1Hole || ''}" placeholder="Hole" onchange="updateBonusAward(${y}, 'ctp1Hole', this.value)" class="w-14 rounded border border-slate-300 bg-white px-2 py-1 text-xs text-center text-lga-navy">
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between gap-2 bg-lga-cream/70 px-2.5 py-1.5 rounded-lg">
+                                        <span class="font-semibold text-lga-navy shrink-0">Closest to Pin #2</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <select onchange="updateBonusAward(${y}, 'ctp2GolferId', this.value)" class="rounded border border-slate-300 bg-white px-2 py-1 text-xs text-lga-navy">
+                                                ${golferOptionHtml(awards.ctp2GolferId)}
+                                            </select>
+                                            <input type="text" value="${awards.ctp2Hole || ''}" placeholder="Hole" onchange="updateBonusAward(${y}, 'ctp2Hole', this.value)" class="w-14 rounded border border-slate-300 bg-white px-2 py-1 text-xs text-center text-lga-navy">
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between gap-2 bg-lga-cream/70 px-2.5 py-1.5 rounded-lg">
+                                        <span class="font-semibold text-lga-navy shrink-0">Longest Drive</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <select onchange="updateBonusAward(${y}, 'longestDriveGolferId', this.value)" class="rounded border border-slate-300 bg-white px-2 py-1 text-xs text-lga-navy">
+                                                ${golferOptionHtml(awards.longestDriveGolferId)}
+                                            </select>
+                                            <input type="text" value="${awards.longestDriveHole || ''}" placeholder="Hole" onchange="updateBonusAward(${y}, 'longestDriveHole', this.value)" class="w-14 rounded border border-slate-300 bg-white px-2 py-1 text-xs text-center text-lga-navy">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80 min-h-[42px]">
-                                <span class="text-lga-slate block">Closest to Pin #2${ctp2HoleLabel} (+1 pt)</span>
-                                <strong class="text-lga-navy">${ctp2Name}</strong>
-                            </div>
-                            <div class="bg-white/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80 min-h-[42px]">
-                                <span class="text-lga-slate block">Longest Drive${ldHoleLabel} (+1 pt)</span>
-                                <strong class="text-lga-navy">${ldName}</strong>
-                            </div>
-                        </div>
-                    `;
+                        `
+                        : (() => {
+                            const lines = [];
+                            if (awards.ctp1GolferId || awards.ctp1Hole) {
+                                const w = awards.ctp1GolferId ? getGolferById(awards.ctp1GolferId)?.name : 'TBC';
+                                lines.push(`Closest to Pin #1 (+1): <strong>${w}</strong>${awards.ctp1Hole ? ` (Hole ${awards.ctp1Hole})` : ''}`);
+                            }
+                            if (awards.ctp2GolferId || awards.ctp2Hole) {
+                                const w = awards.ctp2GolferId ? getGolferById(awards.ctp2GolferId)?.name : 'TBC';
+                                lines.push(`Closest to Pin #2 (+1): <strong>${w}</strong>${awards.ctp2Hole ? ` (Hole ${awards.ctp2Hole})` : ''}`);
+                            }
+                            if (awards.longestDriveGolferId || awards.longestDriveHole) {
+                                const w = awards.longestDriveGolferId ? getGolferById(awards.longestDriveGolferId)?.name : 'TBC';
+                                lines.push(`Longest Drive (+1): <strong>${w}</strong>${awards.longestDriveHole ? ` (Hole ${awards.longestDriveHole})` : ''}`);
+                            }
+                            if (lines.length === 0) return '';
+                            return `
+                                <div class="mt-3 pt-2.5 border-t border-lga-gold/25 text-xs text-lga-slate space-y-1">
+                                    <div class="text-[10px] font-bold uppercase tracking-wider text-lga-goldDark">Bonus Awards</div>
+                                    ${lines.map(l => `<div>${l}</div>`).join('')}
+                                </div>
+                            `;
+                        })();
+
+                const enteredNames = getEnteredNames(y);
+                const entriesListHtml = enteredNames.length
+                    ? `<div class="mt-2.5 pt-2 border-t border-lga-gold/20 text-xs text-lga-slate"><span class="text-[10px] font-bold uppercase tracking-wider text-lga-goldDark">Entries (${enteredNames.length}):</span> ${enteredNames.join(', ')}</div>`
+                    : '';
+                const entriesPanelHtml = isAdminUnlocked ? entryManagerHtml(y) : entriesListHtml;
 
                 return `
-                    <div class="p-4 rounded-xl border border-lga-gold/30 bg-lga-cream/50 space-y-2.5">
-                        <div class="flex items-center justify-between gap-2">
-                            <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy">${y} Pidgeon Cup${isUpcomingYear(y) ? UPCOMING_TAG_HTML : ''}</h4>
-                            <span class="text-xs font-semibold text-lga-goldDark truncate">${locLabel}</span>
+                    <div class="rounded-xl border border-lga-gold/30 p-3.5 sm:p-4 bg-lga-cream/40">
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <div>
+                                <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy">${y} Pidgeon Cup${isUpcomingYear(y) ? UPCOMING_TAG_HTML : ''}</h4>
+                                <div class="text-[11px] text-lga-slate">${locationLabel} • ${defaultFormat}</div>
+                                ${courseSummary ? `<div class="text-[11px] text-lga-goldDark font-medium">${courseSummary}</div>` : ''}
+                            </div>
+                            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white border border-lga-gold/30 text-lga-navy shrink-0">${entries.length}</span>
                         </div>
-                        ${courseLineHtml}
+                        ${adminYearSetupHtml}
                         ${entries.length === 0
-                            ? `<div class="text-xs text-lga-slate">${isUpcomingYear(y)
-                                ? `Upcoming — results will appear here once the ${y} round is played.${getYearEntries(y).length ? ` <strong class="text-lga-navy">${getYearEntries(y).length} entered:</strong>` : ''}`
-                                : `No recorded entries for ${y}.`}${isUpcomingYear(y) && getYearEntries(y).length ? `<div class="mt-1.5 flex flex-wrap gap-1">${getEnteredNames(y).map(n => `<span class="px-2 py-0.5 rounded-full bg-white border border-lga-gold/40 text-[11px] font-semibold text-lga-navy">${n}</span>`).join('')}</div>` : ''}</div>`
+                            ? `<div class="text-xs text-lga-slate py-2">${isUpcomingYear(y) ? 'Upcoming event — results TBC.' : 'No entries recorded.'}</div>`
                             : `<div class="space-y-1.5">
                                 ${entries.map(item => `
-                                    <div class="flex items-center justify-between text-xs bg-white px-3 py-2 rounded-lg border border-slate-200/80 gap-2">
+                                    <div class="flex items-center justify-between gap-2 text-xs bg-white px-3 py-2 rounded-lg border border-slate-100">
                                         <span class="font-semibold text-lga-navy truncate">${item.golfer.name}</span>
-                                        <span class="font-mono font-bold text-lga-goldDark shrink-0">${formatChampCellSummary(item, item.bonusPts || 0, item.derivedStrokeRank, item.isTie)}</span>
+                                        <span class="font-mono font-bold px-2 py-0.5 rounded shrink-0 ${getChampCellBadgeClass(item, item.derivedStrokeRank)}">${formatChampCellSummary(item, item.bonusPts, item.derivedStrokeRank, item.isTie)}</span>
                                     </div>
                                 `).join('')}
                             </div>`
                         }
-                        ${bonusSectionHtml}
-                        ${y === UPCOMING_YEAR && isAdminUnlocked ? entryManagerHtml(y) : ''}
+                        ${bonusHtml}
+                        ${entriesPanelHtml}
                     </div>
                 `;
             }).join('');
         }
 
-        // Save bonus award winners and hole numbers for a championship year
-        function saveYearlyBonusAwards(year) {
-            if (!isAdminUnlocked) return;
-            if (!state.yearlyBonusAwards) state.yearlyBonusAwards = createDefaultYearlyBonusAwards();
-            state.yearlyBonusAwards[year] = {
-                ctp1GolferId: document.getElementById(`award-ctp1-golfer-${year}`)?.value || '',
-                ctp1Hole: (document.getElementById(`award-ctp1-hole-${year}`)?.value || '').trim(),
-                ctp2GolferId: document.getElementById(`award-ctp2-golfer-${year}`)?.value || '',
-                ctp2Hole: (document.getElementById(`award-ctp2-hole-${year}`)?.value || '').trim(),
-                longestDriveGolferId: document.getElementById(`award-ld-golfer-${year}`)?.value || '',
-                longestDriveHole: (document.getElementById(`award-ld-hole-${year}`)?.value || '').trim()
-            };
+        // Update location text for a championship year from Admin view
+        function onAdminYearLocationChange(year, value) {
+            if (!isAdminUnlocked) {
+                showToast('Only Admin can update tour locations.', 'error');
+                return;
+            }
+            state.tourLocations[year] = String(value || '').trim();
             persistState();
             renderAll();
-            showToast(`${year} bonus awards saved.`, 'success');
+            showToast(`Updated ${year} location.`, 'success');
         }
 
-        // Open the modal to edit a golfer's championship result for a given year
+        // Update Round 1 or Round 2 course selection for a championship year from Admin view
+        function onAdminYearCourseChange(year, roundKey, courseId) {
+            if (!isAdminUnlocked) {
+                showToast('Only Admin can update tour courses.', 'error');
+                return;
+            }
+            if (!state.yearlyCourses) state.yearlyCourses = {};
+            if (!state.yearlyCourses[year]) state.yearlyCourses[year] = {};
+            if (courseId) {
+                state.yearlyCourses[year][roundKey] = courseId;
+            } else {
+                delete state.yearlyCourses[year][roundKey];
+            }
+            persistState();
+            renderAll();
+            showToast(`Updated ${year} ${roundKey.toUpperCase()} course.`, 'success');
+        }
+
+        // Persist Closest to Pin or Longest Drive award changes for a given year
+        function updateBonusAward(year, field, value) {
+            if (!isAdminUnlocked) {
+                showToast('Only Admin can edit bonus awards.', 'error');
+                return;
+            }
+            if (!state.yearlyBonusAwards) state.yearlyBonusAwards = createDefaultYearlyBonusAwards();
+            if (!state.yearlyBonusAwards[year]) {
+                state.yearlyBonusAwards[year] = {
+                    ctp1GolferId: '',
+                    ctp1Hole: '',
+                    ctp2GolferId: '',
+                    ctp2Hole: '',
+                    longestDriveGolferId: '',
+                    longestDriveHole: ''
+                };
+            }
+            state.yearlyBonusAwards[year][field] = field.endsWith('Hole') ? String(value || '').trim() : value;
+            persistState();
+            renderAll();
+            showToast(`Updated ${year} bonus award.`, 'success');
+        }
+
+        // Open the modal to edit a golfer's result for a specific championship year
         function openChampCellModal(year, golferId) {
-            if (!isAdminUnlocked) return;
+            if (!isAdminUnlocked) {
+                showToast('Unlock Admin mode to edit championship results.', 'error');
+                return;
+            }
             editingChampCell = { year, golferId };
             const golfer = getGolferById(golferId);
             const existing = state.championshipResults?.[year]?.[golferId] || {};
@@ -2937,46 +3197,73 @@
             document.getElementById('champ-cell-modal').classList.remove('hidden');
         }
 
-        // Close the championship result modal
+        // Close the championship result editor modal
         function closeChampCellModal() {
-            editingChampCell = null;
             document.getElementById('champ-cell-modal').classList.add('hidden');
+            editingChampCell = null;
         }
 
-        // Save changes from the championship cell edit modal
+        // Save edited rank, day totals, and format for the active championship cell
         function saveChampCell() {
-            if (!isAdminUnlocked || !editingChampCell) return;
+            if (!editingChampCell || !isAdminUnlocked) return;
+            const { year, golferId } = editingChampCell;
+            let rank = document.getElementById('champ-edit-rank').value.trim();
+            let score = document.getElementById('champ-edit-score').value.trim();
+            const day1 = document.getElementById('champ-edit-day1').value.trim();
+            const day2 = document.getElementById('champ-edit-day2').value.trim();
+            const format = document.getElementById('champ-edit-format').value.trim() || 'Stableford';
+
+            if (!score && (day1 || day2)) {
+                const n1 = Number(day1);
+                const n2 = Number(day2);
+                if (!Number.isNaN(n1) || !Number.isNaN(n2)) {
+                    score = String((Number.isNaN(n1) ? 0 : n1) + (Number.isNaN(n2) ? 0 : n2));
+                }
+            }
+            if (!score && !day1 && !day2 && /^(played|tbc)$/i.test(rank.replace(/=/g, '').trim())) {
+                rank = '';
+            }
+
+            if (!state.championshipResults[year]) state.championshipResults[year] = {};
+            state.championshipResults[year][golferId] = {
+                rank,
+                score,
+                day1,
+                day2,
+                format,
+                venue: state.tourLocations?.[year] || ''
+            };
+            if (state.clearedChampCells?.[year]) delete state.clearedChampCells[year][golferId];
+
+            persistState();
+            closeChampCellModal();
+            renderAll();
+            showToast('Championship result saved.', 'success');
+        }
+
+        // Flag that the golfer played in this year's Pidgeon Cup, with result still TBC
+        function markChampPlayed() {
+            if (!editingChampCell || !isAdminUnlocked) return;
             const { year, golferId } = editingChampCell;
             if (!state.championshipResults[year]) state.championshipResults[year] = {};
             state.championshipResults[year][golferId] = {
-                ...(state.championshipResults[year][golferId] || {}),
-                rank: document.getElementById('champ-edit-rank').value.trim(),
-                score: document.getElementById('champ-edit-score').value.trim(),
-                day1: document.getElementById('champ-edit-day1').value.trim(),
-                day2: document.getElementById('champ-edit-day2').value.trim(),
-                format: document.getElementById('champ-edit-format').value.trim() || 'Stableford',
-                venue: state.tourLocations?.[year] || (state.championshipResults[year][golferId]?.venue || '')
+                rank: '',
+                score: '',
+                day1: '',
+                day2: '',
+                format: [2015, 2016, 2017].includes(year) ? 'Stroke' : 'Stableford',
+                venue: state.tourLocations?.[year] || ''
             };
             if (state.clearedChampCells?.[year]) delete state.clearedChampCells[year][golferId];
             persistState();
             closeChampCellModal();
             renderAll();
-            showToast('Championship result updated.', 'success');
+            showToast('Marked as played (TBC).', 'success');
         }
 
-        // Admin: mark a golfer as having played that year with the result still to come
-        function markChampPlayed() {
-            if (!isAdminUnlocked || !editingChampCell) return;
-            for (const id of ['champ-edit-rank', 'champ-edit-score', 'champ-edit-day1', 'champ-edit-day2']) {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            }
-            saveChampCell();
-        }
-
-        // Remove a golfer's entry for the selected championship year
+        // Remove a golfer's championship result entry for the selected year
         function clearChampCell() {
-            if (!isAdminUnlocked || !editingChampCell) return;
+            if (!editingChampCell || !isAdminUnlocked) return;
             const { year, golferId } = editingChampCell;
             if (state.championshipResults?.[year]) {
                 delete state.championshipResults[year][golferId];
@@ -2990,486 +3277,45 @@
             showToast('Championship cell cleared.');
         }
 
-        // Yearly Handicap Record (Admin-Locked Editing + 36.0 Cap & Downward Redistribution + TBC)
-        function openHandicapEditModal(golferId, yearOrBaseline) {
-            if (!isAdminUnlocked) {
-                showToast('Unlock Admin mode to edit handicaps.', 'error');
-                return;
-            }
-            editingHandicapCell = { golferId, yearOrBaseline };
-            const golfer = getGolferById(golferId);
-            const titleEl = document.getElementById('hcp-modal-title');
-            const inputEl = document.getElementById('hcp-edit-value');
-
-            if (yearOrBaseline === 'baseline') {
-                titleEl.textContent = `${golfer?.name} — Current Handicap`;
-                const stats = computeGolferWhs(golferId);
-                inputEl.value = stats.isTbc ? '' : String(stats.whsIndex);
-            } else {
-                titleEl.textContent = `${golfer?.name} — ${yearOrBaseline} Handicap`;
-                const existing = state.yearlyHandicaps?.[golferId]?.[yearOrBaseline];
-                inputEl.value = (existing !== undefined && existing !== null && existing !== '') ? String(existing) : '';
-            }
-
-            document.getElementById('hcp-edit-modal').classList.remove('hidden');
-        }
-
-        // Close the handicap edit modal
-        function closeHandicapEditModal() {
-            editingHandicapCell = null;
-            document.getElementById('hcp-edit-modal').classList.add('hidden');
-        }
-
-        // Save handicap edit, enforcing the 36.0 cap and redistributing excess downward
-        function saveHandicapEntry() {
-            if (!isAdminUnlocked || !editingHandicapCell) return;
-            const { golferId, yearOrBaseline } = editingHandicapCell;
-            const rawStr = document.getElementById('hcp-edit-value').value.trim();
-
-            if (rawStr === '') {
-                clearHandicapEntry();
-                return;
-            }
-
-            const numVal = Number(rawStr);
-            if (Number.isNaN(numVal) || numVal < 0) {
-                showToast('Please enter a valid handicap number.', 'error');
-                return;
-            }
-
-            const cappedVal = Math.min(MAX_HANDICAP, Number(numVal.toFixed(1)));
-            const excess = Math.max(0, Number((numVal - MAX_HANDICAP).toFixed(1)));
-
-            if (!state.yearlyHandicaps[golferId]) state.yearlyHandicaps[golferId] = {};
-            const golfer = getGolferById(golferId);
-
-            if (yearOrBaseline === 'baseline') {
-                if (golfer) {
-                    golfer.baselineWhs = cappedVal;
-                    if (golfer.lowCap12m === null || golfer.lowCap12m === undefined || Number(golfer.lowCap12m) > cappedVal) {
-                        golfer.lowCap12m = cappedVal;
-                    }
-                }
-            } else {
-                state.yearlyHandicaps[golferId][yearOrBaseline] = cappedVal;
-                const latestYr = getLatestRecordedYearHandicap(golferId);
-                if (golfer && latestYr.year === Number(yearOrBaseline)) {
-                    golfer.baselineWhs = cappedVal;
-                    if (golfer.lowCap12m === null || golfer.lowCap12m === undefined || Number(golfer.lowCap12m) > cappedVal) {
-                        golfer.lowCap12m = cappedVal;
-                    }
-                }
-            }
-
-            if (excess > 0) {
-                const others = state.golfers.filter(other => other.id !== golferId && other.baselineWhs !== null && Number(other.baselineWhs) > 0);
-                if (others.length > 0) {
-                    const share = excess / others.length;
-                    others.forEach(other => {
-                        other.baselineWhs = Math.max(0, Number((Number(other.baselineWhs) - share).toFixed(1)));
-                        if (other.lowCap12m !== null && Number(other.lowCap12m) > other.baselineWhs) {
-                            other.lowCap12m = other.baselineWhs;
-                        }
-                    });
-                }
-            }
-
-            persistState();
-            closeHandicapEditModal();
-            renderAll();
-            showToast(excess > 0 ? `Capped at 36.0; redistributed ${excess.toFixed(1)} pts.` : 'Handicap updated.', 'success');
-        }
-
-        // Reset a selected handicap entry back to TBC
-        function clearHandicapEntry() {
-            if (!isAdminUnlocked || !editingHandicapCell) return;
-            const { golferId, yearOrBaseline } = editingHandicapCell;
-            if (yearOrBaseline === 'baseline') {
-                const g = getGolferById(golferId);
-                if (g) {
-                    g.baselineWhs = null;
-                    g.lowCap12m = null;
-                }
-            } else if (state.yearlyHandicaps?.[golferId]) {
-                delete state.yearlyHandicaps[golferId][yearOrBaseline];
-            }
-            persistState();
-            closeHandicapEditModal();
-            renderAll();
-            showToast('Handicap set to TBC.');
-        }
-
-        // ===== Handicap Generator (Yearly Handicap Record tab) =====
-        // Lower handicap = better golfer. Change these numbers to tune how the generator behaves.
-        const HCP_GEN = {
-            neutralRounds: 15,   // rounds played in the year that leave the handicap unchanged
-            perRound: 0.1,       // strokes gained/lost per round above/below neutralRounds
-            maxImprove: 2.5,     // most strokes a very active golfer can lose from their handicap
-            maxWorsen: 2.0,      // most strokes an inactive golfer can add
-            winnerPct: 0.20,     // prior-year winner penalty = this share of their handicap...
-            winnerMin: 3.0,      // ...but never fewer than this many strokes
-            selfWeight: 0.15,    // lean added per stroke of gap between self-rated skill and recorded handicap
-            selfMax: 2.0,        // biggest lean the self-rating can add either way
-            newGolferStart: 27,  // wheel starting point for golfers with no handicap and no self-rating
-            freshSigma: 4.5      // how wild a brand-new handicap spin is
-        };
-        let handicapGenYear = UPCOMING_YEAR;
-
-        // Most recent recorded handicap before the target year (default "previous handicap")
-        function getGenPrevHandicapAuto(golferId, year) {
-            const ym = state.yearlyHandicaps?.[golferId] || {};
-            const years = Object.keys(ym)
-                .map(Number)
-                .filter(y => y < year && ym[y] !== '' && ym[y] !== null && ym[y] !== undefined && !Number.isNaN(Number(ym[y])))
-                .sort((a, b) => b - a);
-            return years.length ? Math.min(MAX_HANDICAP, Number(ym[years[0]])) : null;
-        }
-
-        // Did this golfer finish 1st (including a tied 1st) in the given year's Pidgeon Cup?
-        function didGolferWinYear(golferId, year) {
-            const entry = state.championshipResults?.[year]?.[golferId];
-            return String(entry?.rank || '').replace(/=/g, '').trim() === '1';
-        }
-
-        function computeGeneratedHandicap(golferId, year) {
-            const inp = state.handicapGenInputs?.[year]?.[golferId] || {};
-            const autoPrev = getGenPrevHandicapAuto(golferId, year);
-            const hasPrevInput = inp.prev !== undefined && inp.prev !== null && inp.prev !== '';
-            const prevRaw = hasPrevInput ? Number(inp.prev) : autoPrev;
-            const autoWon = didGolferWinYear(golferId, year - 1);
-            const won = typeof inp.won === 'boolean' ? inp.won : autoWon;
-            const roundsKnown = inp.rounds !== undefined && inp.rounds !== null && inp.rounds !== '' && !Number.isNaN(Number(inp.rounds));
-            const rounds = roundsKnown ? Number(inp.rounds) : null;
-
-            if (prevRaw === null || prevRaw === undefined || Number.isNaN(prevRaw)) {
-                return { prev: null, rounds, won, activityAdj: 0, selfRating: null, selfAdj: 0, winnerPenalty: 0, suggested: null };
-            }
-            const prev = Math.min(MAX_HANDICAP, Math.max(0, prevRaw));
-            let activityAdj = 0;
-            if (roundsKnown) {
-                activityAdj = Math.max(-HCP_GEN.maxImprove, Math.min(HCP_GEN.maxWorsen, (HCP_GEN.neutralRounds - rounds) * HCP_GEN.perRound));
-            }
-            // Self-rating (1-10) maps to an implied handicap (10 = 0, 1 = 36); the gap to their record pulls the wheel
-            const selfRatingRaw = inp.selfRating;
-            const selfRating = (selfRatingRaw !== undefined && selfRatingRaw !== null && selfRatingRaw !== '' && !Number.isNaN(Number(selfRatingRaw))) ? Number(selfRatingRaw) : null;
-            let selfAdj = 0;
-            if (selfRating !== null) {
-                const implied = Math.max(0, Math.min(MAX_HANDICAP, MAX_HANDICAP - (selfRating - 1) * 4));
-                selfAdj = Math.max(-HCP_GEN.selfMax, Math.min(HCP_GEN.selfMax, (implied - prev) * HCP_GEN.selfWeight));
-            }
-            const winnerPenalty = won ? Math.max(HCP_GEN.winnerMin, prev * HCP_GEN.winnerPct) : 0;
-            const suggested = Math.max(0, Math.min(MAX_HANDICAP, Math.round(prev + activityAdj + selfAdj - winnerPenalty)));
-            return { prev, rounds, won, activityAdj, selfRating, selfAdj, winnerPenalty, suggested };
-        }
-
-        // ===== Handicap Roulette (slot-machine spin) =====
-        // Three reels (direction, tens, ones) stop one after another. The wheel is weighted per golfer:
-        // last year's winner is likely to drop strokes, keen golfers lean lower, rusty golfers lean higher.
-        const SPIN_SYMBOLS = { dir: ['▼', '●', '▲', '★'], tens: ['0', '1', '2', '3', '?'], ones: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '?'] };
-        const SPIN_ROW_H = 80;
-        const SPIN_LOOPS = 8;
-        const SPIN_SIGMA = 1.75;     // how wild the wheel is around its lean (bigger = more random)
-        const SPIN_MAX_SWING = 6;    // biggest possible change in strokes either way
-        let spinState = null;
-        let spinToken = 0;
-        let spinReelCurrent = { dir: '●', tens: '0', ones: '0' };
-
-        function pickSpinAdjustment(bias) {
-            const ks = [];
-            const weights = [];
-            for (let k = -SPIN_MAX_SWING; k <= SPIN_MAX_SWING; k++) {
-                ks.push(k);
-                weights.push(Math.exp(-Math.pow(k - bias, 2) / (2 * SPIN_SIGMA * SPIN_SIGMA)));
-            }
-            const total = weights.reduce((a, b) => a + b, 0);
-            let r = Math.random() * total;
-            for (let i = 0; i < ks.length; i++) {
-                r -= weights[i];
-                if (r <= 0) return ks[i];
-            }
-            return 0;
-        }
-
-        // For golfers with no handicap on record: the wheel picks a brand-new one, centred on a starting point
-        function pickFreshHandicap(centre) {
-            const weights = [];
-            for (let h = 0; h <= MAX_HANDICAP; h++) {
-                weights.push(Math.exp(-Math.pow(h - centre, 2) / (2 * HCP_GEN.freshSigma * HCP_GEN.freshSigma)));
-            }
-            const total = weights.reduce((a, b) => a + b, 0);
-            let r = Math.random() * total;
-            for (let h = 0; h < weights.length; h++) {
-                r -= weights[h];
-                if (r <= 0) return h;
-            }
-            return Math.round(centre);
-        }
-
-        function buildSpinTrack(trackId, symbols, isDir) {
-            const el = document.getElementById(trackId);
-            if (!el) return;
-            const cls = (sym) => !isDir ? '' : (sym === '▼' ? 'dir-down' : sym === '▲' ? 'dir-up' : sym === '★' ? 'dir-new' : 'dir-same');
-            let html = '';
-            for (let loop = 0; loop < SPIN_LOOPS; loop++) {
-                for (const sym of symbols) html += `<div class="spin-sym ${cls(sym)}">${sym}</div>`;
-            }
-            el.innerHTML = html;
-        }
-
-        function setSpinTrackTo(trackId, symbols, sym, loop) {
-            const el = document.getElementById(trackId);
-            if (!el) return;
-            el.style.transition = 'none';
-            el.style.transform = `translateY(-${(loop * symbols.length + Math.max(0, symbols.indexOf(sym))) * SPIN_ROW_H}px)`;
-        }
-
-        function animateSpinReel(trackId, symbols, targetSym, curSym, durationMs) {
-            const el = document.getElementById(trackId);
-            if (!el) return;
-            setSpinTrackTo(trackId, symbols, curSym, 0);
-            void el.offsetHeight;
-            el.style.transition = `transform ${durationMs}ms cubic-bezier(0.12, 0.65, 0.12, 1)`;
-            el.style.transform = `translateY(-${((SPIN_LOOPS - 1) * symbols.length + symbols.indexOf(targetSym)) * SPIN_ROW_H}px)`;
-        }
-
-        // ----- Self-rating: how good the golfer thinks they are (1-10) -----
-        const SELF_RATING_LABELS = ['', 'Hacker', 'Struggling', 'Weekend wanderer', 'Getting there', 'Solid club golfer', 'Handy', 'Very good', 'Scary good', 'Near scratch', 'Tour pro'];
-
-        function getSelfRating(golferId, year) {
-            const v = state.handicapGenInputs?.[year]?.[golferId]?.selfRating;
-            return (v === undefined || v === null || v === '' || Number.isNaN(Number(v))) ? null : Number(v);
-        }
-
-        function syncSelfRatingUi(golferId) {
-            const slider = document.getElementById('self-rating-slider');
-            const label = document.getElementById('self-rating-label');
-            if (!slider || !label) return;
-            const rating = getSelfRating(golferId, handicapGenYear);
-            slider.value = String(rating !== null ? rating : 5);
-            label.textContent = rating !== null ? `${rating}/10 · ${SELF_RATING_LABELS[rating]}` : '(tap the slider)';
-        }
-
-        function setSelfSliderDisabled(disabled) {
-            const slider = document.getElementById('self-rating-slider');
-            if (slider) slider.disabled = disabled;
-        }
-
-        function onSelfRatingInput(val) {
-            const n = Number(val);
-            const label = document.getElementById('self-rating-label');
-            if (label && n >= 1 && n <= 10) label.textContent = `${n}/10 · ${SELF_RATING_LABELS[n]}`;
-        }
-
-        function onSelfRatingChange(val) {
-            const n = Math.max(1, Math.min(10, Math.round(Number(val)) || 5));
-            const golferId = spinSelectedGolferId;
-            if (!golferId || (spinState && spinState.spinning)) return;
-            const year = handicapGenYear;
-            if (!state.handicapGenInputs) state.handicapGenInputs = {};
-            if (!state.handicapGenInputs[year]) state.handicapGenInputs[year] = {};
-            state.handicapGenInputs[year][golferId] = { ...(state.handicapGenInputs[year][golferId] || {}), selfRating: n };
-            persistState();
-            prepareSpin(golferId);
-        }
-
-        let spinSelectedGolferId = null;
-
-        // Set the slot machine up for a golfer: current handicap on the reels, flavour line, no result yet
-        function prepareSpin(golferId) {
-            const year = handicapGenYear;
-            const golfer = state.golfers.find(g => g.id === golferId);
-            if (!golfer) return;
-            const calc = computeGeneratedHandicap(golferId, year);
-            spinToken += 1;
-            spinState = { golferId, year, newHcp: null, diff: null, spinning: false };
-
-            const reelsEl = document.getElementById('spin-reels');
-            const spinBtn = document.getElementById('spin-btn');
-            const resultEl = document.getElementById('spin-result');
-            document.getElementById('spin-apply-btn').classList.add('hidden');
-            spinBtn.textContent = 'SPIN';
-            setSelfSliderDisabled(false);
-            syncSelfRatingUi(golferId);
-
-            const isFresh = calc.prev === null;
-            let flavour = isFresh ? '🆕 No handicap on record yet. The wheel will pick a brand-new one for you.' : '🎲 Fair spin. Anything can happen.';
-            if (isFresh) { /* keep the brand-new message */ } else if (calc.won) flavour = '🏆 Reigning champion! The wheel is stacked toward a big cut.';
-            else if (calc.rounds !== null && calc.rounds >= HCP_GEN.neutralRounds + 10) flavour = '⛳ Loads of rounds played. The wheel leans your way.';
-            else if (calc.rounds !== null && calc.rounds <= HCP_GEN.neutralRounds - 8) flavour = '🕸️ Clubs gathering dust. The wheel leans towards a higher number.';
-
-            let selfLine = '';
-            const freshSelf = getSelfRating(golferId, year);
-            if (isFresh) {
-                selfLine = freshSelf !== null ? ` You rate yourself ${freshSelf}/10. The wheel is taking note.` : ' Tell the wheel how good you think you are with the slider.';
-            } else if (calc.selfRating !== null) {
-                selfLine = ` You rate yourself ${calc.selfRating}/10.` + (calc.selfAdj <= -0.5 ? ' Big talk... the wheel is listening.' : calc.selfAdj >= 0.5 ? " Modest, aren't we? The wheel noticed." : ' About right, says the wheel.');
-            }
-            reelsEl.classList.remove('hidden');
-            spinBtn.disabled = false;
-            resultEl.textContent = '';
-            document.getElementById('spin-flavour').textContent = flavour + selfLine;
-            document.getElementById('spin-prev').textContent = isFresh ? '—' : String(calc.prev);
-
-            const startHcp = isFresh ? null : Math.round(calc.prev);
-            spinReelCurrent = isFresh
-                ? { dir: '●', tens: '?', ones: '?' }
-                : { dir: '●', tens: String(Math.floor(startHcp / 10)), ones: String(startHcp % 10) };
-            buildSpinTrack('track-dir', SPIN_SYMBOLS.dir, true);
-            buildSpinTrack('track-tens', SPIN_SYMBOLS.tens, false);
-            buildSpinTrack('track-ones', SPIN_SYMBOLS.ones, false);
-            setSpinTrackTo('track-dir', SPIN_SYMBOLS.dir, spinReelCurrent.dir, 0);
-            setSpinTrackTo('track-tens', SPIN_SYMBOLS.tens, spinReelCurrent.tens, 0);
-            setSpinTrackTo('track-ones', SPIN_SYMBOLS.ones, spinReelCurrent.ones, 0);
-        }
-
-        function onSpinGolferChange(golferId) {
-            spinSelectedGolferId = golferId;
-            prepareSpin(golferId);
-        }
-
-        // Fill the golfer picker and reset the machine (unless a spin or result is on screen)
-        function renderHandicapGenerator() {
-            const select = document.getElementById('spin-golfer-select');
-            if (!select) return;
-            const entrants = getYearEntries(handicapGenYear);
-            const pool = entrants.length ? state.golfers.filter(g => entrants.includes(g.id)) : state.golfers;
-            const golfers = sortGolfersAlphabetically(pool);
-            if (!spinSelectedGolferId || !golfers.some(g => g.id === spinSelectedGolferId)) {
-                spinSelectedGolferId = golfers.some(g => g.id === state.activeGolferId) ? state.activeGolferId : (golfers[0]?.id || null);
-            }
-            select.innerHTML = golfers
-                .map(g => `<option value="${g.id}" ${g.id === spinSelectedGolferId ? 'selected' : ''}>${g.name}</option>`)
-                .join('');
-            document.getElementById('spin-title').textContent = `${handicapGenYear} Handicap Roulette`;
-            const busy = spinState && (spinState.spinning || spinState.newHcp !== null) && spinState.golferId === spinSelectedGolferId;
-            if (spinSelectedGolferId && !busy) prepareSpin(spinSelectedGolferId);
-        }
-
-        function runHandicapSpin() {
-            if (!spinState || spinState.spinning) return;
-            const { golferId, year } = spinState;
-            const calc = computeGeneratedHandicap(golferId, year);
-            const isFresh = calc.prev === null;
-            let newHcp;
-            let diff;
-            let dirSym;
-            if (isFresh) {
-                // No handicap on record: pick a brand-new one, centred on what they rate themselves (or a default start)
-                const selfRating = getSelfRating(golferId, year);
-                let centre = selfRating !== null ? Math.max(0, MAX_HANDICAP - (selfRating - 1) * 4) : HCP_GEN.newGolferStart;
-                if (calc.won) centre = Math.max(0, centre - Math.max(HCP_GEN.winnerMin, centre * HCP_GEN.winnerPct));
-                newHcp = pickFreshHandicap(centre);
-                diff = null;
-                dirSym = '★';
-            } else {
-                const lean = calc.activityAdj + calc.selfAdj - calc.winnerPenalty;
-                const swing = pickSpinAdjustment(lean);
-                newHcp = Math.max(0, Math.min(MAX_HANDICAP, Math.round(calc.prev + swing)));
-                diff = newHcp - Math.round(calc.prev);
-                dirSym = diff < 0 ? '▼' : diff > 0 ? '▲' : '●';
-            }
-            const tensSym = String(Math.floor(newHcp / 10));
-            const onesSym = String(newHcp % 10);
-
-            const token = ++spinToken;
-            spinState.spinning = true;
-            spinState.newHcp = newHcp;
-            spinState.diff = diff;
-            document.getElementById('spin-result').textContent = '';
-            document.getElementById('spin-apply-btn').classList.add('hidden');
-            const spinBtn = document.getElementById('spin-btn');
-            spinBtn.disabled = true;
-            spinBtn.textContent = 'Spinning…';
-            setSelfSliderDisabled(true);
-
-            animateSpinReel('track-dir', SPIN_SYMBOLS.dir, dirSym, spinReelCurrent.dir, 2200);
-            animateSpinReel('track-tens', SPIN_SYMBOLS.tens, tensSym, spinReelCurrent.tens, 3200);
-            animateSpinReel('track-ones', SPIN_SYMBOLS.ones, onesSym, spinReelCurrent.ones, 4200);
-            spinReelCurrent = { dir: dirSym, tens: tensSym, ones: onesSym };
-
-            setTimeout(() => {
-                if (token !== spinToken || !spinState) return;
-                spinState.spinning = false;
-                spinBtn.disabled = false;
-                spinBtn.textContent = 'SPIN AGAIN';
-                setSelfSliderDisabled(false);
-                const resultEl = document.getElementById('spin-result');
-                resultEl.innerHTML = `<span class="spin-pop">${
-                    diff === null ? `🆕 Brand new handicap: ${newHcp}`
-                    : diff < 0 ? `🎉 Down ${Math.abs(diff)} stroke${Math.abs(diff) === 1 ? '' : 's'}! New handicap ${newHcp}`
-                    : diff > 0 ? `😬 Up ${diff} stroke${diff === 1 ? '' : 's'}. New handicap ${newHcp}`
-                    : `😐 No change. Handicap stays at ${newHcp}`
-                }</span>`;
-                const applyBtn = document.getElementById('spin-apply-btn');
-                if (isAdminUnlocked) {
-                    applyBtn.textContent = `Lock in ${newHcp} for ${year}`;
-                    applyBtn.classList.remove('hidden');
-                }
-            }, 4500);
-        }
-
-        function writeHandicapValue(golferId, year, value) {
-            if (!state.yearlyHandicaps) state.yearlyHandicaps = {};
-            if (!state.yearlyHandicaps[golferId]) state.yearlyHandicaps[golferId] = {};
-            state.yearlyHandicaps[golferId][year] = value;
-            const golfer = state.golfers.find(g => g.id === golferId);
-            const latestYr = getLatestRecordedYearHandicap(golferId);
-            if (golfer && latestYr.year === Number(year)) {
-                golfer.baselineWhs = value;
-                if (golfer.lowCap12m === null || golfer.lowCap12m === undefined || Number(golfer.lowCap12m) > value) {
-                    golfer.lowCap12m = value;
-                }
-            }
-        }
-
-        function applySpinResult() {
-            if (!isAdminUnlocked) {
-                showToast('Only Admin can lock in a handicap.', 'error');
-                return;
-            }
-            if (!spinState || spinState.spinning || spinState.newHcp === null) return;
-            const { golferId, year, newHcp } = spinState;
-            writeHandicapValue(golferId, year, newHcp);
-            persistState();
-            spinState = null;
-            renderAll();
-            showToast(`${year} handicap locked in at ${newHcp}.`, 'success');
-        }
-
-        // Render the yearly handicap progression table across all tour years
+        // Yearly Handicap Record (Single Recorded Value Per Year, Max 36.0, Admin Editable)
         function renderHandicapHistory() {
-            const yearsAsc = [...TOUR_YEARS].sort((a, b) => b - a); // newest first (left to right = newest to oldest)
+            const yearsDesc = [...TOUR_YEARS].sort((a, b) => b - a); // newest first (left to right)
             const headEl = document.getElementById('hcp-history-head');
             const bodyEl = document.getElementById('hcp-history-body');
 
             headEl.innerHTML = `
                 <tr>
                     <th class="px-3 py-2.5 sticky left-0 bg-lga-navy z-10 min-w-[155px] sm:min-w-[180px]">Golfer</th>
-                    <th class="px-3 py-2.5 text-center min-w-[85px]">Current</th>
-                    ${yearsAsc.map(y => `<th class="px-2.5 py-2.5 text-center min-w-[70px]">${y}${isUpcomingYear(y) ? `<div class="mt-0.5">${UPCOMING_TAG_HTML}</div>` : ''}</th>`).join('')}
+                    <th class="px-2.5 py-2.5 text-center bg-lga-navyLight text-lga-gold min-w-[92px]">Latest</th>
+                    ${yearsDesc.map(y => `
+                        <th class="px-2.5 py-2.5 text-center min-w-[74px]">
+                            <div>${y}</div>${isUpcomingYear(y) ? `<div class="mt-0.5">${UPCOMING_TAG_HTML}</div>` : ''}
+                        </th>
+                    `).join('')}
                 </tr>
             `;
 
-            const editCursor = isAdminUnlocked ? 'cursor-pointer hover:bg-amber-100/70' : '';
+            const sortedGolfers = sortGolfersAlphabetically(state.golfers);
 
-            const rowsHtml = sortGolfersAlphabetically(state.golfers).map(g => {
-                const stats = computeGolferWhs(g.id);
-                const latestYrInfo = getLatestRecordedYearHandicap(g.id);
-                const baseClick = isAdminUnlocked ? `onclick="openHandicapEditModal('${g.id}', 'baseline')"` : '';
+            bodyEl.innerHTML = sortedGolfers.map(g => {
+                const latest = getLatestRecordedYearHandicap(g.id);
+                const latestBadge = latest.value !== null
+                    ? `<span class="inline-block px-2 py-0.5 rounded-lg font-mono font-extrabold bg-lga-navy text-lga-gold">${Number(latest.value).toFixed(1)}</span>`
+                    : `<span class="inline-block px-2 py-0.5 rounded-lg font-mono font-semibold bg-slate-100 text-slate-500">TBC</span>`;
 
-                const yearCells = yearsAsc.map(y => {
-                    const val = state.yearlyHandicaps?.[g.id]?.[y];
-                    const hasVal = val !== undefined && val !== null && val !== '';
-                    const isLatest = latestYrInfo.year === y;
-                    const champEntry = state.championshipResults?.[y]?.[g.id];
-                    const hasMatrixEntry = (!!champEntry && [champEntry.rank, champEntry.score, champEntry.day1, champEntry.day2]
-                        .some(v => String(v ?? '').trim() !== '')) || isGolferEntered(y, g.id);
-                    const cellClick = isAdminUnlocked ? `onclick="openHandicapEditModal('${g.id}', ${y})"` : '';
+                const yearCells = yearsDesc.map(y => {
+                    const rawVal = state.yearlyHandicaps?.[g.id]?.[y];
+                    const hasVal = rawVal !== undefined && rawVal !== null && rawVal !== '' && !Number.isNaN(Number(rawVal));
+                    const displayStr = hasVal ? Math.min(MAX_HANDICAP, Number(rawVal)).toFixed(1) : 'TBC';
+                    const clickAttr = isAdminUnlocked ? `onclick="openHandicapEditModal('${g.id}', ${y})"` : '';
+
                     return `
-                        <td ${cellClick} class="px-2 py-2 text-center font-mono text-xs ${editCursor} ${
-                            isLatest ? 'bg-amber-50 font-extrabold text-lga-navy' : hasVal ? 'text-lga-navy font-semibold' : 'text-slate-400'
-                        }">
-                            ${hasVal ? Number(val) : (hasMatrixEntry ? 'TBC' : '')}
+                        <td ${clickAttr} class="px-2 py-2 text-center ${isAdminUnlocked ? 'cursor-pointer hover:bg-amber-50' : ''}">
+                            <span class="inline-block px-2 py-0.5 rounded font-mono text-[11px] ${
+                                hasVal
+                                    ? 'bg-lga-cream text-lga-navy font-bold border border-lga-gold/25'
+                                    : 'text-slate-400 font-medium'
+                            }">${displayStr}</span>
                         </td>
                     `;
                 }).join('');
@@ -3477,152 +3323,210 @@
                 return `
                     <tr>
                         <td class="px-3 py-2.5 font-semibold text-lga-navy sticky left-0 bg-white border-r border-slate-100">${g.name}</td>
-                        <td ${baseClick} class="px-3 py-2.5 text-center font-mono font-bold ${stats.isTbc ? 'text-slate-400' : 'text-lga-goldDark'} bg-lga-cream/60 ${editCursor}">${stats.isTbc ? 'TBC' : stats.whsIndex.toFixed(1)}</td>
+                        <td class="px-2.5 py-2 text-center bg-amber-50/40 border-r border-slate-100">${latestBadge}</td>
                         ${yearCells}
                     </tr>
                 `;
             }).join('');
-
-            bodyEl.innerHTML = rowsHtml;
         }
 
-        // Render filtered course cards in the Course Directory tab
+        // Open the handicap edit modal for a golfer and year (Admin only)
+        function openHandicapEditModal(golferId, year) {
+            if (!isAdminUnlocked) {
+                showToast('Unlock Admin mode to edit handicaps.', 'error');
+                return;
+            }
+            editingHandicapCell = { golferId, year };
+            const golfer = getGolferById(golferId);
+            const currentVal = state.yearlyHandicaps?.[golferId]?.[year];
+            document.getElementById('hcp-modal-title').textContent = `${golfer?.name || golferId} — ${year} Handicap`;
+            document.getElementById('hcp-edit-value').value =
+                currentVal !== undefined && currentVal !== null && currentVal !== '' ? Number(currentVal) : '';
+            document.getElementById('hcp-edit-modal').classList.remove('hidden');
+        }
+
+        // Close the handicap edit modal
+        function closeHandicapEditModal() {
+            document.getElementById('hcp-edit-modal').classList.add('hidden');
+            editingHandicapCell = null;
+        }
+
+        // Save or clear a yearly handicap entry and apply cap redistribution
+        function saveHandicapEntry() {
+            if (!editingHandicapCell || !isAdminUnlocked) return;
+            const { golferId, year } = editingHandicapCell;
+            const rawStr = document.getElementById('hcp-edit-value').value.trim();
+
+            if (!state.yearlyHandicaps[golferId]) state.yearlyHandicaps[golferId] = {};
+
+            if (rawStr === '') {
+                delete state.yearlyHandicaps[golferId][year];
+            } else {
+                const num = Number(rawStr);
+                if (Number.isNaN(num) || num < 0 || num > 54) {
+                    showToast('Enter a valid handicap between 0.0 and 54.0.', 'error');
+                    return;
+                }
+                state.yearlyHandicaps[golferId][year] = Number(num.toFixed(1));
+            }
+
+            enforceMaxHandicapCapAndRedistribute();
+            const golferObj = getGolferById(golferId);
+            const latest = getLatestRecordedYearHandicap(golferId);
+            if (golferObj && latest.value !== null) {
+                golferObj.baselineWhs = latest.value;
+                golferObj.lowCap12m = Math.min(latest.value, golferObj.lowCap12m ?? latest.value);
+            }
+
+            persistState();
+            closeHandicapEditModal();
+            renderAll();
+            showToast('Handicap saved (max 36.0 applied).', 'success');
+        }
+
+        // Clear the handicap entry for the currently edited golfer and year
+        function clearHandicapEntry() {
+            document.getElementById('hcp-edit-value').value = '';
+            saveHandicapEntry();
+        }
+
+        // Courses Directory Rendering & Add Modal
         function renderCourses() {
-            const q = (document.getElementById('course-search-input')?.value || '').trim().toLowerCase();
-            const stats = computeGolferWhs(state.activeGolferId);
+            const query = (document.getElementById('course-search-input')?.value || '').trim().toLowerCase();
             const filtered = sortCoursesAlphabetically(state.courses).filter(c =>
-                !q ||
-                formatCourseDisplayName(c).toLowerCase().includes(q) ||
-                (c.region || '').toLowerCase().includes(q) ||
-                (c.state || '').toLowerCase().includes(q)
+                formatCourseDisplayName(c).toLowerCase().includes(query) ||
+                String(c.name || '').toLowerCase().includes(query) ||
+                String(c.state || '').toLowerCase().includes(query) ||
+                String(c.region || '').toLowerCase().includes(query)
             );
+
+            const golfer = getGolferById(state.activeGolferId);
+            const stats = computeGolferWhs(golfer.id);
 
             document.getElementById('courses-grid').innerHTML = filtered.map(c => {
                 const daily = !state.includeDailyHandicapInCalcs
                     ? 'Off'
-                    : (stats.isTbc ? 'TBC' : String(calcCourseDailyHandicap(stats.whsIndex, c)));
+                    : stats.isTbc
+                        ? 'TBC'
+                        : String(calcCourseDailyHandicap(stats.whsIndex, c));
                 return `
-                    <div class="p-4 rounded-2xl border border-lga-gold/35 bg-white flex flex-col justify-between gap-3">
-                        <div>
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark truncate">${c.region || 'Tour Venue'} • ${c.tee}</span>
-                                <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-lga-navy text-lga-gold shrink-0">Daily ${daily}</span>
+                    <div class="rounded-xl border border-lga-gold/30 bg-lga-cream/50 p-4 space-y-2.5">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <h3 class="font-serif text-base font-bold text-lga-navy leading-snug">${formatCourseDisplayName(c)}</h3>
+                                <p class="text-xs text-lga-slate truncate">${c.region || c.state}</p>
                             </div>
-                            <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy mt-1">${formatCourseDisplayName(c)}</h4>
+                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-lga-navy text-lga-gold shrink-0">${c.tee}</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 text-center bg-lga-cream rounded-xl p-2 border border-lga-gold/25 text-xs">
-                            <div><span class="block text-[10px] text-lga-slate">PAR</span><span class="font-mono font-bold text-lga-navy">${c.par}</span></div>
-                            <div><span class="block text-[10px] text-lga-slate">RATING</span><span class="font-mono font-bold text-lga-navy">${c.rating}</span></div>
-                            <div><span class="block text-[10px] text-lga-slate">SLOPE</span><span class="font-mono font-bold text-lga-navy">${c.slope}</span></div>
+                        <div class="grid grid-cols-4 gap-1.5 text-center bg-white rounded-lg p-2 border border-slate-100 text-xs">
+                            <div><span class="block text-[10px] text-lga-slate">Par</span><strong class="font-mono text-lga-navy">${c.par}</strong></div>
+                            <div><span class="block text-[10px] text-lga-slate">Rating</span><strong class="font-mono text-lga-navy">${Number(c.rating).toFixed(1)}</strong></div>
+                            <div><span class="block text-[10px] text-lga-slate">Slope</span><strong class="font-mono text-lga-navy">${c.slope}</strong></div>
+                            <div><span class="block text-[10px] text-lga-slate">Daily</span><strong class="font-mono text-lga-goldDark">${daily}</strong></div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // Open the modal to add a new golf course
+        // Open the modal to add a new course to the directory
         function openAddCourseModal() {
             document.getElementById('add-course-modal').classList.remove('hidden');
         }
 
-        // Close the add-course modal
+        // Close the add course modal
         function closeAddCourseModal() {
             document.getElementById('add-course-modal').classList.add('hidden');
         }
 
-        // Add a new course from the modal form and re-render
+        // Validate and append a new course to state
         function saveNewCourse(event) {
             event.preventDefault();
             const rawName = document.getElementById('new-course-name').value.trim();
-            if (!rawName) return;
             const match = rawName.match(/\((VIC|NSW|QLD|SA|WA|TAS|ACT|NT)\)\s*$/i);
-            const selectedState = document.getElementById('new-course-state').value;
-            const stateCode = ((match ? match[1] : selectedState) || 'VIC').toUpperCase();
-            const cleanName = rawName.replace(/\s*\((VIC|NSW|QLD|SA|WA|TAS|ACT|NT)\)\s*$/i, '').trim();
+            const stateCode = (document.getElementById('new-course-state').value || (match ? match[1] : 'VIC') || 'VIC').toUpperCase();
+            const name = rawName.replace(/\s*\((VIC|NSW|QLD|SA|WA|TAS|ACT|NT)\)\s*$/i, '').trim();
+            const region = document.getElementById('new-course-region').value.trim() || stateCode;
+            const tee = document.getElementById('new-course-tee').value.trim() || 'Blue';
+            const par = Number(document.getElementById('new-course-par').value) || 72;
+            const rating = Number(document.getElementById('new-course-rating').value) || 72.0;
+            const slope = Number(document.getElementById('new-course-slope').value) || 125;
 
-            state.courses.push({
-                id: `course-${Date.now()}`,
-                name: cleanName,
-                state: stateCode,
-                region: document.getElementById('new-course-region').value.trim(),
-                tee: document.getElementById('new-course-tee').value.trim() || 'Blue',
-                par: Number(document.getElementById('new-course-par').value) || 72,
-                rating: Number(document.getElementById('new-course-rating').value) || 72,
-                slope: Number(document.getElementById('new-course-slope').value) || 113
-            });
+            if (!name) return;
+
+            const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${stateCode.toLowerCase()}-${Date.now()}`;
+            state.courses.push({ id, name, state: stateCode, region, tee, par, rating, slope });
             state.courses = sortCoursesAlphabetically(state.courses);
+
             persistState();
             closeAddCourseModal();
+            document.getElementById('new-course-name').value = '';
             renderAll();
-            showToast('Course added.', 'success');
+            showToast(`${formatCourseDisplayName({ name, state: stateCode })} added to directory.`, 'success');
         }
 
-        // Render golfer cards in the LGA Lineup tab
+        // LGA Lineup Rendering & Add Golfer Modal
         function renderLineup() {
-            document.getElementById('lineup-grid').innerHTML = sortGolfersAlphabetically(state.golfers).map(g => {
+            const sortedGolfers = sortGolfersAlphabetically(state.golfers);
+            document.getElementById('lineup-grid').innerHTML = sortedGolfers.map(g => {
                 const stats = computeGolferWhs(g.id);
-                const latestYr = getLatestRecordedYearHandicap(g.id);
                 const wins = countGolferWins(g.id);
-                const badgeAction = isAdminUnlocked ? `onclick="openHandicapEditModal('${g.id}', 'baseline')"` : '';
-                const badgeStyle = isAdminUnlocked ? 'cursor-pointer ring-1 ring-lga-gold/60' : '';
-
+                const editBtnHtml = isAdminUnlocked
+                    ? `<button type="button" onclick="openEditGolferModal('${g.id}')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white hover:bg-lga-sand text-lga-navy border border-lga-gold/40 cursor-pointer shrink-0">Edit</button>`
+                    : '';
                 return `
-                    <div class="p-4 rounded-2xl border border-lga-gold/35 bg-white space-y-3">
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="min-w-0">
-                                <div class="text-[11px] font-bold uppercase tracking-wider text-lga-goldDark">${g.role}</div>
-                                <h4 class="font-serif text-base sm:text-lg font-bold text-lga-navy truncate">${g.name}</h4>
-                                <div class="text-xs text-lga-slate truncate">${g.homeClub}</div>
+                    <div class="rounded-xl border border-lga-gold/30 bg-lga-cream/50 p-4 flex items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="font-serif text-base font-bold text-lga-navy truncate">${g.name}</div>
+                            <div class="text-xs text-lga-slate truncate">${g.role} • ${g.homeClub || 'LGA'}</div>
+                            <div class="text-[11px] text-lga-goldDark font-semibold mt-1">${stats.roundsCount} round(s) • ${wins} title(s)</div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            ${editBtnHtml}
+                            <div class="text-right">
+                                <span class="block text-[10px] uppercase font-bold text-lga-slate">WHS</span>
+                                <span class="font-mono text-lg font-extrabold ${stats.isTbc ? 'text-slate-400' : 'text-lga-navy'}">${stats.isTbc ? 'TBC' : stats.whsIndex.toFixed(1)}</span>
                             </div>
-                            <span ${badgeAction} class="px-2.5 py-1 rounded-lg bg-lga-navy text-lga-gold font-mono text-xs font-bold shrink-0 ${badgeStyle}">${stats.isTbc ? 'HCP TBC' : `WHS ${stats.whsIndex.toFixed(1)}`}</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 text-center bg-lga-cream rounded-xl p-2 border border-lga-gold/25 text-xs">
-                            <div><span class="block text-[10px] text-lga-slate">LATEST YR</span><span class="font-mono font-bold text-lga-navy">${latestYr.year || '—'}</span></div>
-                            <div><span class="block text-[10px] text-lga-slate">ROUNDS</span><span class="font-mono font-bold text-lga-navy">${stats.roundsCount}</span></div>
-                            <div><span class="block text-[10px] text-lga-slate">WINS</span><span class="font-mono font-bold text-lga-navy">${wins}</span></div>
-                        </div>
-                        ${isAdminUnlocked ? `<button type="button" onclick="openEditGolferModal('${g.id}')" class="w-full px-3 py-2 rounded-xl text-xs font-bold bg-lga-sand hover:bg-amber-200/70 text-lga-navy border border-lga-gold/40 cursor-pointer">Edit details</button>` : ''}
                     </div>
                 `;
             }).join('');
         }
 
-        // Admin: edit an existing golfer's name, role and home club (id stays the same so history stays linked)
+        // Open the modal to edit a golfer's name, role, or home club (Admin only)
         let editingGolferId = null;
 
         function openEditGolferModal(golferId) {
             if (!isAdminUnlocked) {
-                showToast('Unlock Admin mode to edit golfer details.', 'error');
+                showToast('Only Admin can edit golfer details.', 'error');
                 return;
             }
-            const g = state.golfers.find(x => x.id === golferId);
+            const g = state.golfers.find(item => item.id === golferId);
             if (!g) return;
             editingGolferId = golferId;
             document.getElementById('edit-golfer-name').value = g.name || '';
-            document.getElementById('edit-golfer-role').value = g.role || '';
-            document.getElementById('edit-golfer-club').value = g.homeClub || '';
+            document.getElementById('edit-golfer-role').value = g.role || 'Member';
+            document.getElementById('edit-golfer-club').value = g.homeClub || 'Legends Touring Chapter';
             document.getElementById('edit-golfer-modal').classList.remove('hidden');
         }
 
+        // Close the golfer edit modal
         function closeEditGolferModal() {
-            editingGolferId = null;
             document.getElementById('edit-golfer-modal').classList.add('hidden');
+            editingGolferId = null;
         }
 
+        // Save edited golfer details while keeping ID-linked history intact
         function saveEditedGolfer(event) {
             event.preventDefault();
-            if (!isAdminUnlocked || !editingGolferId) return;
-            const g = state.golfers.find(x => x.id === editingGolferId);
+            if (!isAdminUnlocked || !editingGolferId) {
+                showToast('Only Admin can edit golfer details.', 'error');
+                return;
+            }
+            const g = state.golfers.find(item => item.id === editingGolferId);
             if (!g) return;
             const name = document.getElementById('edit-golfer-name').value.trim();
-            if (!name) {
-                showToast('Name cannot be blank.', 'error');
-                return;
-            }
-            if (/^(doz|dave\s+o'?connor)$/i.test(name)) {
-                showToast('That name is reserved for legacy duplicate merging. Please use the full name.', 'error');
-                return;
-            }
+            if (!name) return;
             g.name = name;
             g.role = document.getElementById('edit-golfer-role').value.trim() || 'Member';
             g.homeClub = document.getElementById('edit-golfer-club').value.trim() || 'Legends Touring Chapter';
@@ -3630,39 +3534,47 @@
             persistState();
             closeEditGolferModal();
             renderAll();
-            showToast('Golfer details updated.', 'success');
+            showToast(`${name} updated.`, 'success');
         }
 
-        // Open the modal to add a new golfer to the roster
+        // Open the modal to add a golfer to the lineup
         function openAddGolferModal() {
             updateAdminUi();
             document.getElementById('add-golfer-modal').classList.remove('hidden');
         }
 
-        // Close the add-golfer modal
+        // Close the add golfer modal
         function closeAddGolferModal() {
             pendingEntryYear = null;
             document.getElementById('add-golfer-modal').classList.add('hidden');
         }
 
-        // Save a new golfer from the modal form and re-render
+        // Create a new golfer entry, applying baseline WHS only if Admin is unlocked
         function saveNewGolfer(event) {
             event.preventDefault();
             const name = document.getElementById('new-golfer-name').value.trim();
-            if (!name) return;
-            const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || `golfer-${Date.now()}`;
-            const rawWhs = document.getElementById('new-golfer-whs').value.trim();
-            const whs = isAdminUnlocked && rawWhs !== ''
-                ? Math.min(MAX_HANDICAP, Math.max(0, Number(rawWhs)))
-                : null;
+            const role = document.getElementById('new-golfer-role').value.trim() || 'Member';
+            const club = document.getElementById('new-golfer-club').value.trim() || 'Legends Touring Chapter';
+            const rawWhsStr = document.getElementById('new-golfer-whs').value.trim();
 
+            if (!name) return;
+
+            let baselineWhs = null;
+            if (isAdminUnlocked && rawWhsStr !== '') {
+                const parsed = Number(rawWhsStr);
+                if (!Number.isNaN(parsed)) {
+                    baselineWhs = Math.min(MAX_HANDICAP, Math.max(0, Number(parsed.toFixed(1))));
+                }
+            }
+
+            const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`;
             state.golfers.push({
                 id,
                 name,
-                role: document.getElementById('new-golfer-role').value.trim() || 'Member',
-                homeClub: document.getElementById('new-golfer-club').value.trim() || 'Legends Touring Chapter',
-                baselineWhs: whs,
-                lowCap12m: whs
+                role,
+                homeClub: club,
+                baselineWhs,
+                lowCap12m: baselineWhs
             });
             state.golfers = sortGolfersAlphabetically(state.golfers);
             state.yearlyHandicaps[id] = {};
@@ -3670,341 +3582,463 @@
                 if (!state.yearlyEntries) state.yearlyEntries = {};
                 state.yearlyEntries[pendingEntryYear] = [...new Set([...getYearEntries(pendingEntryYear), id])];
             }
+            state.activeGolferId = id;
+
             persistState();
             closeAddGolferModal();
+            document.getElementById('new-golfer-name').value = '';
+            document.getElementById('new-golfer-whs').value = '';
             renderAll();
-            showToast('Member added to lineup.', 'success');
+            showToast(`${name} added to LGA lineup.`, 'success');
         }
 
-        // Render editable location fields for each championship year when admin is unlocked
-        // <option> list of all courses for the round 1 / round 2 pickers
-        function courseOptionsHtml(selectedId) {
-            return '<option value="">— Not set —</option>' + sortCoursesAlphabetically(state.courses)
-                .map(c => `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${formatCourseDisplayName(c)}</option>`)
-                .join('');
-        }
-
-        function renderTourLocations() {
+        // Tour Locations (Admin Only — Blank by default, editable per year)
+        function renderTourLocationsAdmin() {
             if (!isAdminUnlocked) return;
             const grid = document.getElementById('tour-locations-grid');
-            grid.innerHTML = [...TOUR_YEARS].sort((a, b) => a - b).map(y => {
+            const courseOptionHtml = (selectedId) =>
+                `<option value="">— Select Course —</option>` +
+                sortCoursesAlphabetically(state.courses)
+                    .map(c => `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${formatCourseDisplayName(c)}</option>`)
+                    .join('');
+
+            grid.innerHTML = [...TOUR_YEARS].reverse().map(y => {
                 const val = state.tourLocations?.[y] || '';
+                const r1Id = state.yearlyCourses?.[y]?.r1 || '';
+                const r2Id = state.yearlyCourses?.[y]?.r2 || '';
                 return `
-                    <div class="p-4 rounded-xl border border-lga-gold/30 bg-lga-cream/60 space-y-2">
-                        <label for="tour-loc-${y}" class="block text-xs font-bold text-lga-navy">${y} Tour Location${isUpcomingYear(y) ? UPCOMING_TAG_HTML : ''}</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="tour-loc-${y}" value="${val}" placeholder="Blank if unknown" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-lga-navy">
-                            <button type="button" onclick="saveTourLocation(${y})" class="px-3.5 py-2 rounded-xl bg-lga-navy text-lga-gold text-xs font-bold cursor-pointer">Save</button>
+                    <div class="rounded-xl border border-lga-gold/30 bg-lga-cream/60 p-3.5 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label for="tour-loc-${y}" class="text-xs font-bold text-lga-navy">${y} Pidgeon Cup${isUpcomingYear(y) ? UPCOMING_TAG_HTML : ''}</label>
                         </div>
-                        <div class="grid grid-cols-1 gap-2 pt-1">
-                            <label class="block text-[11px] font-semibold text-lga-slate">Round 1 course (18 holes)
-                                <select id="tour-r1-${y}" class="mt-0.5 w-full rounded-xl border border-slate-300 bg-white px-2.5 py-2 text-xs text-lga-navy">${courseOptionsHtml(state.yearlyCourses?.[y]?.round1CourseId)}</select>
-                            </label>
-                            <label class="block text-[11px] font-semibold text-lga-slate">Round 2 course (18 holes)
-                                <select id="tour-r2-${y}" class="mt-0.5 w-full rounded-xl border border-slate-300 bg-white px-2.5 py-2 text-xs text-lga-navy">${courseOptionsHtml(state.yearlyCourses?.[y]?.round2CourseId)}</select>
-                            </label>
+                        <input type="text" id="tour-loc-${y}" value="${val.replace(/"/g, '&quot;')}" placeholder="Location (leave blank if TBC)" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-lga-navy">
+                        <div class="grid grid-cols-1 gap-1.5">
+                            <select id="tour-r1-${y}" class="w-full rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-lga-navy">
+                                ${courseOptionHtml(r1Id)}
+                            </select>
+                            <select id="tour-r2-${y}" class="w-full rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-lga-navy">
+                                ${courseOptionHtml(r2Id)}
+                            </select>
                         </div>
-                        ${y === UPCOMING_YEAR ? entryManagerHtml(y) : ''}
+                        <button type="button" onclick="saveTourLocation(${y})" class="w-full py-2 sm:py-1.5 rounded-lg bg-lga-navy hover:bg-lga-navyLight text-lga-gold text-xs font-bold cursor-pointer">Save ${y}</button>
                     </div>
                 `;
             }).join('');
         }
 
-        // Save an edited tour location for a championship year
+        // Save the location and round courses for a tour year and sync venues on results
         function saveTourLocation(year) {
-            if (!isAdminUnlocked) return;
+            if (!isAdminUnlocked) {
+                showToast('Only Admin can save tour locations.', 'error');
+                return;
+            }
             const input = document.getElementById(`tour-loc-${year}`);
-            state.tourLocations[year] = (input?.value || '').trim();
+            const r1Select = document.getElementById(`tour-r1-${year}`);
+            const r2Select = document.getElementById(`tour-r2-${year}`);
+            const loc = (input?.value || '').trim();
+            state.tourLocations[year] = loc;
+
             if (!state.yearlyCourses) state.yearlyCourses = {};
-            state.yearlyCourses[year] = {
-                round1CourseId: document.getElementById(`tour-r1-${year}`)?.value || '',
-                round2CourseId: document.getElementById(`tour-r2-${year}`)?.value || ''
-            };
+            if (!state.yearlyCourses[year]) state.yearlyCourses[year] = {};
+            if (r1Select?.value) {
+                state.yearlyCourses[year].r1 = r1Select.value;
+            } else {
+                delete state.yearlyCourses[year].r1;
+            }
+            if (r2Select?.value) {
+                state.yearlyCourses[year].r2 = r2Select.value;
+            } else {
+                delete state.yearlyCourses[year].r2;
+            }
+
+            if (state.championshipResults?.[year]) {
+                for (const gId of Object.keys(state.championshipResults[year])) {
+                    state.championshipResults[year][gId].venue = loc;
+                }
+            }
+
             persistState();
             renderAll();
-            showToast(`${year} tour location and courses updated.`, 'success');
+            showToast(`${year} location & courses saved.`, 'success');
         }
 
-        // Populate golfer and course dropdown menus while preserving current selections
-        function populateSelects() {
-            const activeSelect = document.getElementById('active-golfer-select');
-            const logGolferSelect = document.getElementById('log-golfer');
-            const logCourseSelect = document.getElementById('log-course');
+        // Populate golfer dropdowns and synchronize scorecard and calculation previews
+        function populateGolferSelects() {
+            const sorted = sortGolfersAlphabetically(state.golfers);
+            const optionsHtml = sorted.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
 
-            const sourceGolfers = Array.isArray(state.golfers) && state.golfers.length > 0
-                ? state.golfers
-                : DEFAULT_GOLFERS;
-            const sortedGolfers = sortGolfersAlphabetically(sourceGolfers);
-            const golferOptions = sortedGolfers
-                .map((g, idx) => {
-                    const optionValue = String(g.id || `golfer-${idx}`);
-                    const optionLabel = String(g.name || optionValue);
-                    return `<option value="${optionValue}">${optionLabel}</option>`;
-                })
-                .join('');
-
-            if (activeSelect) {
-                activeSelect.innerHTML = golferOptions;
-            }
-            if (logGolferSelect) {
-                logGolferSelect.innerHTML = golferOptions;
+            const activeSel = document.getElementById('active-golfer-select');
+            if (activeSel) {
+                activeSel.innerHTML = optionsHtml;
+                activeSel.value = state.activeGolferId;
             }
 
-            const validGolferId = sortedGolfers.some(g => g.id === state.activeGolferId)
-                ? state.activeGolferId
-                : (sortedGolfers[0]?.id || '');
-
-            if (validGolferId) {
-                state.activeGolferId = validGolferId;
-                if (activeSelect) activeSelect.value = validGolferId;
-                if (logGolferSelect) logGolferSelect.value = validGolferId;
+            const logSel = document.getElementById('log-golfer');
+            if (logSel) {
+                const prev = logSel.value;
+                logSel.innerHTML = optionsHtml;
+                logSel.value = state.golfers.some(g => g.id === prev) ? prev : state.activeGolferId;
             }
 
-            const sourceCourses = Array.isArray(state.courses) && state.courses.length > 0
-                ? state.courses
-                : DEFAULT_COURSES;
-            const sortedCourses = sortCoursesAlphabetically(sourceCourses);
-            if (logCourseSelect) {
-                const prevCourse = logCourseSelect.value;
-                logCourseSelect.innerHTML = sortedCourses
-                    .map(c => `<option value="${c.id}">${formatCourseDisplayName(c)} (${c.tee || 'Blue'}) — Par ${c.par || 72}</option>`)
+            const logCourseSel = document.getElementById('log-course');
+            if (logCourseSel) {
+                const prevCourse = logCourseSel.value;
+                logCourseSel.innerHTML = sortCoursesAlphabetically(state.courses)
+                    .map(c => `<option value="${c.id}">${formatCourseDisplayName(c)} (${c.tee} • Par ${c.par})</option>`)
                     .join('');
-                if (prevCourse && sortedCourses.some(c => c.id === prevCourse)) {
-                    logCourseSelect.value = prevCourse;
-                } else if (sortedCourses[0]) {
-                    logCourseSelect.value = sortedCourses[0].id;
+                if (prevCourse && state.courses.some(c => c.id === prevCourse)) {
+                    logCourseSel.value = prevCourse;
                 }
             }
-        }
 
-        // ===== Fun Facts (Clubhouse tab) =====
-        const FUN_FACTS = [
-            { tag: 'Real crossover', text: 'Golf scores get more birdlike as you play better: birdie is one under par, eagle is two under, and albatross is three under.' },
-            { tag: 'Real crossover', text: 'In betting-game slang, a "pigeon" is an easy target, and golf hustlers have long hunted for one. Nobody wants to be the pigeon in the Pidgeon Cup.' },
-            { tag: 'Real crossover', text: 'Under the Rules of Golf, if a bird or any other animal moves your ball while it is at rest, there is no penalty. Just replace it on its original spot.' },
-            { tag: 'Real crossover', text: 'Pigeons have been domesticated for thousands of years, while the first written mention of golf is a Scottish ban on it in 1457. The pigeons have been waiting a long time for a golf trip.' },
-            { tag: 'Playful link', text: "Pigeon racing ranks birds by speed in metres per minute so birds flying different distances can be compared. Golf's slope and course rating do the same job for golfers playing different courses." },
-            { tag: 'Playful link', text: 'Pigeons bob their heads as they walk to keep their view steady. Golf coaches say the opposite: keep your head still.' },
-            { tag: 'Playful link', text: 'In a 1995 Japanese study, pigeons learned to tell Monet from Picasso. Plenty of golfers still cannot read a green that well.' },
-            { tag: 'Playful link', text: 'Research has found homing pigeons use landmarks, even following roads, to find their way home. A pigeon would have no trouble finding the 19th hole.' },
-            { tag: 'Playful link', text: 'Pigeons can see ultraviolet light, and many white golf balls contain whitening agents that glow under UV, so a pigeon may see your ball very differently from how you do.' },
-            { tag: 'Playful link', text: 'Cher Ami, a World War I homing pigeon, delivered a message that helped save a trapped US battalion despite being wounded. That is the grit you need on the 18th tee after a bad front nine.' },
-            { tag: 'Playful link', text: 'Racing pigeons often fly at around 60 to 90 km/h. A tour pro\'s drive leaves the clubface at well over 250 km/h, about three times faster.' },
-            { tag: 'Playful link', text: 'Trap shooting is named for the traps that once released live pigeons as targets, which is why shotgun targets are called clay pigeons. Golf has traps too, but sand traps only catch golf balls.' }
-        ];
-        let funFactQueue = [];
-        let currentFunFactIndex = -1;
-
-        // Show a random fact, cycling through a shuffled deck so facts do not repeat until all have been seen
-        function nextFunFact() {
-            if (funFactQueue.length === 0) {
-                funFactQueue = FUN_FACTS.map((_, i) => i);
-                for (let i = funFactQueue.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [funFactQueue[i], funFactQueue[j]] = [funFactQueue[j], funFactQueue[i]];
-                }
-                if (funFactQueue.length > 1 && funFactQueue[funFactQueue.length - 1] === currentFunFactIndex) {
-                    funFactQueue.unshift(funFactQueue.pop());
-                }
+            const dateEl = document.getElementById('log-date');
+            if (dateEl && !dateEl.value) {
+                dateEl.value = new Date().toISOString().slice(0, 10);
             }
-            currentFunFactIndex = funFactQueue.pop();
-            const fact = FUN_FACTS[currentFunFactIndex];
-            const textEl = document.getElementById('fun-fact-text');
-            const tagEl = document.getElementById('fun-fact-tag');
-            if (textEl) textEl.textContent = fact.text;
-            if (tagEl) tagEl.textContent = fact.tag;
-        }
 
-        // Re-render all visible panels and form previews
-        function renderAll() {
-            populateSelects();
-            updateAdminUi();
-            renderDashboard();
             renderHoleScorecard();
             updateLogRoundCalc();
+        }
+
+        // Render all tabs, selects, and status badges from current state
+        function renderAll() {
+            updateAdminUi();
+            populateGolferSelects();
+            renderDashboard();
             renderRoundsFeed();
             renderChampionshipHistory();
             renderHandicapHistory();
-            renderHandicapGenerator();
             renderCourses();
             renderLineup();
-            renderTourLocations();
+            renderTourLocationsAdmin();
+            switchTab(state.activeTab || 'dashboard');
+            syncSpinGolferSelect();
+            renderSpinCard();
         }
 
-        // Cross-tab live updates via localStorage
-        window.addEventListener('storage', (event) => {
-            if (event.key === STORAGE_KEY && event.newValue) {
-                try {
-                    isApplyingRemoteState = true;
-                    const parsed = JSON.parse(event.newValue);
-                    state = { ...createInitialState(), ...parsed };
-                    sanitizeState();
-                    setLiveSyncStatus('Live Sync Active', true);
-                    renderAll();
-                } catch (err) {
-                    console.warn('Storage sync parse error:', err);
-                } finally {
-                    isApplyingRemoteState = false;
-                }
-            }
+        // Initialize local state, restore any saved round draft, and render UI
+        loadState();
+        renderAll();
+        restoreRoundDraft();
+        renderHoleScorecard();
+        updateLogRoundCalc();
+        document.getElementById('admin-passcode-input')?.addEventListener('keydown', e => {
+            if (e.key === 'Enter') submitAdminPasscode();
         });
 
-        // Initialize defaults, load saved state, and render initial view
-        function bootApp() {
-            const dateInput = document.getElementById('log-date');
-            if (dateInput && !dateInput.value) {
-                dateInput.value = new Date().toISOString().slice(0, 10);
-            }
-            loadState();
-            switchTab(state.activeTab || 'dashboard');
-            renderAll();
-            nextFunFact();
+        // Pigeons & Golf fun facts
+        const FUN_FACTS = [
+            { tag: 'Pigeons', text: 'Pigeons can recognise every single letter of the alphabet, tell photographs apart from paintings, and even learn to spot early signs of breast cancer in medical scans with roughly the same accuracy as trained humans.' },
+            { tag: 'Pigeons', text: 'Homing pigeons have been clocked flying at speeds of over 145 km/h (90 mph) with a tail-wind, and some have navigated over 1,800 km back to their loft.' },
+            { tag: 'Pigeons', text: 'During World War I and World War II, carrier pigeons delivered vital dispatches across enemy lines when radios failed—earning 32 pigeons the Dickin Medal, the highest animal honour for gallantry.' },
+            { tag: 'Pigeons', text: 'Pigeons are among the few birds that can pass the mirror self-recognition test, showing genuine self-awareness rather than reacting to a reflection as another bird.' },
+            { tag: 'Pigeons', text: 'Pigeons can see ultraviolet light and hear sounds well below human hearing range, helping them detect distant storms and infrasound cues across the landscape.' },
+            { tag: 'Golf', text: 'Early golf balls from the 14th to mid-19th centuries were "featheries"—handmade leather pouches stuffed tightly with boiled goose or chicken feathers, sometimes enough to fill a top hat.' },
+            { tag: 'Golf', text: 'Golf balls only began getting dimples in the late 1800s and early 1900s after players noticed scuffed, nicked gutta-percha balls flew higher and farther than smooth ones.' },
+            { tag: 'Golf', text: 'The Old Course at St Andrews has seven shared double greens serving multiple holes—and the 18th fairway is famously wide enough to land a jumbo jet.' },
+            { tag: 'Golf', text: 'A hole-in-one on a par 4 has happened in professional tournaments—including Andrew Magee at the 2001 Phoenix Open, where the ball ricocheted off another player\'s putter.' },
+            { tag: 'Golf', text: 'The longest recorded golf putt holed in a tournament was an extraordinary 114 metres (375 feet) by Bob Charles at the 1963 World Cup in Brazil.' }
+        ];
+        let funFactIdx = Math.floor(Math.random() * FUN_FACTS.length);
+
+        function renderFunFact() {
+            const fact = FUN_FACTS[funFactIdx];
+            const tagEl = document.getElementById('fun-fact-tag');
+            const textEl = document.getElementById('fun-fact-text');
+            if (tagEl) tagEl.textContent = fact.tag;
+            if (textEl) textEl.textContent = fact.text;
         }
 
-        if (document.readyState === 'loading') {
-            window.addEventListener('DOMContentLoaded', bootApp);
-        } else {
-            bootApp();
+        function nextFunFact() {
+            funFactIdx = (funFactIdx + 1) % FUN_FACTS.length;
+            renderFunFact();
+        }
+
+        renderFunFact();
+
+        // Handicap Generator (on Yearly Handicap Record tab)
+        const SPIN_YEAR = 2026;
+        let spinBusy = false;
+        let pendingSpin = null;
+
+        function getSpinGolferId() {
+            const gId = state.activeGolferId;
+            return state.golfers.some(g => g.id === gId) ? gId : (state.golfers[0]?.id || 'ben-burke');
+        }
+
+        function syncSpinGolferSelect() {
+            const sel = document.getElementById('spin-golfer-select');
+            if (!sel) return;
+            const gId = getSpinGolferId();
+            sel.innerHTML = sortGolfersAlphabetically(state.golfers)
+                .map(g => `<option value="${g.id}" ${g.id === gId ? 'selected' : ''}>${g.name}</option>`)
+                .join('');
+            sel.value = gId;
+        }
+
+        function onSpinGolferChange(gId) {
+            if (spinBusy) return;
+            onActiveGolferChange(gId);
+        }
+
+        function getBaselineSpinHandicap(gId) {
+            const h = state.yearlyHandicaps?.[gId] || {};
+            for (let y = SPIN_YEAR - 1; y >= 2015; y--) {
+                const v = h[y];
+                if (v !== undefined && v !== null && v !== '' && !Number.isNaN(Number(v))) {
+                    return Math.min(36, Math.max(0, Math.round(Number(v))));
+                }
+            }
+            const g = getGolferById(gId);
+            if (g && g.baselineWhs !== null && g.baselineWhs !== undefined && g.baselineWhs !== '') {
+                return Math.min(36, Math.max(0, Math.round(Number(g.baselineWhs))));
+            }
+            return null;
+        }
+
+        const SELF_RATING_LABELS = {
+            1: '1 — Completely hopeless', 2: '2 — Mostly bushes', 3: '3 — Optimistic hacker',
+            4: '4 — Weekend battler', 5: '5 — Honest mid-handicapper', 6: '6 — Solid enough',
+            7: '7 — Knows what they\'re doing', 8: '8 — Low marker in waiting', 9: '9 — Scratch contender',
+            10: '10 — Delusional / Tour pro'
+        };
+
+        function getSelfRating(gId) {
+            const raw = Number(state.handicapGenInputs?.[gId]?.selfRating);
+            return (!Number.isNaN(raw) && raw >= 1 && raw <= 10) ? Math.round(raw) : 5;
+        }
+
+        function onSelfRatingInput(val) {
+            const lbl = document.getElementById('self-rating-label');
+            if (lbl) lbl.textContent = SELF_RATING_LABELS[Number(val)] || '';
+        }
+
+        function onSelfRatingChange(val) {
+            if (spinBusy) return;
+            const gId = getSpinGolferId();
+            if (!state.handicapGenInputs) state.handicapGenInputs = {};
+            state.handicapGenInputs[gId] = { ...(state.handicapGenInputs[gId] || {}), selfRating: Number(val) };
+            persistState();
+            renderSpinCard();
+        }
+
+        function getSpinFlavour(gId, prev) {
+            const rating = getSelfRating(gId);
+            if (prev === null) {
+                return rating >= 8 ? 'Bold claim with zero history. The reels will decide.' : 'Clean slate for 2026. Spin for your handicap.';
+            }
+            if (rating >= 8 && prev >= 18) return `Confidence ${rating}/10 on a ${prev} handicap? Bold.`;
+            if (rating <= 3 && prev <= 12) return `Playing coy at ${rating}/10 off ${prev}? Sure you are.`;
+            return 'Pull the lever and see what 2026 hands you.';
+        }
+
+        function setReelIdle(trackId, symbolText, cls = '') {
+            const track = document.getElementById(trackId);
+            if (!track) return;
+            track.style.transition = 'none';
+            track.style.transform = 'translateY(0px)';
+            track.innerHTML = `<div class="spin-sym ${cls}">${symbolText}</div>`;
+        }
+
+        function renderSpinCard() {
+            const gId = getSpinGolferId();
+            const prev = getBaselineSpinHandicap(gId);
+            const rating = getSelfRating(gId);
+            const slider = document.getElementById('self-rating-slider');
+            const lbl = document.getElementById('self-rating-label');
+            if (slider) slider.value = String(rating);
+            if (lbl) lbl.textContent = SELF_RATING_LABELS[rating] || '';
+            document.getElementById('spin-title').textContent = `${SPIN_YEAR} Handicap Generator`;
+            document.getElementById('spin-flavour').textContent = getSpinFlavour(gId, prev);
+            document.getElementById('spin-prev').textContent = prev === null ? 'None' : String(prev);
+            const applyBtn = document.getElementById('spin-apply-btn');
+            if (applyBtn) applyBtn.classList.add('hidden');
+            if (spinBusy) return;
+
+            const recorded = state.yearlyHandicaps?.[gId]?.[SPIN_YEAR];
+            const hasRecorded = recorded !== undefined && recorded !== null && recorded !== '' && !Number.isNaN(Number(recorded));
+            if (hasRecorded) {
+                const finalNum = Math.min(36, Math.max(0, Math.round(Number(recorded))));
+                const delta = prev === null ? null : finalNum - prev;
+                const dirSym = delta === null ? '★' : delta < 0 ? '↓' : delta > 0 ? '↑' : '=';
+                const dirCls = delta === null ? 'dir-new' : delta < 0 ? 'dir-down' : delta > 0 ? 'dir-up' : 'dir-same';
+                setReelIdle('track-dir', dirSym, dirCls);
+                setReelIdle('track-tens', String(Math.floor(finalNum / 10)));
+                setReelIdle('track-ones', String(finalNum % 10));
+                document.getElementById('spin-result').innerHTML = `<span class="spin-pop">2026 Handicap: ${finalNum}</span>`;
+            } else {
+                setReelIdle('track-dir', '?');
+                setReelIdle('track-tens', '0');
+                setReelIdle('track-ones', '0');
+                document.getElementById('spin-result').textContent = 'Hit SPIN to roll your 2026 handicap';
+            }
+        }
+
+        function spinReelTo(trackId, symbols, finalSymbol, durationMs) {
+            return new Promise(resolve => {
+                const track = document.getElementById(trackId);
+                if (!track) return resolve();
+                const H = 80;
+                const list = [...symbols, ...symbols, finalSymbol];
+                track.style.transition = 'none';
+                track.style.transform = 'translateY(0px)';
+                track.innerHTML = list.map(s => `<div class="spin-sym">${s}</div>`).join('');
+                void track.offsetHeight;
+                const targetY = -(list.length - 1) * H;
+                track.style.transition = `transform ${durationMs}ms cubic-bezier(0.12, 0.8, 0.22, 1)`;
+                track.style.transform = `translateY(${targetY}px)`;
+                setTimeout(() => {
+                    track.style.transition = 'none';
+                    track.style.transform = 'translateY(0px)';
+                    track.innerHTML = `<div class="spin-sym">${finalSymbol}</div>`;
+                    resolve();
+                }, durationMs + 40);
+            });
+        }
+
+        async function runHandicapSpin() {
+            if (spinBusy) return;
+            spinBusy = true;
+            const gId = getSpinGolferId();
+            const prev = getBaselineSpinHandicap(gId);
+            const rating = getSelfRating(gId);
+            const btn = document.getElementById('spin-btn');
+            const applyBtn = document.getElementById('spin-apply-btn');
+            const resultEl = document.getElementById('spin-result');
+            btn.disabled = true;
+            applyBtn.classList.add('hidden');
+            resultEl.textContent = 'Spinning…';
+
+            // Self-rating skews the roll: higher confidence nudges lower, lower confidence nudges higher
+            const bias = (rating - 5.5) * 1.4;
+            let finalNum;
+            if (prev === null) {
+                finalNum = Math.round(24 - bias + (Math.random() * 14 - 7));
+            } else {
+                const swing = Math.round((Math.random() * 9 - 4) - bias);
+                finalNum = prev + swing;
+            }
+            finalNum = Math.min(36, Math.max(0, finalNum));
+
+            const delta = prev === null ? null : finalNum - prev;
+            const dirSym = delta === null ? '★' : delta < 0 ? '↓' : delta > 0 ? '↑' : '=';
+            const dirCls = delta === null ? 'dir-new' : delta < 0 ? 'dir-down' : delta > 0 ? 'dir-up' : 'dir-same';
+            const digits = ['0','1','2','3','4','5','6','7','8','9'];
+
+            await Promise.all([
+                spinReelTo('track-dir', ['↓','↑','=','★','↓','↑'], dirSym, 1100),
+                spinReelTo('track-tens', digits, String(Math.floor(finalNum / 10)), 1500),
+                spinReelTo('track-ones', digits, String(finalNum % 10), 1900)
+            ]);
+
+            setReelIdle('track-dir', dirSym, dirCls);
+            const diffText = delta === null ? 'new handicap' : delta < 0 ? `cut by ${Math.abs(delta)}` : delta > 0 ? `up ${delta}` : 'unchanged';
+            resultEl.innerHTML = `<span class="spin-pop">Rolled ${finalNum} (${diffText})</span>`;
+
+            pendingSpin = { gId, finalNum, golferName: getGolferById(gId)?.name || gId };
+            applyBtn.textContent = isAdminUnlocked ? `Save ${finalNum} for ${SPIN_YEAR}` : `Request ${finalNum} (Admin)`;
+            applyBtn.classList.remove('hidden');
+            btn.disabled = false;
+            spinBusy = false;
+        }
+
+        function applySpinResult() {
+            if (!pendingSpin || spinBusy) return;
+            const { gId, finalNum, golferName } = pendingSpin;
+            if (!isAdminUnlocked) {
+                showToast(`Rolled ${finalNum} for ${golferName}. Unlock Admin to save to ${SPIN_YEAR}.`);
+                return;
+            }
+            if (!state.yearlyHandicaps[gId]) state.yearlyHandicaps[gId] = {};
+            state.yearlyHandicaps[gId][SPIN_YEAR] = finalNum;
+            enforceMaxHandicapCapAndRedistribute();
+            const gObj = getGolferById(gId);
+            if (gObj) {
+                gObj.baselineWhs = Number(finalNum.toFixed(1));
+                gObj.lowCap12m = Math.min(gObj.baselineWhs, gObj.lowCap12m ?? gObj.baselineWhs);
+            }
+            pendingSpin = null;
+            persistState();
+            renderAll();
+            showToast(`Saved ${SPIN_YEAR} handicap of ${finalNum} for ${golferName}.`, 'success');
         }
     </script>
 
-    <!-- Live Multi-User Cloud Sync (Firestore) -->
+    <!-- Firebase Live Sync Module -->
     <script type="module">
-        let initializeApp, getAuth, signInWithEmailAndPassword, getFirestore, doc, getDoc, setDoc, onSnapshot;
-        {
-            // Try Google's CDN first, then jsDelivr as a backup (some networks and ad blockers block one of them)
-            const v = '11.6.1';
-            const sources = [
-                { name: 'Google', app: `https://www.gstatic.com/firebasejs/${v}/firebase-app.js`, auth: `https://www.gstatic.com/firebasejs/${v}/firebase-auth.js`, fs: `https://www.gstatic.com/firebasejs/${v}/firebase-firestore.js` },
-                { name: 'jsDelivr', app: `https://cdn.jsdelivr.net/npm/firebase@${v}/app/+esm`, auth: `https://cdn.jsdelivr.net/npm/firebase@${v}/auth/+esm`, fs: `https://cdn.jsdelivr.net/npm/firebase@${v}/firestore/+esm` }
-            ];
-            let loaded = false;
-            let lastErr = null;
-            for (const src of sources) {
-                try {
-                    const [appMod, authMod, fsMod] = await Promise.all([import(src.app), import(src.auth), import(src.fs)]);
-                    ({ initializeApp } = appMod);
-                    ({ getAuth, signInWithEmailAndPassword } = authMod);
-                    ({ getFirestore, doc, getDoc, setDoc, onSnapshot } = fsMod);
-                    loaded = true;
-                    break;
-                } catch (e) {
-                    lastErr = e;
-                    console.warn(`Firebase load failed from ${src.name}:`, e);
+        // Initialize Firestore live synchronization for collaborative state updates
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        (async function initCloudSync() {
+            try {
+                const rawConfig = typeof __firebase_config !== 'undefined' && __firebase_config
+                    ? (typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config)
+                    : null;
+
+                if (!rawConfig || !rawConfig.apiKey) {
+                    setLiveSyncStatus('Local Only', false);
+                    return;
                 }
-            }
-            if (!loaded) {
-                window.__lgaLoadError = 'Could not load Firebase. Try turning off ad/tracker blockers or switching network, then reload. (' + ((lastErr && lastErr.message) || lastErr) + ')';
-                window.__lgaResolvePin();
-                throw lastErr;
-            }
-        }
 
-        // ============================================================
-        // 1) PASTE YOUR FIREBASE WEB CONFIG HERE (see README.md).
-        // ============================================================
-        const FIREBASE_CONFIG = {
-            apiKey: "AIzaSyBnYleOSwGVGte-8vi8alSFNDQWHzJqZa8",
-            authDomain: "lga-pigeon.firebaseapp.com",
-            projectId: "lga-pigeon",
-            storageBucket: "lga-pigeon.firebasestorage.app",
-            messagingSenderId: "753098492942",
-            appId: "1:753098492942:web:009ccf9060bf719812c05f"
-        };
-
-        // 2) The shared login. The email must match the user you create in Firebase.
-        //    The Firebase password is: <4-digit PIN> + PIN_SUFFIX  (e.g. 1234-lga)
-        const SHARED_EMAIL = 'lga@legends.club';
-        const PIN_SUFFIX = '-lga';
-
-        let auth = null;
-        let db = null;
-        let syncStarted = false;
-
-        if (FIREBASE_CONFIG.apiKey) {
-            try {
-                const app = initializeApp(FIREBASE_CONFIG);
-                auth = getAuth(app);
-                db = getFirestore(app);
-            } catch (e) {
-                window.__lgaLoadError = 'Firebase config problem: ' + ((e && e.message) || e);
-            }
-        } else {
-            setLiveSyncStatus('Firebase not set up', false);
-        }
-
-        // Called by the PIN screen. true = correct PIN, false = wrong PIN, throws on connection problems.
-        window.__lgaTryPin = async (pin) => {
-            if (!auth) throw new Error('Firebase is not set up yet (see README).');
-            try {
-                await signInWithEmailAndPassword(auth, SHARED_EMAIL, pin + PIN_SUFFIX);
-            } catch (e) {
-                const code = String(e && e.code || '');
-                if (code === 'auth/network-request-failed') throw new Error('No connection. Try again.');
-                if (code === 'auth/too-many-requests') throw new Error('Too many attempts. Wait a bit and retry.');
-                if (code.startsWith('auth/')) return false;
-                throw new Error('Could not sign in.');
-            }
-            startLiveSync();
-            return true;
-        };
-
-        window.__lgaResolvePin();
-
-        async function startLiveSync() {
-            if (syncStarted) return;
-            syncStarted = true;
-            try {
-                const docRef = doc(db, 'lga', 'state');
+                const fbApp = initializeApp(rawConfig);
+                const db = getFirestore(fbApp);
                 cloudDb = db;
-                cloudDocRef = docRef;
+                cloudDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'lga_state', 'state');
                 window.__lgaSetDoc = (ref, data) => setDoc(ref, data, { merge: true });
 
-                const snap = await getDoc(docRef);
-                if (!snap.exists()) {
-                    await setDoc(docRef, { payload: JSON.stringify(state), updatedAt: state.updatedAt || new Date().toISOString() });
+                // PIN check: reads /artifacts/{appId}/public/data/lga_config/pin { pin }
+                const pinDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'lga_config', 'pin');
+                let cachedPin = null;
+                async function fetchPin() {
+                    if (cachedPin !== null) return cachedPin;
+                    const snap = await getDoc(pinDocRef);
+                    cachedPin = snap.exists() ? String(snap.data().pin ?? '') : '';
+                    return cachedPin;
                 }
-                setLiveSyncStatus('Live Multi-User Sync', true);
-
-                if (cloudUnsubscribe) cloudUnsubscribe();
-                cloudUnsubscribe = onSnapshot(
-                    docRef,
-                    (snapshot) => {
-                        if (!snapshot.exists()) return;
-                        const remote = snapshot.data();
-                        if (!remote?.payload) return;
-                        try {
-                            const wasFirst = !window.__lgaSyncedOnce;
-                            window.__lgaSyncedOnce = true;
-                            if (applyRemoteStatePayload(remote.payload, remote.updatedAt) && !wasFirst) {
-                                showToast('Live update received from another golfer.');
-                            }
-                            setLiveSyncStatus('Live Multi-User Sync', true);
-                        } catch (err) {
-                            console.warn('Remote state parse error:', err);
-                        }
-                    },
-                    (err) => {
-                        console.warn('Firestore snapshot error:', err);
-                        setLiveSyncStatus('Sync Stand-By', false);
+                window.__lgaTryPin = async (entered) => {
+                    const expected = await fetchPin();
+                    return expected !== '' && String(entered) === expected;
+                };
+                if (typeof window.__lgaResolvePin === 'function') window.__lgaResolvePin();
+                try {
+                    const savedPin = localStorage.getItem(PIN_STORAGE_KEY);
+                    if (savedPin && await window.__lgaTryPin(savedPin)) {
+                        unlockSite();
                     }
-                );
-            } catch (err) {
-                console.warn('Cloud sync unavailable:', err);
-                syncStarted = false;
-                setLiveSyncStatus('Sync Stand-By', false);
-            }
-        }
+                } catch (e) {}
 
-        // Auto-unlock on devices that already entered the PIN
-        (async () => {
-            let saved = null;
-            try { saved = localStorage.getItem('lga_pin_saved_v2'); } catch (e) {}
-            if (!saved || !auth) return;
-            try {
-                if (await window.__lgaTryPin(saved)) unlockSite();
-                else { try { localStorage.removeItem('lga_pin_saved_v2'); } catch (e) {} }
-            } catch (e) { /* leave the PIN screen showing */ }
+                // Initial load: the shared database always wins; if it's empty, seed it once from defaults
+                const initialSnap = await getDoc(cloudDocRef);
+                if (initialSnap.exists() && initialSnap.data()?.payload) {
+                    applyRemoteStatePayload(initialSnap.data().payload, initialSnap.data().updatedAt);
+                    setLiveSyncStatus('Live Sync', true);
+                } else {
+                    await setDoc(cloudDocRef, {
+                        payload: JSON.stringify(state),
+                        updatedAt: state.updatedAt
+                    }, { merge: true });
+                    setLiveSyncStatus('Live Sync', true);
+                }
+
+                // Live listener: whenever another device saves, overwrite local data with the shared copy
+                cloudUnsubscribe = onSnapshot(cloudDocRef, (snapshot) => {
+                    if (!snapshot.exists()) return;
+                    const data = snapshot.data();
+                    if (!data?.payload) return;
+                    if (applyRemoteStatePayload(data.payload, data.updatedAt)) {
+                        setLiveSyncStatus('Live Sync', true);
+                    }
+                }, (err) => {
+                    console.warn('Firestore snapshot error:', err);
+                    setLiveSyncStatus('Offline', false);
+                });
+            } catch (err) {
+                console.warn('Firebase sync fallback to local storage:', err);
+                window.__lgaLoadError = (err && err.message) || 'Firebase connection failed';
+                if (typeof window.__lgaResolvePin === 'function') window.__lgaResolvePin();
+                setLiveSyncStatus('Local Only', false);
+            }
         })();
     </script>
 </body>
